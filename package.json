@@ -1,0 +1,26 @@
+{
+  "name": "open-gtfs-planner",
+  "version": "1.0.0",
+  "description": "An application to visualize GTFS files and analize lines to optimize public transport options",
+  "main": "index.js",
+  "scripts": {
+    "start": "electron ."
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/youngsdeveloper/open-gtfs-planner.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/youngsdeveloper/open-gtfs-planner/issues"
+  },
+  "homepage": "https://github.com/youngsdeveloper/open-gtfs-planner#readme",
+  "devDependencies": {
+    "electron": "^29.3.0"
+  },
+  "dependencies": {
+    "leaflet": "^1.9.4",
+    "uikit": "^3.19.4"
+  }
+}
