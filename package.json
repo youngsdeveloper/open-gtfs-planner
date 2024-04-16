@@ -4,7 +4,11 @@
   "description": "An application to visualize GTFS files and analize lines to optimize public transport options",
   "main": "index.js",
   "scripts": {
-    "start": "electron ."
+    "dev": "node scripts/dev-server.js",
+    "build": "node scripts/build.js && electron-builder",
+    "build:win": "node scripts/build.js && electron-builder --win",
+    "build:mac": "node scripts/build.js && electron-builder --mac",
+    "build:linux": "node scripts/build.js && electron-builder --linux"
   },
   "repository": {
     "type": "git",
@@ -17,10 +21,18 @@
   },
   "homepage": "https://github.com/youngsdeveloper/open-gtfs-planner#readme",
   "devDependencies": {
-    "electron": "^29.3.0"
+    "@vitejs/plugin-vue": "^4.4.1",
+    "@vue-leaflet/vue-leaflet": "^0.10.1",
+    "chalk": "^4.1.2",
+    "chokidar": "^3.5.3",
+    "electron": "^29.3.0",
+    "electron-builder": "^24.2.1",
+    "typescript": "^5.2.2",
+    "vite": "^4.5.0"
   },
   "dependencies": {
     "leaflet": "^1.9.4",
-    "uikit": "^3.19.4"
+    "uikit": "^3.19.4",
+    "vue": "^3.3.8"
   }
 }

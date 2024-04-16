@@ -1,9 +1,11 @@
+import { MenuItemConstructorOptions } from "electron";
+
 const { Menu } = require('electron')
 
 
 const isMac = process.platform === 'darwin'
 
-const templateMenu = [
+const templateMenu:MenuItemConstructorOptions[] = [
     {
         label: 'Archivo',
         submenu: [

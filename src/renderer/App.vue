@@ -1,13 +1,11 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Open GTFS Planner</title>
-    <link rel="stylesheet" href="css/main.css">
-</head>
-<body>
-    
+<script setup lang="ts">
+import HelloWorld from './components/HelloWorld.vue'
+
+window.electronAPI.sendMessage('Hello from App.vue!');
+</script>
+
+<template>
+  <div>
 
     <div class=" uk-margin-medium-top">
         <div class="" uk-grid>
@@ -15,7 +13,7 @@
                 <div class="uk-container">
                     <ul uk-accordion="multiple: true">
                         <li class="uk-open">
-                            <a class="uk-accordion-title" href>Capas</a>
+                            <a class="uk-accordion-title">Capas</a>
                             <div class="uk-accordion-content">
                                 <div>
                                     <label><input class="uk-checkbox" type="checkbox" checked> TMP Murcia</label>
@@ -38,7 +36,7 @@
                             </div>
                         </li>
                         <li>
-                            <a class="uk-accordion-title" href>Mapa Base</a>
+                            <a class="uk-accordion-title">Mapa Base</a>
                             <div class="uk-accordion-content">
                                 <p>Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor reprehenderit.</p>
                             </div>
@@ -47,15 +45,22 @@
                 </div>
             </aside>
     
-            <section class="uk-width-expand" style="background: gren;">
-                <div id="map"></div>
+            <section class="uk-width-expand">
+                <l-map ref="map" :zoom="zoom" :center="[37.9915664, -1.1323996]" >
+                    <l-tile-layer
+                        url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+                        layer-type="base"
+                        name="OpenStreetMap"
+                    ></l-tile-layer>
+                </l-map>
+
             </section>
     
             <aside class="uk-width-1-5">
                 <div class="uk-container">
                     <ul uk-accordion="multiple: true">
                         <li class="uk-open">
-                            <a class="uk-accordion-title" href>Lineas</a>
+                            <a class="uk-accordion-title">Lineas</a>
                             <div class="uk-accordion-content">
                                 
 
@@ -89,7 +94,7 @@
                             </div>
                         </li>
                         <li class="uk-open">
-                            <a class="uk-accordion-title" href>Parada</a>
+                            <a class="uk-accordion-title">Parada</a>
                             <div class="uk-accordion-content">
                                 
 
@@ -101,7 +106,7 @@
                             </div>
                         </li>
                         <li>
-                            <a class="uk-accordion-title" href>Horarios</a>
+                            <a class="uk-accordion-title">Horarios</a>
                             <div class="uk-accordion-content">
                                 <button class="uk-button uk-button-primary uk-width-1-1 uk-margin-small-bottom uk-margin-small-top">
                                     Abrir horarios
@@ -109,7 +114,7 @@
                             </div>
                         </li>
                         <li>
-                            <a class="uk-accordion-title" href>Opciones de simulación</a>
+                            <a class="uk-accordion-title">Opciones de simulación</a>
                             <div class="uk-accordion-content">
                                 <div>
                                     <label><input class="uk-checkbox" type="checkbox" checked>Retraso +2min en 44 - Ida</label>
@@ -128,26 +133,28 @@
             </aside>
         </div>
     </div>
-    
-    
+
+  </div>
+</template>
 
 
-    <script src="node_modules/uikit/dist/js/uikit.min.js"></script>
-    <script src="node_modules/uikit/dist/js/uikit-icons.min.js"></script>
+<script lang="ts">
+import "leaflet/dist/leaflet.css";
+import { LMap, LTileLayer } from "@vue-leaflet/vue-leaflet";
 
-    <script src="node_modules/leaflet/dist/leaflet.js"
-    integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo="
-    crossorigin=""></script>
+export default {
+  components: {
+    LMap,
+    LTileLayer,
+  },
+  data() {
+    return {
+      zoom: 15,
+    };
+  },
+};
+</script>
 
 
-    <script>
-        var map = L.map('map').setView([37.9921233, -1.1310253], 13);
-        L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
-            maxZoom: 19,
-            attribution: '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>'
-        }).addTo(map);
-
-    </script>
-
-</body>
-</html>
+<style scoped>
+</style>
