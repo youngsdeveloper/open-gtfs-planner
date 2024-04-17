@@ -4,8 +4,8 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 const electron_1 = require("electron");
-const fs_1 = require("fs");
 const papaparse_1 = __importDefault(require("papaparse"));
+const fs = require('fs');
 function selectDirectory(window) {
     return electron_1.dialog
         .showOpenDialog(window, {
@@ -15,21 +15,36 @@ function selectDirectory(window) {
         .then(result => {
         if (!result.canceled && result.filePaths.length > 0) {
             const path = result.filePaths[0];
-            parseAgency(path);
+            const gtfsData = parseGTFS(path);
+            window.webContents.send('nueva-capa', gtfsData.agencies[0].agency_name);
+            console.log(gtfsData);
         }
     })
         .catch(err => {
         electron_1.dialog.showErrorBox("Error al importar GTFS", "Ha ocurrido un error al seleccionar la ruta. Error: " + err);
     });
 }
+function parseGTFS(path) {
+    return {
+        agencies: parseAgency(path),
+        stops: parseStops(path)
+    };
+}
 function parseAgency(path) {
-    const string_output = (0, fs_1.readFileSync)(`${path}/agency.txt`, 'utf8');
-    papaparse_1.default.parse(string_output, {
-        header: true,
-        complete: function (results) {
-            console.log(results);
-        }
+    const csvData = fs.readFileSync(`${path}/agency.txt`, 'utf8');
+    // Parsea el archivo CSV usando Papa Parse
+    const results = papaparse_1.default.parse(csvData, {
+        header: true
     });
+    return results.data;
+}
+function parseStops(path) {
+    const csvData = fs.readFileSync(`${path}/stops.txt`, 'utf8');
+    // Parsea el archivo CSV usando Papa Parse
+    const results = papaparse_1.default.parse(csvData, {
+        header: true
+    });
+    return results.data;
 }
 module.exports = {
     selectDirectory

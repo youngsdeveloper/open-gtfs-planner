@@ -1,7 +1,5 @@
-<script setup lang="ts">
-import HelloWorld from './components/HelloWorld.vue'
-
-window.electronAPI.sendMessage('Hello from App.vue!');
+<script lang="ts" setup>
+    import Capas from './components/Capas.vue'
 </script>
 
 <template>
@@ -9,39 +7,9 @@ window.electronAPI.sendMessage('Hello from App.vue!');
 
     <div class=" uk-margin-medium-top">
         <div class="" uk-grid>
-            <aside class="uk-width-1-5">
+            <aside class="uk-width-1-5" aria-label="capas">
                 <div class="uk-container">
-                    <ul uk-accordion="multiple: true">
-                        <li class="uk-open">
-                            <a class="uk-accordion-title">Capas</a>
-                            <div class="uk-accordion-content">
-                                <div>
-                                    <label><input class="uk-checkbox" type="checkbox" checked> TMP Murcia</label>
-                                </div>
-                                <div>
-                                    <label><input class="uk-checkbox" type="checkbox" checked> Tranvía de Murcia</label>
-                                </div>
-                                <div>
-                                    <label><input class="uk-checkbox" type="checkbox"> Movibus Alcantarilla</label>
-                                </div>
-                                <div>
-                                    <label><input class="uk-checkbox" type="checkbox"> Interbus</label>
-                                </div>
-
-                                <button v-on:click="importarCapa()" class="uk-button uk-button-primary uk-width-1-1 uk-margin-small-bottom uk-margin-small-top">
-                                    Importar capa
-                                </button>
-
-
-                            </div>
-                        </li>
-                        <li>
-                            <a class="uk-accordion-title">Mapa Base</a>
-                            <div class="uk-accordion-content">
-                                <p>Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor reprehenderit.</p>
-                            </div>
-                        </li>
-                    </ul>
+                    <Capas />
                 </div>
             </aside>
     
@@ -141,6 +109,7 @@ window.electronAPI.sendMessage('Hello from App.vue!');
 <script lang="ts">
 import "leaflet/dist/leaflet.css";
 import { LMap, LTileLayer } from "@vue-leaflet/vue-leaflet";
+import {ipcRenderer} from 'electron';
 
 export default {
   components: {
@@ -149,14 +118,9 @@ export default {
   },
   data() {
     return {
-      zoom: 15,
+      zoom: 15
     };
   },
-  methods: {
-    importarCapa: function(){
-        window.electronAPI.importGTFS();
-    }
-  }
 };
 </script>
 

@@ -1,7 +1,7 @@
 import {dialog} from "electron";
-import {readFileSync} from "fs"
 import Papa from 'papaparse';
 
+const fs = require('fs');
 
 function selectDirectory(window) {
     return  dialog
@@ -14,7 +14,10 @@ function selectDirectory(window) {
 
           const path = result.filePaths[0];
           
-          parseAgency(path);
+          const gtfsData = parseGTFS(path);
+
+          window.webContents.send('nueva-capa', gtfsData.agencies[0].agency_name);
+          console.log(gtfsData);
         }
         })
        .catch(err => {
@@ -22,17 +25,34 @@ function selectDirectory(window) {
         });
 }
 
+function parseGTFS(path){
+  return {
+    agencies: parseAgency(path),
+    stops: parseStops(path)
+  }
+}
 function parseAgency(path){
-  const string_output = readFileSync(`${path}/agency.txt`, 'utf8');
 
-  Papa.parse(string_output, {
-    header: true,
-    complete: function(results) {
-      console.log(results);
-    }
-  })
-  
+  const csvData = fs.readFileSync(`${path}/agency.txt`, 'utf8');
 
+  // Parsea el archivo CSV usando Papa Parse
+  const results = Papa.parse(csvData, {
+      header: true
+  });
+
+  return results.data;
+}
+
+function parseStops(path){
+
+  const csvData = fs.readFileSync(`${path}/stops.txt`, 'utf8');
+
+  // Parsea el archivo CSV usando Papa Parse
+  const results = Papa.parse(csvData, {
+      header: true
+  });
+
+  return results.data;
 }
 
 module.exports = {
