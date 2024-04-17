@@ -28,7 +28,7 @@ window.electronAPI.sendMessage('Hello from App.vue!');
                                     <label><input class="uk-checkbox" type="checkbox"> Interbus</label>
                                 </div>
 
-                                <button class="uk-button uk-button-primary uk-width-1-1 uk-margin-small-bottom uk-margin-small-top">
+                                <button v-on:click="importarCapa()" class="uk-button uk-button-primary uk-width-1-1 uk-margin-small-bottom uk-margin-small-top">
                                     Importar capa
                                 </button>
 
@@ -152,6 +152,11 @@ export default {
       zoom: 15,
     };
   },
+  methods: {
+    importarCapa: function(){
+        window.electronAPI.importGTFS();
+    }
+  }
 };
 </script>
 

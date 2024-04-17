@@ -32,6 +32,7 @@
   },
   "dependencies": {
     "leaflet": "^1.9.4",
+    "papaparse": "^5.4.1",
     "uikit": "^3.19.4",
     "vue": "^3.3.8"
   }

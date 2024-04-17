@@ -1,30 +1,15 @@
-import {app, BrowserWindow, ipcMain, session, Menu} from 'electron';
-import {join} from 'path';
+import {app,BrowserWindow, ipcMain, session, Menu} from 'electron';
 
-const appMenu = require('./menu');
+const { buildMenu } = require('./menu');
 
-function createWindow () {
-  const mainWindow = new BrowserWindow({
-    width: 1400,
-    height: 800,
-    webPreferences: {
-      preload: join(__dirname, 'preload.js'),
-      nodeIntegration: false,
-      contextIsolation: true,
-    }
-  });
+const { createMainWindow } = require('./controllers/mainWindowController');
 
-  if (process.env.NODE_ENV === 'development') {
-    const rendererPort = process.argv[2];
-    mainWindow.loadURL(`http://localhost:${rendererPort}`);
-  }
-  else {
-    mainWindow.loadFile(join(app.getAppPath(), 'renderer', 'index.html'));
-  }
-}
+const { selectDirectory } = require('./controllers/gtfsImporterController');
+
+let mainWindow;
 
 app.whenReady().then(() => {
-  createWindow();
+  mainWindow = createMainWindow();
 
   session.defaultSession.webRequest.onHeadersReceived((details, callback) => {
     callback({
@@ -39,7 +24,7 @@ app.whenReady().then(() => {
     // On macOS it's common to re-create a window in the app when the
     // dock icon is clicked and there are no other windows open.
     if (BrowserWindow.getAllWindows().length === 0) {
-      createWindow();
+      mainWindow = createMainWindow();
     }
   });
 });
@@ -52,4 +37,9 @@ ipcMain.on('message', (event, message) => {
   console.log(message);
 })
 
-Menu.setApplicationMenu(appMenu)
+ipcMain.on("importGTFS",()=>{
+  selectDirectory(mainWindow);
+})
+
+Menu.setApplicationMenu(buildMenu(mainWindow))
+

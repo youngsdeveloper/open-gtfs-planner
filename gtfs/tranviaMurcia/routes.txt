@@ -1,0 +1,3 @@
+"route_id","agency_id","route_short_name","route_long_name","route_desc","route_type","route_url","route_color","route_text_color"
+"L1A","1","L1","Nueva Condomina-Universidad","","0","","",""
+"L1B","1","L1B","La Ñora-Terra Natura","","0","","",""
