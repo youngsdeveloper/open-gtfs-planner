@@ -5,6 +5,8 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 const electron_1 = require("electron");
 const papaparse_1 = __importDefault(require("papaparse"));
+const models = require('../models');
+const GtfsStop = models.gtfs_stop;
 const fs = require('fs');
 function selectDirectory(window) {
     return electron_1.dialog
@@ -17,6 +19,9 @@ function selectDirectory(window) {
             const path = result.filePaths[0];
             const gtfsData = parseGTFS(path);
             window.webContents.send('nueva-capa', gtfsData.agencies[0].agency_name);
+            gtfsData.stops.forEach(stop => {
+                GtfsStop.create(stop);
+            });
             console.log(gtfsData);
         }
     })

@@ -5,8 +5,8 @@
 <template>
   <div>
 
-    <div class=" uk-margin-medium-top">
-        <div class="" uk-grid>
+    <div class="uk-margin-medium-top">
+        <div uk-grid>
             <aside class="uk-width-1-5" aria-label="capas">
                 <div class="uk-container">
                     <Capas />
@@ -109,7 +109,6 @@
 <script lang="ts">
 import "leaflet/dist/leaflet.css";
 import { LMap, LTileLayer } from "@vue-leaflet/vue-leaflet";
-import {ipcRenderer} from 'electron';
 
 export default {
   components: {

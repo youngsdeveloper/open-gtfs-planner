@@ -33,6 +33,8 @@
   "dependencies": {
     "leaflet": "^1.9.4",
     "papaparse": "^5.4.1",
+    "sequelize": "^6.37.3",
+    "sqlite3": "^5.1.7",
     "uikit": "^3.19.4",
     "vue": "^3.3.8"
   }
