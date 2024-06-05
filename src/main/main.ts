@@ -6,10 +6,18 @@ const { createMainWindow } = require('./controllers/mainWindowController');
 
 const { selectDirectory } = require('./controllers/gtfsImporterController');
 
+const {sequelize} = require('../../models');
+
 let mainWindow;
 
 app.whenReady().then(() => {
   mainWindow = createMainWindow();
+
+  console.log(sequelize);
+  
+  sequelize.sync().then(()=>{
+    console.log("DB Synced");
+  })
 
   session.defaultSession.webRequest.onHeadersReceived((details, callback) => {
     callback({

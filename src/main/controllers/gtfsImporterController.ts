@@ -1,8 +1,12 @@
 import {dialog} from "electron";
 import Papa from 'papaparse';
 
-const models = require('../models')
-const GtfsStop = models.gtfs_stop
+import {GtfsStopDao} from "../daos/GtfsStopDao";
+
+const {DataTypes} = require("sequelize")
+const {sequelize} = require('../../../models')
+
+const GtfsStop = require("../../../models/gtfsstop")(sequelize,DataTypes);
 
 const fs = require('fs');
 
@@ -22,11 +26,28 @@ function selectDirectory(window) {
           window.webContents.send('nueva-capa', gtfsData.agencies[0].agency_name);
 
 
+          const stopsAdded:GtfsStopDao[] = [] as GtfsStopDao[];
           gtfsData.stops.forEach(stop => {
-            GtfsStop.create(stop);
+            const gtfsStop = {...stop, gtfs_stop_id: stop.stop_id};
+            GtfsStop.create(gtfsStop);
+            stopsAdded.push(new GtfsStopDao(
+                          stop.stop_id,
+                          stop.stop_name,
+                          stop.stop_lat,
+                          stop.stop_lon,
+                          stop.agency_id
+                        ));
           });
 
-          console.log(gtfsData);
+          if(stopsAdded[0] instanceof GtfsStopDao){
+            console.log("instancia!")
+          }else {
+            console.log("NO instancia!")
+          }
+
+          window.webContents.send('loaded-stops', stopsAdded);
+
+
         }
         })
        .catch(err => {

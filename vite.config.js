@@ -21,6 +21,12 @@ const config = defineConfig({
     optimizeDeps: {
     include: ["leaflet"],
     },
+
+    resolve: {
+        alias: {
+            '@': '../../'
+        }
+    }
     
 });
 

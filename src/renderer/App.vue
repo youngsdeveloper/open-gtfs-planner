@@ -19,8 +19,24 @@
                         url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
                         layer-type="base"
                         name="OpenStreetMap"
+                        attribution="Creado con OpenStreetMap"
                     ></l-tile-layer>
+
+
+                    <l-marker v-for="stop in stops" :lat-lng="stop.getLatLng()">
+                    
+                        <l-popup>
+                            {{ stop.stop_name }}
+                        </l-popup>
+
+                    </l-marker>
+
                 </l-map>
+
+                <div v-for="stop in stops">
+                    {{  stop }}
+                    {{  stop.getLatLng() }}
+                </div>
 
             </section>
     
@@ -30,8 +46,6 @@
                         <li class="uk-open">
                             <a class="uk-accordion-title">Lineas</a>
                             <div class="uk-accordion-content">
-                                
-
                                 <ul class="uk-list uk-list-divider">
                                     <li>
                                         TMP Murcia - 1
@@ -108,17 +122,33 @@
 
 <script lang="ts">
 import "leaflet/dist/leaflet.css";
-import { LMap, LTileLayer } from "@vue-leaflet/vue-leaflet";
+import { LMap, LMarker, LPopup, LTileLayer } from "@vue-leaflet/vue-leaflet";
+
+import { GtfsStopDao } from "../main/daos/GtfsStopDao"
+
 
 export default {
   components: {
     LMap,
     LTileLayer,
+    LMarker,
+    LPopup
   },
   data() {
     return {
+      stops: [] as GtfsStopDao[],
       zoom: 15
     };
+  },
+  mounted(){
+
+
+    window.electronAPI.onLoadedStops((event, stops:GtfsStopDao[]) => {
+        stops.forEach(s => {
+            this.stops.push(GtfsStopDao.fromObject(s))
+        })
+        console.log(this.stops);
+    })
   },
 };
 </script>

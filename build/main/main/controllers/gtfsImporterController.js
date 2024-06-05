@@ -5,7 +5,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 const electron_1 = require("electron");
 const papaparse_1 = __importDefault(require("papaparse"));
-const GtfsStopDao_1 = require("../daos/GtfsStopDao");
+const GtfsStopDao_1 = require("../../renderer/daos/GtfsStopDao");
 const { DataTypes } = require("sequelize");
 const { sequelize } = require('../../../models');
 const GtfsStop = require("../../../models/gtfsstop")(sequelize, DataTypes);
