@@ -7,11 +7,12 @@
 
     <div class="uk-margin-medium-top">
         <div uk-grid>
-            <aside class="uk-width-1-5" aria-label="capas">
+            <aside class="uk-width-1-4" aria-label="capas">
                 <div class="uk-container">
-                    <Capas />
+                    <Capas :gtfs="gtfs" />
                 </div>
             </aside>
+
     
             <section class="uk-width-expand">
                 <l-map ref="map" :zoom="zoom" :center="[37.9915664, -1.1323996]" >
@@ -125,6 +126,7 @@ import "leaflet/dist/leaflet.css";
 import { LMap, LMarker, LPopup, LTileLayer } from "@vue-leaflet/vue-leaflet";
 
 import { GtfsStopDao } from "../main/daos/GtfsStopDao"
+import { GtfsDao } from '../main/daos/GtfsDao';
 
 
 export default {
@@ -136,6 +138,7 @@ export default {
   },
   data() {
     return {
+      gtfs: {} as GtfsDao,
       stops: [] as GtfsStopDao[],
       zoom: 15
     };
@@ -143,8 +146,10 @@ export default {
   mounted(){
 
 
-    window.electronAPI.onLoadedStops((event, stops:GtfsStopDao[]) => {
-        stops.forEach(s => {
+    let ctx = this;
+    window.electronAPI.onLoadedGtfs((event, gtfs:GtfsDao) => {
+        ctx.gtfs = gtfs;
+        gtfs.stops.forEach(s => {
             this.stops.push(GtfsStopDao.fromObject(s))
         })
         console.log(this.stops);

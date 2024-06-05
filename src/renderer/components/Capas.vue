@@ -1,13 +1,47 @@
 <template>
     <div>
+
+
+        
         <ul uk-accordion="multiple: true">
             <li class="uk-open">
                 <a class="uk-accordion-title">Capas</a>
                 <div class="uk-accordion-content">
-                    <div v-for="capa in capas">
-                        <label><input class="uk-checkbox" type="checkbox" checked> 
-                        {{ capa }}
-                        </label>
+
+                    <div class="uk-panel uk-panel-scrollable">
+                        <ul class="uk-list">
+                            <li >
+                                <label><input class="uk-checkbox" type="checkbox"> {{ gtfs.filename }}</label>
+                                <ul>
+                                    <li v-for="agency in gtfs.agencies"><label><input class="uk-checkbox" type="checkbox"> {{ agency.name }}</label></li>
+                                    <!--<li>
+                                        <label><input class="uk-checkbox" type="checkbox"> Category 2.3</label>
+                                        <ul>
+                                            <li><label><input class="uk-checkbox" type="checkbox"> Category 2.3.1</label></li>
+                                            <li><label><input class="uk-checkbox" type="checkbox"> Category 2.3.2</label></li>
+                                        </ul>
+                                    </li>
+                                    <li><label><input class="uk-checkbox" type="checkbox"> Category 2.4</label></li>-->
+                                </ul>
+                            </li>
+                            <!--<li>
+                                <label><input class="uk-checkbox" type="checkbox"> Category 2</label>
+                                <ul>
+                                    <li><label><input class="uk-checkbox" type="checkbox"> Category 2.1</label></li>
+                                    <li><label><input class="uk-checkbox" type="checkbox"> Category 2.2</label></li>
+                                    <li>
+                                        <label><input class="uk-checkbox" type="checkbox"> Category 2.3</label>
+                                        <ul>
+                                            <li><label><input class="uk-checkbox" type="checkbox"> Category 2.3.1</label></li>
+                                            <li><label><input class="uk-checkbox" type="checkbox"> Category 2.3.2</label></li>
+                                        </ul>
+                                    </li>
+                                    <li><label><input class="uk-checkbox" type="checkbox"> Category 2.4</label></li>
+                                </ul>
+                            </li>
+                            <li><label><input class="uk-checkbox" type="checkbox"> Category 3</label></li>
+                            <li><label><input class="uk-checkbox" type="checkbox"> Category 4</label></li>-->
+                        </ul>
                     </div>
                     
 
@@ -30,13 +64,13 @@
 
 
 <script>
+import { GtfsDao } from '../../main/daos/GtfsDao';
+
 
 export default{
 
-    data(){
-        return {
-            capas: []
-        }
+    props:{
+        gtfs: GtfsDao
     },
     methods: {
         importarCapa: function(){
@@ -44,12 +78,5 @@ export default{
         }
     },
 
-    mounted(){
-
-        window.electronAPI.addListener("nueva-capa", (event, capa) => {
-            this.capas.push(capa);
-        })
-        
-    }
 }
 </script>

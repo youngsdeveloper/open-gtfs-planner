@@ -1,5 +1,5 @@
 import {IpcRendererEvent} from 'electron';
-import { GtfsStopDao } from "../../../daos/GtfsStopDao"
+import { GtfsDao } from '../../main/daos/GtfsDao';
 
 
 /**
@@ -9,7 +9,7 @@ export default interface ElectronApi {
   sendMessage: (message: string) => void,
   importGTFS: ()=>void,
   addListener: (channel:string, listener:(event: IpcRendererEvent, ...args: any[]) => void)=>void,
-  onLoadedStops: (listener:(event: IpcRendererEvent, stops: GtfsStopDao[]) => void) =>void
+  onLoadedGtfs: (listener:(event: IpcRendererEvent, gtfs: GtfsDao) => void) =>void
 
 }
 

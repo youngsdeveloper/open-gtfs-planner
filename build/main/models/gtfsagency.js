@@ -1,7 +1,7 @@
 'use strict';
 const { Model } = require('sequelize');
 module.exports = (sequelize, DataTypes) => {
-    class GtfsStop extends Model {
+    class GtfsAgency extends Model {
         /**
          * Helper method for defining associations.
          * This method is not a part of Sequelize lifecycle.
@@ -9,17 +9,15 @@ module.exports = (sequelize, DataTypes) => {
          */
         static associate(models) {
             // define association here
-            GtfsStop.belongsTo(models.GtfsFile, {
+            GtfsAgency.belongsTo(models.GtfsFile, {
                 foreignKey: 'id',
                 as: 'gtfs_file'
             });
         }
     }
-    GtfsStop.init({
-        gtfs_stop_id: DataTypes.INTEGER,
-        stop_name: DataTypes.STRING,
-        stop_lat: DataTypes.DOUBLE,
-        stop_lon: DataTypes.DOUBLE,
+    GtfsAgency.init({
+        name: DataTypes.STRING,
+        gtfs_agency_id: DataTypes.INTEGER,
         gtfs_file_id: {
             type: DataTypes.INTEGER,
             references: {
@@ -29,7 +27,7 @@ module.exports = (sequelize, DataTypes) => {
         }
     }, {
         sequelize,
-        modelName: 'GtfsStop',
+        modelName: 'GtfsAgency',
     });
-    return GtfsStop;
+    return GtfsAgency;
 };
