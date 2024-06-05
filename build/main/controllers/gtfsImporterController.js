@@ -7,8 +7,8 @@ const electron_1 = require("electron");
 const papaparse_1 = __importDefault(require("papaparse"));
 const GtfsStopDao_1 = require("../daos/GtfsStopDao");
 const { DataTypes } = require("sequelize");
-const { sequelize } = require('../../../models');
-const GtfsStop = require("../../../models/gtfsstop")(sequelize, DataTypes);
+const { sequelize } = require('../models');
+const GtfsStop = require("../models/gtfsstop")(sequelize, DataTypes);
 const fs = require('fs');
 function selectDirectory(window) {
     return electron_1.dialog

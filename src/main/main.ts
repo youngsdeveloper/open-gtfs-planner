@@ -6,7 +6,7 @@ const { createMainWindow } = require('./controllers/mainWindowController');
 
 const { selectDirectory } = require('./controllers/gtfsImporterController');
 
-const {sequelize} = require('../../models');
+const {sequelize} = require('./models');
 
 let mainWindow;
 

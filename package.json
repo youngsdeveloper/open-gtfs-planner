@@ -2,7 +2,7 @@
   "name": "open-gtfs-planner",
   "version": "1.0.0",
   "description": "An application to visualize GTFS files and analize lines to optimize public transport options",
-  "main": "index.js",
+  "main": "build/main/main.js",
   "scripts": {
     "dev": "node scripts/dev-server.js",
     "build": "node scripts/build.js && electron-builder",

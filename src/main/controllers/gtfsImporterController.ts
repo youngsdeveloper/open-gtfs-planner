@@ -4,9 +4,9 @@ import Papa from 'papaparse';
 import {GtfsStopDao} from "../daos/GtfsStopDao";
 
 const {DataTypes} = require("sequelize")
-const {sequelize} = require('../../../models')
+const {sequelize} = require('../models')
 
-const GtfsStop = require("../../../models/gtfsstop")(sequelize,DataTypes);
+const GtfsStop = require("../models/gtfsstop")(sequelize,DataTypes);
 
 const fs = require('fs');
 
