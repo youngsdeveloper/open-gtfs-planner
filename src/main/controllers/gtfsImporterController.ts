@@ -11,6 +11,7 @@ const {sequelize} = require('../models')
 const GtfsFile = require("../models/gtfsfile")(sequelize,DataTypes);
 const GtfsAgency = require("../models/gtfsagency")(sequelize,DataTypes);
 const GtfsStop = require("../models/gtfsstop")(sequelize,DataTypes);
+const Project = require("../models/project")(sequelize,DataTypes);
 
 const fs = require('fs');
 
@@ -68,8 +69,18 @@ function parseGTFS(path){
 }
 
 async function uploadGTFS(gtfsData, path){
+
+
+  const [project,created] = await Project.findOrCreate({
+    where: {
+      name: "Initial Project"
+    }
+  });
+
+  console.log(project);
+
   var fileName = path.split("/").at(-1);
-  const gtfsFile = await GtfsFile.create({fileName: fileName});
+  const gtfsFile = await GtfsFile.create({project_id: project.id, fileName: fileName});
 
   const agencies:typeof GtfsAgency = [];
   const agencyMap = {};

@@ -2,24 +2,15 @@
 /** @type {import('sequelize-cli').Migration} */
 module.exports = {
   async up(queryInterface, Sequelize) {
-    await queryInterface.createTable('GtfsFiles', {
+    await queryInterface.createTable('Projects', {
       id: {
         allowNull: false,
         autoIncrement: true,
         primaryKey: true,
         type: Sequelize.INTEGER
       },
-      fileName: {
+      name: {
         type: Sequelize.STRING
-      },
-      project_id: {
-        type: Sequelize.INTEGER,
-        references: {
-          model: 'Projects',
-          key: 'id'
-        },
-        onUpdate: 'CASCADE',
-        onDelete: 'CASCADE'
       },
       createdAt: {
         allowNull: false,
@@ -32,6 +23,6 @@ module.exports = {
     });
   },
   async down(queryInterface, Sequelize) {
-    await queryInterface.dropTable('GtfsFiles');
+    await queryInterface.dropTable('Projects');
   }
 };

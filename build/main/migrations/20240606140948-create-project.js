@@ -12,24 +12,15 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 module.exports = {
     up(queryInterface, Sequelize) {
         return __awaiter(this, void 0, void 0, function* () {
-            yield queryInterface.createTable('GtfsFiles', {
+            yield queryInterface.createTable('Projects', {
                 id: {
                     allowNull: false,
                     autoIncrement: true,
                     primaryKey: true,
                     type: Sequelize.INTEGER
                 },
-                fileName: {
+                name: {
                     type: Sequelize.STRING
-                },
-                project_id: {
-                    type: Sequelize.INTEGER,
-                    references: {
-                        model: 'Projects',
-                        key: 'id'
-                    },
-                    onUpdate: 'CASCADE',
-                    onDelete: 'CASCADE'
                 },
                 createdAt: {
                     allowNull: false,
@@ -44,7 +35,7 @@ module.exports = {
     },
     down(queryInterface, Sequelize) {
         return __awaiter(this, void 0, void 0, function* () {
-            yield queryInterface.dropTable('GtfsFiles');
+            yield queryInterface.dropTable('Projects');
         });
     }
 };
