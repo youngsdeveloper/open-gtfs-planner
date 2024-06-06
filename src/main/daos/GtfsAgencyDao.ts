@@ -1,8 +1,10 @@
 export class GtfsAgencyDao {
     
     name: string
+    id: Number;
 
-    constructor(name:string){
+    constructor(id:number,name:string){
+        this.id = id;
         this.name = name;
     }
 }

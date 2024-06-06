@@ -39,16 +39,16 @@ function selectDirectory(window) {
         if (!result.canceled && result.filePaths.length > 0) {
             const path = result.filePaths[0];
             const gtfsData = parseGTFS(path);
-            yield uploadGTFS(gtfsData, path);
+            const gtfsDB = yield uploadGTFS(gtfsData, path);
             const agenciesDAO = [];
-            gtfsData.agencies.forEach(a => {
-                agenciesDAO.push(new GtfsAgencyDao_1.GtfsAgencyDao(a.agency_name));
+            gtfsDB.agencies.forEach(a => {
+                agenciesDAO.push(new GtfsAgencyDao_1.GtfsAgencyDao(a.id, a.name));
             });
             const stospDao = [];
             gtfsData.stops.forEach(stop => {
-                stospDao.push(new GtfsStopDao_1.GtfsStopDao(stop.stop_id, stop.stop_name, stop.stop_lat, stop.stop_lon, stop.agency_id));
+                stospDao.push(new GtfsStopDao_1.GtfsStopDao(stop.id, stop.stop_id, stop.stop_name, stop.stop_lat, stop.stop_lon, stop.agency_id));
             });
-            const gtfsDAO = new GtfsDao_1.GtfsDao(path.split("/").at(-1), agenciesDAO, stospDao);
+            const gtfsDAO = new GtfsDao_1.GtfsDao(gtfsDB.file.id, gtfsDB.file.fileName, agenciesDAO, stospDao);
             window.webContents.send('loaded-gtfs', gtfsDAO);
         }
     });
@@ -63,21 +63,26 @@ function uploadGTFS(gtfsData, path) {
     return __awaiter(this, void 0, void 0, function* () {
         var fileName = path.split("/").at(-1);
         const gtfsFile = yield GtfsFile.create({ fileName: fileName });
+        const agencies = [];
         const agencyMap = {};
         for (const agency of gtfsData.agencies) {
             const agencyInDb = yield GtfsAgency.create({ name: agency.agency_name, gtfs_agency_id: agency.agency_id, gtfs_file_id: gtfsFile.id });
             agencyMap[parseInt(agency.agency_id)] = agencyInDb.id;
+            agencies.push(agencyInDb);
         }
+        const stops = [];
         for (const stop of gtfsData.stops) {
             console.log(stop);
             const gtfsStop = Object.assign(Object.assign({}, stop), { gtfs_stop_id: stop.stop_id, gtfs_file_id: gtfsFile.id });
             try {
-                yield GtfsStop.create(gtfsStop);
+                const stopInDb = yield GtfsStop.create(gtfsStop);
+                stops.push(stopInDb);
             }
             catch (error) {
                 console.log(error);
             }
         }
+        return { file: gtfsFile, agencies: agencies, stops: stops };
     });
 }
 function parseAgency(path) {

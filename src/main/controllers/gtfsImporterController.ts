@@ -35,16 +35,17 @@ async function selectDirectory(window) {
         const gtfsData = parseGTFS(path);
 
 
-        await uploadGTFS(gtfsData, path);
+        const gtfsDB = await uploadGTFS(gtfsData, path);
 
         const agenciesDAO:GtfsAgencyDao[] = [] as GtfsAgencyDao[];
-        gtfsData.agencies.forEach(a => {
-            agenciesDAO.push(new GtfsAgencyDao(a.agency_name));
+        gtfsDB.agencies.forEach(a => {
+            agenciesDAO.push(new GtfsAgencyDao(a.id, a.name));
         });
 
         const stospDao:GtfsStopDao[] = [] as GtfsStopDao[];
         gtfsData.stops.forEach(stop => {
           stospDao.push(new GtfsStopDao(
+                        stop.id,
                         stop.stop_id,
                         stop.stop_name,
                         stop.stop_lat,
@@ -53,7 +54,7 @@ async function selectDirectory(window) {
                       ));
         });
 
-        const gtfsDAO = new GtfsDao(path.split("/").at(-1), agenciesDAO, stospDao);
+        const gtfsDAO = new GtfsDao(gtfsDB.file.id, gtfsDB.file.fileName, agenciesDAO, stospDao);
 
         window.webContents.send('loaded-gtfs', gtfsDAO);
       }
@@ -70,23 +71,27 @@ async function uploadGTFS(gtfsData, path){
   var fileName = path.split("/").at(-1);
   const gtfsFile = await GtfsFile.create({fileName: fileName});
 
+  const agencies:typeof GtfsAgency = [];
   const agencyMap = {};
   for(const agency of gtfsData.agencies){
     const agencyInDb = await GtfsAgency.create({name: agency.agency_name, gtfs_agency_id: agency.agency_id, gtfs_file_id: gtfsFile.id})
     agencyMap[parseInt(agency.agency_id)] = agencyInDb.id;
+    agencies.push(agencyInDb)
   }
 
+  const stops:typeof GtfsStop = [];
   for(const stop of gtfsData.stops){
     console.log(stop)
     const gtfsStop = {...stop, gtfs_stop_id: stop.stop_id, gtfs_file_id: gtfsFile.id};
     try {
-      await GtfsStop.create(gtfsStop);
-
+      const stopInDb = await GtfsStop.create(gtfsStop);
+      stops.push(stopInDb);
     } catch (error) {
       console.log(error);
     }
   }
 
+  return {file: gtfsFile, agencies: agencies, stops: stops};
 }
 
 

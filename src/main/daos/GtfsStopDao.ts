@@ -1,11 +1,13 @@
 export class GtfsStopDao {
+    id: number;
     gtfs_stop_id: number;
     stop_name: string;
     stop_lat: number;
     stop_lon: number;
     agency_id: number;
 
-    constructor(gtfs_stop_id: number, stop_name: string, stop_lat: number, stop_lon: number, agency_id: number) {
+    constructor(id:number,gtfs_stop_id: number, stop_name: string, stop_lat: number, stop_lon: number, agency_id: number) {
+        this.id = id;
         this.gtfs_stop_id = gtfs_stop_id;
         this.stop_name = stop_name;
         this.stop_lat = stop_lat;
@@ -22,7 +24,13 @@ export class GtfsStopDao {
     }
 
     static fromObject(obj: any): GtfsStopDao {
-        return new GtfsStopDao(obj.gtfs_stop_id, obj.stop_name, obj.stop_lat, obj.stop_lon, obj.agency_id);
+        return new GtfsStopDao(obj.id, obj.gtfs_stop_id, obj.stop_name, obj.stop_lat, obj.stop_lon, obj.agency_id);
+    }
+
+    static fromObjectToArray(obj: any): GtfsStopDao[] {
+        const data:GtfsStopDao[] = [];
+        obj.forEach(s => data.push(this.fromObject(s)));
+        return data;
     }
 
 }

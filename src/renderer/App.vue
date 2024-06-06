@@ -24,7 +24,7 @@
                     ></l-tile-layer>
 
 
-                    <l-marker v-for="stop in stops" :lat-lng="stop.getLatLng()">
+                    <l-marker v-for="stop in gtfs.stops" :lat-lng="stop.getLatLng()">
                     
                         <l-popup>
                             {{ stop.stop_name }}
@@ -34,7 +34,7 @@
 
                 </l-map>
 
-                <div v-for="stop in stops">
+                <div v-for="stop in gtfs.stops">
                     {{  stop }}
                     {{  stop.getLatLng() }}
                 </div>
@@ -139,7 +139,6 @@ export default {
   data() {
     return {
       gtfs: {} as GtfsDao,
-      stops: [] as GtfsStopDao[],
       zoom: 15
     };
   },
@@ -148,11 +147,7 @@ export default {
 
     let ctx = this;
     window.electronAPI.onLoadedGtfs((event, gtfs:GtfsDao) => {
-        ctx.gtfs = gtfs;
-        gtfs.stops.forEach(s => {
-            this.stops.push(GtfsStopDao.fromObject(s))
-        })
-        console.log(this.stops);
+        ctx.gtfs = GtfsDao.fromObject(gtfs);
     })
   },
 };
