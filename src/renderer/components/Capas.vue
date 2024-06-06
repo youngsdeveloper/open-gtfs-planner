@@ -9,9 +9,9 @@
                 <div class="uk-accordion-content">
 
                     <div class="uk-panel uk-panel-scrollable">
-                        <ul class="uk-list">
+                        <ul class="uk-list" v-if="gtfs.filename">
                             <li >
-                                <label><input class="uk-checkbox" type="checkbox"> {{ gtfs.filename }}</label>
+                                <label><input class="uk-checkbox" type="checkbox" v-model="gtfs.visible"> {{ gtfs.filename }}</label>
                                 <ul>
                                     <li v-for="agency in gtfs.agencies"><label><input class="uk-checkbox" type="checkbox"> {{ agency.name }}</label></li>
                                     <!--<li>
@@ -24,23 +24,7 @@
                                     <li><label><input class="uk-checkbox" type="checkbox"> Category 2.4</label></li>-->
                                 </ul>
                             </li>
-                            <!--<li>
-                                <label><input class="uk-checkbox" type="checkbox"> Category 2</label>
-                                <ul>
-                                    <li><label><input class="uk-checkbox" type="checkbox"> Category 2.1</label></li>
-                                    <li><label><input class="uk-checkbox" type="checkbox"> Category 2.2</label></li>
-                                    <li>
-                                        <label><input class="uk-checkbox" type="checkbox"> Category 2.3</label>
-                                        <ul>
-                                            <li><label><input class="uk-checkbox" type="checkbox"> Category 2.3.1</label></li>
-                                            <li><label><input class="uk-checkbox" type="checkbox"> Category 2.3.2</label></li>
-                                        </ul>
-                                    </li>
-                                    <li><label><input class="uk-checkbox" type="checkbox"> Category 2.4</label></li>
-                                </ul>
-                            </li>
-                            <li><label><input class="uk-checkbox" type="checkbox"> Category 3</label></li>
-                            <li><label><input class="uk-checkbox" type="checkbox"> Category 4</label></li>-->
+                            
                         </ul>
                     </div>
                     

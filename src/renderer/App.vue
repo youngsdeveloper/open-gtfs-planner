@@ -24,7 +24,7 @@
                     ></l-tile-layer>
 
 
-                    <l-marker v-for="stop in gtfs.stops" :lat-lng="stop.getLatLng()">
+                    <l-marker v-if="gtfs.visible" v-for="stop in gtfs.stops" :lat-lng="stop.getLatLng()">
                     
                         <l-popup>
                             {{ stop.stop_name }}
@@ -125,7 +125,6 @@
 import "leaflet/dist/leaflet.css";
 import { LMap, LMarker, LPopup, LTileLayer } from "@vue-leaflet/vue-leaflet";
 
-import { GtfsStopDao } from "../main/daos/GtfsStopDao"
 import { GtfsDao } from '../main/daos/GtfsDao';
 
 

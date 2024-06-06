@@ -7,6 +7,7 @@ export class GtfsDao {
     filename: String;
     agencies: GtfsAgencyDao[];
     stops: GtfsStopDao[];
+    visible: boolean = true;
 
     constructor(id:Number,filename: String, agencies: GtfsAgencyDao[], stops: GtfsStopDao[]){
         this.id = id,
