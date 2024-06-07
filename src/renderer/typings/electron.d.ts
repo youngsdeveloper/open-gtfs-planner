@@ -10,6 +10,7 @@ export default interface ElectronApi {
   importGTFS: ()=>void,
   addListener: (channel:string, listener:(event: IpcRendererEvent, ...args: any[]) => void)=>void,
   onLoadedGtfs: (listener:(event: IpcRendererEvent, gtfs: GtfsDao) => void) =>void
+  downloadCurrentProject: ()=>void,
 
 }
 

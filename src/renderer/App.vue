@@ -143,6 +143,7 @@ export default {
   },
   mounted(){
 
+    window.electronAPI.downloadCurrentProject();
 
     let ctx = this;
     window.electronAPI.onLoadedGtfs((event, gtfs:GtfsDao) => {

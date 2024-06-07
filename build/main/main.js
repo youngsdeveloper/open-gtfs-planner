@@ -4,6 +4,7 @@ const electron_1 = require("electron");
 const { buildMenu } = require('./menu');
 const { createMainWindow } = require('./controllers/mainWindowController');
 const { selectDirectory } = require('./controllers/gtfsImporterController');
+const { downloadProject } = require('./controllers/gtfsController');
 const { sequelize } = require('./models');
 let mainWindow;
 electron_1.app.whenReady().then(() => {
@@ -34,5 +35,8 @@ electron_1.ipcMain.on('message', (event, message) => {
 });
 electron_1.ipcMain.on("importGTFS", () => {
     selectDirectory(mainWindow);
+});
+electron_1.ipcMain.on("downloadCurrentProject", () => {
+    downloadProject(mainWindow, 1);
 });
 electron_1.Menu.setApplicationMenu(buildMenu(mainWindow));

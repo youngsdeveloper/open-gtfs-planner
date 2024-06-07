@@ -6,4 +6,5 @@ electron_1.contextBridge.exposeInMainWorld('electronAPI', {
     importGTFS: () => electron_1.ipcRenderer.send("importGTFS"),
     addListener: (channel, listener) => electron_1.ipcRenderer.on(channel, listener),
     onLoadedGtfs: (listener) => electron_1.ipcRenderer.on("loaded-gtfs", listener),
+    downloadCurrentProject: () => electron_1.ipcRenderer.send("downloadCurrentProject")
 });

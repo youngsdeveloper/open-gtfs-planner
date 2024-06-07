@@ -17,9 +17,9 @@ module.exports = (sequelize, DataTypes) => {
                 foreignKey: 'gtfs_file_id',
                 as: 'agencies'
             });
+            console.log(models.Project);
             GtfsFile.belongsTo(models.Project, {
                 foreignKey: 'id',
-                as: 'project'
             });
         }
     }

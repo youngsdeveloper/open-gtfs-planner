@@ -8,10 +8,7 @@ module.exports = (sequelize, DataTypes) => {
          * The `models/index` file will call this method automatically.
          */
         static associate(models) {
-            Project.hasMany(models.GtfsFile, {
-                foreignKey: 'project_id',
-                as: 'gtfs_files'
-            });
+            Project.hasMany(models.GtfsFile);
         }
     }
     Project.init({

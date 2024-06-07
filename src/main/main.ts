@@ -5,6 +5,7 @@ const { buildMenu } = require('./menu');
 const { createMainWindow } = require('./controllers/mainWindowController');
 
 const { selectDirectory } = require('./controllers/gtfsImporterController');
+const { downloadProject } = require('./controllers/gtfsController');
 
 const {sequelize} = require('./models');
 
@@ -47,6 +48,10 @@ ipcMain.on('message', (event, message) => {
 
 ipcMain.on("importGTFS",()=>{
   selectDirectory(mainWindow);
+})
+
+ipcMain.on("downloadCurrentProject",()=>{
+  downloadProject(mainWindow,1);
 })
 
 Menu.setApplicationMenu(buildMenu(mainWindow))
