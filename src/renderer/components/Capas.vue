@@ -12,7 +12,14 @@
                             <li >
                                 <label><input class="uk-checkbox" type="checkbox" v-model="gtfs.visible"> {{ gtfs.filename }}</label>
                                 <ul>
-                                    <li v-for="agency in gtfs.agencies"><label><input class="uk-checkbox" type="checkbox"> {{ agency.name }}</label></li>
+                                    <li v-for="agency in gtfs.agencies">
+                                        <label><input class="uk-checkbox" type="checkbox"> {{ agency.name }}</label>
+                                        <ul>
+                                            <li v-for="route in agency.routes">
+                                                <li><label><input class="uk-checkbox" type="checkbox"> {{ route.route_short_name }}</label></li>
+                                            </li>
+                                        </ul>
+                                    </li>
                                     <!--<li>
                                         <label><input class="uk-checkbox" type="checkbox"> Category 2.3</label>
                                         <ul>

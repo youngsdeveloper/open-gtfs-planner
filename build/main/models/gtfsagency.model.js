@@ -12,6 +12,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.GtfsAgency = void 0;
 const sequelize_typescript_1 = require("sequelize-typescript");
 const gtfsfile_model_1 = require("./gtfsfile.model");
+const gtfsroute_model_1 = require("./gtfsroute.model");
 let GtfsAgency = class GtfsAgency extends sequelize_typescript_1.Model {
 };
 exports.GtfsAgency = GtfsAgency;
@@ -32,6 +33,10 @@ __decorate([
     (0, sequelize_typescript_1.BelongsTo)(() => gtfsfile_model_1.GtfsFile),
     __metadata("design:type", gtfsfile_model_1.GtfsFile)
 ], GtfsAgency.prototype, "gtfsFile", void 0);
+__decorate([
+    (0, sequelize_typescript_1.HasMany)(() => gtfsroute_model_1.GtfsRoute),
+    __metadata("design:type", Array)
+], GtfsAgency.prototype, "routes", void 0);
 exports.GtfsAgency = GtfsAgency = __decorate([
     sequelize_typescript_1.Table
 ], GtfsAgency);

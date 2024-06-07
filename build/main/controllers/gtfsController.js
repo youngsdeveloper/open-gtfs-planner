@@ -14,6 +14,7 @@ const project_model_1 = require("../models/project.model");
 const gtfsfile_model_1 = require("../models/gtfsfile.model");
 const gtfsagency_model_1 = require("../models/gtfsagency.model");
 const gtfsstop_model_1 = require("../models/gtfsstop.model");
+const gtfsroute_model_1 = require("../models/gtfsroute.model");
 function downloadProject(window, idProject) {
     return __awaiter(this, void 0, void 0, function* () {
         const project = yield project_model_1.Project.findOne({
@@ -22,7 +23,10 @@ function downloadProject(window, idProject) {
                 model: gtfsfile_model_1.GtfsFile,
                 include: [
                     {
-                        model: gtfsagency_model_1.GtfsAgency
+                        model: gtfsagency_model_1.GtfsAgency,
+                        include: [
+                            gtfsroute_model_1.GtfsRoute
+                        ]
                     },
                     {
                         model: gtfsstop_model_1.GtfsStop
@@ -31,7 +35,6 @@ function downloadProject(window, idProject) {
             }
         });
         const DAO = GtfsDao_1.GtfsDao.fromObject(project === null || project === void 0 ? void 0 : project.gtfsFiles[0]);
-        console.log(DAO.agencies[0].name);
         window.webContents.send('loaded-gtfs', DAO);
     });
 }

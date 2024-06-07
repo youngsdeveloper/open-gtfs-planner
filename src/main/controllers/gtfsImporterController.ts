@@ -8,6 +8,8 @@ import { Project } from "../models/project.model";
 import { GtfsFile } from "../models/gtfsfile.model";
 import { GtfsAgency } from "../models/gtfsagency.model";
 import { GtfsStop } from "../models/gtfsstop.model";
+import { GtfsRoute } from "../models/gtfsroute.model";
+import { GtfsRouteDao } from "../daos/GtfsRouteDao";
 
 const {DataTypes} = require("sequelize")
 
@@ -37,10 +39,17 @@ async function selectDirectory(window) {
 
         const gtfsDB = await uploadGTFS(gtfsData, path);
 
+        const routesDAO:GtfsRouteDao[] = [] as GtfsRouteDao[];
+        gtfsData.routes.forEach(route => {
+          routesDAO.push(GtfsRouteDao.fromObject(route));
+        });
+
         const agenciesDAO:GtfsAgencyDao[] = [] as GtfsAgencyDao[];
         gtfsDB.agencies.forEach(a => {
-            agenciesDAO.push(new GtfsAgencyDao(a.id, a.name));
+            const routes_by_agency = routesDAO.filter(r => r.agency_id == a.id);
+            agenciesDAO.push(new GtfsAgencyDao(a.name,a.id, routes_by_agency));
         });
+
 
         const stospDao:GtfsStopDao[] = [] as GtfsStopDao[];
         gtfsData.stops.forEach(stop => {
@@ -52,7 +61,12 @@ async function selectDirectory(window) {
                         stop.stop_lon,
                         stop.agency_id
                       ));
-        });
+        }); 
+
+        
+
+        console.log("test----")
+        console.log(routesDAO);
 
         const gtfsDAO = new GtfsDao(gtfsDB.file.id, gtfsDB.file.filename, agenciesDAO, stospDao);
 
@@ -62,8 +76,9 @@ async function selectDirectory(window) {
 
 function parseGTFS(path){
   return {
-    agencies: parseAgency(path),
-    stops: parseStops(path)
+    agencies: parseFile(path,"agency"),
+    stops: parseFile(path,"stops"),
+    routes: parseFile(path, "routes")
   }
 }
 
@@ -92,23 +107,27 @@ async function uploadGTFS(gtfsData, path){
 
   const stops = [] as GtfsStop[];
   for(const stop of gtfsData.stops){
-    console.log(stop)
     const gtfsStop = {...stop, gtfs_stop_id: stop.stop_id, gtfs_file_id: gtfsFile.id};
     try {
       const stopInDb = await GtfsStop.create(gtfsStop);
       stops.push(stopInDb);
     } catch (error) {
-      console.log(error);
     }
   }
 
-  return {file: gtfsFile, agencies: agencies, stops: stops};
+  const routes = [] as GtfsRoute[];
+  for(const route of gtfsData.routes){
+    const gtfsRoute = {...route, agency_id: agencyMap[route.agency_id]}
+    const routeInDb = await GtfsRoute.create(gtfsRoute);
+    routes.push(routeInDb);
+  }
+
+  return {file: gtfsFile, agencies: agencies, stops: stops, routes: routes};
 }
 
+function parseFile(path, file){
 
-function parseAgency(path){
-
-  const csvData = fs.readFileSync(`${path}/agency.txt`, 'utf8');
+  const csvData = fs.readFileSync(`${path}/${file}.txt`, 'utf8');
 
   // Parsea el archivo CSV usando Papa Parse
   const results = Papa.parse(csvData, {
@@ -118,17 +137,6 @@ function parseAgency(path){
   return results.data;
 }
 
-function parseStops(path){
-
-  const csvData = fs.readFileSync(`${path}/stops.txt`, 'utf8');
-
-  // Parsea el archivo CSV usando Papa Parse
-  const results = Papa.parse(csvData, {
-      header: true
-  });
-
-  return results.data;
-}
 
 module.exports = {
     selectDirectory

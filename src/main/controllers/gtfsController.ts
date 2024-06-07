@@ -8,6 +8,7 @@ import { Project } from "../models/project.model";
 import { GtfsFile } from "../models/gtfsfile.model";
 import { GtfsAgency } from "../models/gtfsagency.model";
 import { GtfsStop } from "../models/gtfsstop.model";
+import { GtfsRoute } from "../models/gtfsroute.model";
 
 
 
@@ -23,18 +24,19 @@ async function downloadProject(window, idProject) {
             model: GtfsFile,
             include: [
                 {
-                    model: GtfsAgency
+                    model: GtfsAgency,
+                    include: [
+                        GtfsRoute
+                    ]
                 },
                 {
                     model: GtfsStop
-                }
+                }                
             ]
         }
     });
 
     const DAO = GtfsDao.fromObject(project?.gtfsFiles[0]);
-    console.log(DAO.agencies[0].name)
-
     window.webContents.send('loaded-gtfs', DAO);
     
 }

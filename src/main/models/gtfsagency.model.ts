@@ -1,5 +1,6 @@
-import { Column, Model, Table,ForeignKey,BelongsTo } from 'sequelize-typescript';
+import { Column, Model, Table,ForeignKey,BelongsTo,HasMany } from 'sequelize-typescript';
 import { GtfsFile } from './gtfsfile.model';
+import { GtfsRoute } from './gtfsroute.model';
 
 @Table
 export class GtfsAgency extends Model{
@@ -16,6 +17,10 @@ export class GtfsAgency extends Model{
 
   @BelongsTo(() => GtfsFile)
   gtfsFile!: GtfsFile;
+
+  
+  @HasMany(() => GtfsRoute)
+  routes!: GtfsRoute[];
 
 }
 

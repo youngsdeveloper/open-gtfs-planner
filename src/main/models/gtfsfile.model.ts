@@ -2,6 +2,7 @@ import { Column, Model, Table,ForeignKey,BelongsTo,HasMany } from 'sequelize-typ
 import { Project } from './project.model';
 import { GtfsAgency } from './gtfsagency.model';
 import { GtfsStop } from './gtfsstop.model';
+import { GtfsRoute } from './gtfsroute.model';
 
 @Table
 export class GtfsFile extends Model{
@@ -23,6 +24,8 @@ export class GtfsFile extends Model{
 
   @HasMany(() => GtfsStop)
   stops!: GtfsStop[];
+
+
 
 }
 

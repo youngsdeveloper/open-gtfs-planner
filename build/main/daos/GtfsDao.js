@@ -6,8 +6,8 @@ const GtfsStopDao_1 = require("./GtfsStopDao");
 class GtfsDao {
     constructor(id, filename, agencies, stops) {
         this.visible = true;
-        this.id = id,
-            this.filename = filename;
+        this.id = id;
+        this.filename = filename;
         this.agencies = agencies;
         this.stops = stops;
     }
