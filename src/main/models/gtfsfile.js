@@ -11,21 +11,21 @@ module.exports = (sequelize, DataTypes) => {
      */
     static associate(models) {
       // define association here
-      GtfsFile.hasMany(models.GtfsStop, {
+
+      /*
+      this.hasMany(models.GtfsStop, {
         foreignKey: 'gtfs_file_id',
         as: 'stops'
       });
-      GtfsFile.hasMany(models.GtfsAgency, {
+      this.hasMany(models.GtfsAgency, {
         foreignKey: 'gtfs_file_id',
         as: 'agencies'
-      });
-
-      console.log(models.Project);
+      });*/
 
       GtfsFile.belongsTo(models.Project, {
-        foreignKey: 'id',
+        foreignKey: 'project_id', // Especifica el foreignKey para la asociación
+        as: 'project'
       });
-
     }
   }
   GtfsFile.init({

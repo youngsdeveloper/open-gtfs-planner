@@ -10,9 +10,10 @@ let mainWindow;
 electron_1.app.whenReady().then(() => {
     mainWindow = createMainWindow();
     console.log(sequelize);
-    sequelize.sync().then(() => {
-        console.log("DB Synced");
-    });
+    /*
+    sequelize.sync({ force: true }).then(()=>{
+      console.log("DB Synced");
+    })*/
     electron_1.session.defaultSession.webRequest.onHeadersReceived((details, callback) => {
         callback({
             responseHeaders: Object.assign(Object.assign({}, details.responseHeaders), { 'Content-Security-Policy': ['script-src \'self\''] })

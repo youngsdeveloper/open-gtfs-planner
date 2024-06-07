@@ -9,10 +9,6 @@ module.exports = (sequelize, DataTypes) => {
          */
         static associate(models) {
             // define association here
-            GtfsStop.belongsTo(models.GtfsFile, {
-                foreignKey: 'id',
-                as: 'gtfs_file'
-            });
         }
     }
     GtfsStop.init({

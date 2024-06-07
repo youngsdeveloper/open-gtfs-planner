@@ -16,9 +16,10 @@ app.whenReady().then(() => {
 
   console.log(sequelize);
   
-  sequelize.sync().then(()=>{
+  /*
+  sequelize.sync({ force: true }).then(()=>{
     console.log("DB Synced");
-  })
+  })*/
 
   session.defaultSession.webRequest.onHeadersReceived((details, callback) => {
     callback({

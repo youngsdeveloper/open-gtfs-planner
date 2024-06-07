@@ -14,33 +14,16 @@ const { sequelize } = require('../models');
 const GtfsAgency = require("../models/gtfsagency")(sequelize, DataTypes);
 const GtfsStop = require("../models/gtfsstop")(sequelize, DataTypes);
 const Project = require("../models/project")(sequelize, DataTypes);
-const GtfsFile = require('../models').GtfsFile;
-function modelAssociationsToArray(model) {
-    const result = [];
-    if (typeof model !== 'object' || typeof model.associations !== 'object') {
-        throw new Error("Model should be an object with the 'associations' property.");
-    }
-    Object.keys(model.associations).forEach((key) => {
-        const association = {};
-        // all needed information in the 'options' object
-        if (model.associations[key].hasOwnProperty('options')) {
-            association[key] = model.associations[key].options;
-        }
-        result.push(association);
-    });
-    return result;
-}
+const GtfsFile = require('../models/gtfsfile')(sequelize, DataTypes);
 function downloadProject(window, idProject) {
     return __awaiter(this, void 0, void 0, function* () {
-        console.log("assocs: ");
-        console.log(sequelize.models.Project);
-        //console.log(modelAssociationsToArray(sequelize));
-        const project = yield Project.findByPk(idProject, {
-            include: [
-                { all: true, nested: true } // Include all associations recursively
-            ]
+        console.log(Project.associations);
+        const project = yield Project.findOne({
+            where: { id: idProject },
+            include: ["gtfsFiles"]
         });
         console.log(project);
+        console.log(project.gtfsFiles);
         //window.webContents.send('loaded-gtfs', gtfsDAO);
     });
 }

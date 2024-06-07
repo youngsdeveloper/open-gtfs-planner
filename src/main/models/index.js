@@ -7,10 +7,6 @@ const basename = path.basename(__filename);
 const config = require('../config/config.js');
 const db = {};
 
-console.log(config);
-console.log("Hola");
-
-
 const sequelize = new Sequelize(config.database, config.username, config.password, config);
 
 
@@ -27,19 +23,31 @@ fs
   })
   .forEach(file => {
     const model = require(path.join(__dirname, file))(sequelize, Sequelize.DataTypes);
+    console.log("Tipo: " + typeof model)
     db[model.name] = model;
   });
 
 
-  console.log(db);
-Object.keys(db).forEach(modelName => {
-  if (db[modelName].associate) {
-    db[modelName].associate(db);
-  }
-});
+  Object.keys(db).forEach(modelName => {
+    if (db[modelName].associate) {
+      console.log(`Associating ${modelName}`);
+      db[modelName].associate(db);
+    }
+    console.log(`Model ${modelName} associations:`, db[modelName].associations);
+  });
+  
 
+  test();
 
 db.sequelize = sequelize;
 db.Sequelize = Sequelize;
 
 module.exports = db;
+
+async function test(){
+  const project = await db.Project.findAll({
+      include: ["gtfsFiles"]
+  });
+  console.log(project);
+  console.log(project[0].gtfsFiles);
+}
