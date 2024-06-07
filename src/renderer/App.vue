@@ -34,11 +34,6 @@
 
                 </l-map>
 
-                <div v-for="stop in gtfs.stops">
-                    {{  stop }}
-                    {{  stop.getLatLng() }}
-                </div>
-
             </section>
     
             <aside class="uk-width-1-5">
@@ -148,6 +143,7 @@ export default {
     let ctx = this;
     window.electronAPI.onLoadedGtfs((event, gtfs:GtfsDao) => {
         ctx.gtfs = GtfsDao.fromObject(gtfs);
+        console.log(gtfs.agencies[0])
     })
   },
 };

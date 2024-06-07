@@ -7,19 +7,18 @@ const { createMainWindow } = require('./controllers/mainWindowController');
 const { selectDirectory } = require('./controllers/gtfsImporterController');
 const { downloadProject } = require('./controllers/gtfsController');
 
-const {sequelize} = require('./models');
+import sequelize from "./models"
 
 let mainWindow;
 
+
 app.whenReady().then(() => {
   mainWindow = createMainWindow();
-
-  console.log(sequelize);
   
-  /*
-  sequelize.sync({ force: true }).then(()=>{
+  
+  sequelize.sync().then(()=>{
     console.log("DB Synced");
-  })*/
+  })
 
   session.defaultSession.webRequest.onHeadersReceived((details, callback) => {
     callback({

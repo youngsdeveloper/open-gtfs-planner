@@ -19,7 +19,7 @@ module.exports = {
                     primaryKey: true,
                     type: Sequelize.INTEGER
                 },
-                fileName: {
+                filename: {
                     type: Sequelize.STRING
                 },
                 project_id: {

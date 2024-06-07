@@ -17,6 +17,6 @@ export class GtfsDao {
     }
 
     static fromObject(obj: any): GtfsDao {
-        return new GtfsDao(obj.id, obj.filename, obj.agencies, GtfsStopDao.fromObjectToArray(obj.stops));
+        return new GtfsDao(obj.id, obj.filename, GtfsAgencyDao.fromObjectToArray(obj.agencies), GtfsStopDao.fromObjectToArray(obj.stops));
     }
 }

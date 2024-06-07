@@ -31,10 +31,13 @@
     "vite": "^4.5.0"
   },
   "dependencies": {
+    "@types/sequelize": "^4.28.20",
     "leaflet": "^1.9.4",
     "papaparse": "^5.4.1",
+    "reflect-metadata": "^0.2.2",
     "sequelize": "^6.37.3",
     "sequelize-cli": "^6.6.2",
+    "sequelize-typescript": "^2.1.6",
     "sqlite3": "^5.1.7",
     "uikit": "^3.19.4",
     "vue": "^3.3.8"

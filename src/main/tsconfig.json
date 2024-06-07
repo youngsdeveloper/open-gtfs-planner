@@ -9,6 +9,9 @@
     "outDir": "../../build/main",
     "allowJs": true,
     "noImplicitAny": false,
+    "experimentalDecorators": true,
+    "emitDecoratorMetadata": true
+
   },
   "exclude": ["static"],
   

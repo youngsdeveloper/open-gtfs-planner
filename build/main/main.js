@@ -1,19 +1,20 @@
 "use strict";
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
 Object.defineProperty(exports, "__esModule", { value: true });
 const electron_1 = require("electron");
 const { buildMenu } = require('./menu');
 const { createMainWindow } = require('./controllers/mainWindowController');
 const { selectDirectory } = require('./controllers/gtfsImporterController');
 const { downloadProject } = require('./controllers/gtfsController');
-const { sequelize } = require('./models');
+const models_1 = __importDefault(require("./models"));
 let mainWindow;
 electron_1.app.whenReady().then(() => {
     mainWindow = createMainWindow();
-    console.log(sequelize);
-    /*
-    sequelize.sync({ force: true }).then(()=>{
-      console.log("DB Synced");
-    })*/
+    models_1.default.sync().then(() => {
+        console.log("DB Synced");
+    });
     electron_1.session.defaultSession.webRequest.onHeadersReceived((details, callback) => {
         callback({
             responseHeaders: Object.assign(Object.assign({}, details.responseHeaders), { 'Content-Security-Policy': ['script-src \'self\''] })

@@ -9,22 +9,30 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-const { DataTypes } = require("sequelize");
-const { sequelize } = require('../models');
-const GtfsAgency = require("../models/gtfsagency")(sequelize, DataTypes);
-const GtfsStop = require("../models/gtfsstop")(sequelize, DataTypes);
-const Project = require("../models/project")(sequelize, DataTypes);
-const GtfsFile = require('../models/gtfsfile')(sequelize, DataTypes);
+const GtfsDao_1 = require("../daos/GtfsDao");
+const project_model_1 = require("../models/project.model");
+const gtfsfile_model_1 = require("../models/gtfsfile.model");
+const gtfsagency_model_1 = require("../models/gtfsagency.model");
+const gtfsstop_model_1 = require("../models/gtfsstop.model");
 function downloadProject(window, idProject) {
     return __awaiter(this, void 0, void 0, function* () {
-        console.log(Project.associations);
-        const project = yield Project.findOne({
+        const project = yield project_model_1.Project.findOne({
             where: { id: idProject },
-            include: ["gtfsFiles"]
+            include: {
+                model: gtfsfile_model_1.GtfsFile,
+                include: [
+                    {
+                        model: gtfsagency_model_1.GtfsAgency
+                    },
+                    {
+                        model: gtfsstop_model_1.GtfsStop
+                    }
+                ]
+            }
         });
-        console.log(project);
-        console.log(project.gtfsFiles);
-        //window.webContents.send('loaded-gtfs', gtfsDAO);
+        const DAO = GtfsDao_1.GtfsDao.fromObject(project === null || project === void 0 ? void 0 : project.gtfsFiles[0]);
+        console.log(DAO.agencies[0].name);
+        window.webContents.send('loaded-gtfs', DAO);
     });
 }
 module.exports = {

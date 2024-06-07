@@ -4,31 +4,38 @@ import Papa from 'papaparse';
 import {GtfsStopDao} from "../daos/GtfsStopDao";
 import { GtfsDao } from "../daos/GtfsDao";
 import { GtfsAgencyDao } from "../daos/GtfsAgencyDao";
+import { Project } from "../models/project.model";
+import { GtfsFile } from "../models/gtfsfile.model";
+import { GtfsAgency } from "../models/gtfsagency.model";
+import { GtfsStop } from "../models/gtfsstop.model";
 
-const {DataTypes} = require("sequelize")
-const {sequelize} = require('../models')
-
-const GtfsAgency = require("../models/gtfsagency")(sequelize,DataTypes);
-const GtfsStop = require("../models/gtfsstop")(sequelize,DataTypes);
-const Project = require("../models/project")(sequelize,DataTypes);
-const GtfsFile = require('../models/gtfsfile')(sequelize,DataTypes)
 
 
 
 async function downloadProject(window, idProject) {
 
-    console.log(Project.associations);
 
 
+    
     const project = await Project.findOne({
         where: { id: idProject },
-        include: ["gtfsFiles"]
+        include: {
+            model: GtfsFile,
+            include: [
+                {
+                    model: GtfsAgency
+                },
+                {
+                    model: GtfsStop
+                }
+            ]
+        }
     });
 
-    console.log(project);
-    console.log(project.gtfsFiles);
+    const DAO = GtfsDao.fromObject(project?.gtfsFiles[0]);
+    console.log(DAO.agencies[0].name)
 
-    //window.webContents.send('loaded-gtfs', gtfsDAO);
+    window.webContents.send('loaded-gtfs', DAO);
     
 }
 

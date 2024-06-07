@@ -4,14 +4,13 @@ import Papa from 'papaparse';
 import {GtfsStopDao} from "../daos/GtfsStopDao";
 import { GtfsDao } from "../daos/GtfsDao";
 import { GtfsAgencyDao } from "../daos/GtfsAgencyDao";
+import { Project } from "../models/project.model";
+import { GtfsFile } from "../models/gtfsfile.model";
+import { GtfsAgency } from "../models/gtfsagency.model";
+import { GtfsStop } from "../models/gtfsstop.model";
 
 const {DataTypes} = require("sequelize")
-const {sequelize} = require('../models')
 
-const GtfsFile = require("../models/gtfsfile")(sequelize,DataTypes);
-const GtfsAgency = require("../models/gtfsagency")(sequelize,DataTypes);
-const GtfsStop = require("../models/gtfsstop")(sequelize,DataTypes);
-const Project = require("../models/project")(sequelize,DataTypes);
 
 const fs = require('fs');
 
@@ -55,7 +54,7 @@ async function selectDirectory(window) {
                       ));
         });
 
-        const gtfsDAO = new GtfsDao(gtfsDB.file.id, gtfsDB.file.fileName, agenciesDAO, stospDao);
+        const gtfsDAO = new GtfsDao(gtfsDB.file.id, gtfsDB.file.filename, agenciesDAO, stospDao);
 
         window.webContents.send('loaded-gtfs', gtfsDAO);
       }
@@ -70,7 +69,7 @@ function parseGTFS(path){
 
 async function uploadGTFS(gtfsData, path){
 
-
+  
   const [project,created] = await Project.findOrCreate({
     where: {
       name: "Initial Project"
@@ -79,10 +78,11 @@ async function uploadGTFS(gtfsData, path){
 
   console.log(project);
 
-  var fileName = path.split("/").at(-1);
-  const gtfsFile = await GtfsFile.create({project_id: project.id, fileName: fileName});
+  var filename = path.split("/").at(-1);
+  
+  const gtfsFile = await GtfsFile.create({project_id: project.id, filename: filename});
 
-  const agencies:typeof GtfsAgency = [];
+  const agencies = [] as GtfsAgency[];
   const agencyMap = {};
   for(const agency of gtfsData.agencies){
     const agencyInDb = await GtfsAgency.create({name: agency.agency_name, gtfs_agency_id: agency.agency_id, gtfs_file_id: gtfsFile.id})
@@ -90,7 +90,7 @@ async function uploadGTFS(gtfsData, path){
     agencies.push(agencyInDb)
   }
 
-  const stops:typeof GtfsStop = [];
+  const stops = [] as GtfsStop[];
   for(const stop of gtfsData.stops){
     console.log(stop)
     const gtfsStop = {...stop, gtfs_stop_id: stop.stop_id, gtfs_file_id: gtfsFile.id};

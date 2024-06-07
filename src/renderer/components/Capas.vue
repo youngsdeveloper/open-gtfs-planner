@@ -7,7 +7,6 @@
             <li class="uk-open">
                 <a class="uk-accordion-title">Capas</a>
                 <div class="uk-accordion-content">
-
                     <div class="uk-panel uk-panel-scrollable">
                         <ul class="uk-list" v-if="gtfs.filename">
                             <li >

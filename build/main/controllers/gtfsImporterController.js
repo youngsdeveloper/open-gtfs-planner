@@ -17,12 +17,11 @@ const papaparse_1 = __importDefault(require("papaparse"));
 const GtfsStopDao_1 = require("../daos/GtfsStopDao");
 const GtfsDao_1 = require("../daos/GtfsDao");
 const GtfsAgencyDao_1 = require("../daos/GtfsAgencyDao");
+const project_model_1 = require("../models/project.model");
+const gtfsfile_model_1 = require("../models/gtfsfile.model");
+const gtfsagency_model_1 = require("../models/gtfsagency.model");
+const gtfsstop_model_1 = require("../models/gtfsstop.model");
 const { DataTypes } = require("sequelize");
-const { sequelize } = require('../models');
-const GtfsFile = require("../models/gtfsfile")(sequelize, DataTypes);
-const GtfsAgency = require("../models/gtfsagency")(sequelize, DataTypes);
-const GtfsStop = require("../models/gtfsstop")(sequelize, DataTypes);
-const Project = require("../models/project")(sequelize, DataTypes);
 const fs = require('fs');
 function selectDirectory(window) {
     return __awaiter(this, void 0, void 0, function* () {
@@ -49,7 +48,7 @@ function selectDirectory(window) {
             gtfsData.stops.forEach(stop => {
                 stospDao.push(new GtfsStopDao_1.GtfsStopDao(stop.id, stop.stop_id, stop.stop_name, stop.stop_lat, stop.stop_lon, stop.agency_id));
             });
-            const gtfsDAO = new GtfsDao_1.GtfsDao(gtfsDB.file.id, gtfsDB.file.fileName, agenciesDAO, stospDao);
+            const gtfsDAO = new GtfsDao_1.GtfsDao(gtfsDB.file.id, gtfsDB.file.filename, agenciesDAO, stospDao);
             window.webContents.send('loaded-gtfs', gtfsDAO);
         }
     });
@@ -62,18 +61,18 @@ function parseGTFS(path) {
 }
 function uploadGTFS(gtfsData, path) {
     return __awaiter(this, void 0, void 0, function* () {
-        const [project, created] = yield Project.findOrCreate({
+        const [project, created] = yield project_model_1.Project.findOrCreate({
             where: {
                 name: "Initial Project"
             }
         });
         console.log(project);
-        var fileName = path.split("/").at(-1);
-        const gtfsFile = yield GtfsFile.create({ project_id: project.id, fileName: fileName });
+        var filename = path.split("/").at(-1);
+        const gtfsFile = yield gtfsfile_model_1.GtfsFile.create({ project_id: project.id, filename: filename });
         const agencies = [];
         const agencyMap = {};
         for (const agency of gtfsData.agencies) {
-            const agencyInDb = yield GtfsAgency.create({ name: agency.agency_name, gtfs_agency_id: agency.agency_id, gtfs_file_id: gtfsFile.id });
+            const agencyInDb = yield gtfsagency_model_1.GtfsAgency.create({ name: agency.agency_name, gtfs_agency_id: agency.agency_id, gtfs_file_id: gtfsFile.id });
             agencyMap[parseInt(agency.agency_id)] = agencyInDb.id;
             agencies.push(agencyInDb);
         }
@@ -82,7 +81,7 @@ function uploadGTFS(gtfsData, path) {
             console.log(stop);
             const gtfsStop = Object.assign(Object.assign({}, stop), { gtfs_stop_id: stop.stop_id, gtfs_file_id: gtfsFile.id });
             try {
-                const stopInDb = yield GtfsStop.create(gtfsStop);
+                const stopInDb = yield gtfsstop_model_1.GtfsStop.create(gtfsStop);
                 stops.push(stopInDb);
             }
             catch (error) {
