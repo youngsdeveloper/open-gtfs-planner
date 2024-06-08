@@ -16,9 +16,6 @@ import { GtfsCalendarDates } from "../models/gtfscalendardates.model";
 
 async function downloadProject(window, idProject) {
 
-
-
-    
     const project = await Project.findOne({
         where: { id: idProject },
         include: {
@@ -35,7 +32,7 @@ async function downloadProject(window, idProject) {
                 },
                 {
                     model: GtfsCalendarDates
-                }                
+                }
             ]
         }
     });
@@ -43,9 +40,7 @@ async function downloadProject(window, idProject) {
     for(const gtfsFile of project?.gtfsFiles!!){
         const DAO = GtfsDao.fromObject(gtfsFile);
         window.webContents.send('loaded-gtfs', DAO);
-    
     }
-    
 }
 
 

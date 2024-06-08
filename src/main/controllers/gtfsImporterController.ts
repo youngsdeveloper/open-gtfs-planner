@@ -14,6 +14,7 @@ import { GtfsCalendarDates } from "../models/gtfscalendardates.model";
 import { GtfsCalendarDatesDao } from "../daos/GtfsCalendarDatesDao";
 import { GtfsTrip } from "../models/gtfstrip.model";
 import { GtfsShape } from "../models/gtfsshape.model";
+import { GtfsStopTime } from "../models/gtfsstoptime.model";
 
 const {DataTypes} = require("sequelize")
 
@@ -81,7 +82,8 @@ function parseGTFS(path){
     routes: parseFile(path, "routes"),
     calendarDates: parseFile(path,"calendar_dates"),
     trips: parseFile(path, "trips"),
-    shapes: parseFile(path, "shapes")
+    shapes: parseFile(path, "shapes"),
+    stopTimes: parseFile(path,"stop_times")
   }
 }
 function parseFile(path, file){
@@ -119,11 +121,14 @@ async function uploadGTFS(gtfsData, path){
   }
 
   const stops = [] as GtfsStop[];
+  const stopsMap = {};
+
   for(const stop of gtfsData.stops){
     const gtfsStop = {...stop, gtfs_stop_id: stop.stop_id, gtfs_file_id: gtfsFile.id};
     try {
       const stopInDb = await GtfsStop.create(gtfsStop);
       stops.push(stopInDb);
+      stopsMap[stopInDb.gtfs_stop_id.toString()] = stopInDb.id;
     } catch (error) {
     }
   }
@@ -157,8 +162,11 @@ async function uploadGTFS(gtfsData, path){
     trips.push(gtfsTrip);
   }
 
-  GtfsTrip.bulkCreate(trips);
-
+  const tripsInDb = await GtfsTrip.bulkCreate(trips);
+  
+  const tripsMap = {};
+  
+  tripsInDb.forEach(trip => tripsMap[trip.trip_id] = trip.id);
 
   const shapes = [] as any[];
   for(const shape of gtfsData.shapes){
@@ -166,7 +174,15 @@ async function uploadGTFS(gtfsData, path){
     shapes.push(gtfsShape);
   }
 
-  GtfsShape.bulkCreate(shapes);
+  await GtfsShape.bulkCreate(shapes);
+
+  const stopTimes = [] as any[];
+  for(const stopTime of gtfsData.stopTimes){
+    const gtfsStopTime = {...stopTime, trip_id: tripsMap[stopTime.trip_id], stop_id: stopsMap[stopTime.stop_id]};
+    stopTimes.push(gtfsStopTime);
+  }
+
+  await GtfsStopTime.bulkCreate(stopTimes);
 
   return {file: gtfsFile, agencies: agencies, stops: stops, routes: routes, calendarDates: calendarDates};
 }

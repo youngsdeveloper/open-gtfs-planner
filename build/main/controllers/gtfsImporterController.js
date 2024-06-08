@@ -27,6 +27,7 @@ const gtfscalendardates_model_1 = require("../models/gtfscalendardates.model");
 const GtfsCalendarDatesDao_1 = require("../daos/GtfsCalendarDatesDao");
 const gtfstrip_model_1 = require("../models/gtfstrip.model");
 const gtfsshape_model_1 = require("../models/gtfsshape.model");
+const gtfsstoptime_model_1 = require("../models/gtfsstoptime.model");
 const { DataTypes } = require("sequelize");
 const fs = require('fs');
 function selectDirectory(window) {
@@ -75,7 +76,8 @@ function parseGTFS(path) {
         routes: parseFile(path, "routes"),
         calendarDates: parseFile(path, "calendar_dates"),
         trips: parseFile(path, "trips"),
-        shapes: parseFile(path, "shapes")
+        shapes: parseFile(path, "shapes"),
+        stopTimes: parseFile(path, "stop_times")
     };
 }
 function parseFile(path, file) {
@@ -103,11 +105,13 @@ function uploadGTFS(gtfsData, path) {
             agencies.push(agencyInDb);
         }
         const stops = [];
+        const stopsMap = {};
         for (const stop of gtfsData.stops) {
             const gtfsStop = Object.assign(Object.assign({}, stop), { gtfs_stop_id: stop.stop_id, gtfs_file_id: gtfsFile.id });
             try {
                 const stopInDb = yield gtfsstop_model_1.GtfsStop.create(gtfsStop);
                 stops.push(stopInDb);
+                stopsMap[stopInDb.gtfs_stop_id.toString()] = stopInDb.id;
             }
             catch (error) {
             }
@@ -135,13 +139,21 @@ function uploadGTFS(gtfsData, path) {
             const gtfsTrip = Object.assign(Object.assign({}, trip), { route_id: routesMap[trip.route_id] });
             trips.push(gtfsTrip);
         }
-        gtfstrip_model_1.GtfsTrip.bulkCreate(trips);
+        const tripsInDb = yield gtfstrip_model_1.GtfsTrip.bulkCreate(trips);
+        const tripsMap = {};
+        tripsInDb.forEach(trip => tripsMap[trip.trip_id] = trip.id);
         const shapes = [];
         for (const shape of gtfsData.shapes) {
             const gtfsShape = Object.assign(Object.assign({}, shape), { gtfs_file_id: gtfsFile.id });
             shapes.push(gtfsShape);
         }
-        gtfsshape_model_1.GtfsShape.bulkCreate(shapes);
+        yield gtfsshape_model_1.GtfsShape.bulkCreate(shapes);
+        const stopTimes = [];
+        for (const stopTime of gtfsData.stopTimes) {
+            const gtfsStopTime = Object.assign(Object.assign({}, stopTime), { trip_id: tripsMap[stopTime.trip_id], stop_id: stopsMap[stopTime.stop_id] });
+            stopTimes.push(gtfsStopTime);
+        }
+        yield gtfsstoptime_model_1.GtfsStopTime.bulkCreate(stopTimes);
         return { file: gtfsFile, agencies: agencies, stops: stops, routes: routes, calendarDates: calendarDates };
     });
 }
