@@ -8,8 +8,8 @@
                 <a class="uk-accordion-title">Capas</a>
                 <div class="uk-accordion-content">
                     <div class="uk-panel uk-panel-scrollable">
-                        <ul class="uk-list" v-if="gtfs.filename">
-                            <li >
+                        <ul class="uk-list" v-for="gtfs in gtfs_files">
+                            <li>
                                 <label><input class="uk-checkbox" type="checkbox" v-model="gtfs.visible"> {{ gtfs.filename }}</label>
                                 <ul>
                                     <li v-for="agency in gtfs.agencies">
@@ -20,14 +20,6 @@
                                             </li>
                                         </ul>
                                     </li>
-                                    <!--<li>
-                                        <label><input class="uk-checkbox" type="checkbox"> Category 2.3</label>
-                                        <ul>
-                                            <li><label><input class="uk-checkbox" type="checkbox"> Category 2.3.1</label></li>
-                                            <li><label><input class="uk-checkbox" type="checkbox"> Category 2.3.2</label></li>
-                                        </ul>
-                                    </li>
-                                    <li><label><input class="uk-checkbox" type="checkbox"> Category 2.4</label></li>-->
                                 </ul>
                             </li>
                             
@@ -60,7 +52,9 @@ import { GtfsDao } from '../../main/daos/GtfsDao';
 export default{
 
     props:{
-        gtfs: GtfsDao
+        gtfs_files: {
+            type: Array
+        }
     },
     methods: {
         importarCapa: function(){

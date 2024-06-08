@@ -7,10 +7,8 @@ import { GtfsFile } from "./gtfsfile.model";
 import { GtfsAgency } from "./gtfsagency.model";
 import { GtfsStop } from "./gtfsstop.model";
 import { GtfsRoute } from "./gtfsroute.model";
+import { GtfsCalendarDates } from "./gtfscalendardates.model";
 
-const fs = require('fs');
-const path = require('path');
-const basename = path.basename(__filename);
 const config = require('../config/config.js');
 
 const sequelize = new Sequelize({
@@ -22,6 +20,6 @@ const sequelize = new Sequelize({
 });
 
 
-sequelize.addModels([Project, GtfsFile, GtfsAgency,GtfsStop, GtfsRoute]);
+sequelize.addModels([Project, GtfsFile, GtfsAgency,GtfsStop, GtfsRoute, GtfsCalendarDates]);
 
 export default sequelize;

@@ -9,7 +9,7 @@ class GtfsAgencyDao {
         this.routes = routes;
     }
     static fromObject(obj) {
-        return new GtfsAgencyDao(obj.id, obj.name, GtfsRouteDao_1.GtfsRouteDao.fromObjectToArray(obj.routes));
+        return new GtfsAgencyDao(obj.name, obj.id, GtfsRouteDao_1.GtfsRouteDao.fromObjectToArray(obj.routes));
     }
     static fromObjectToArray(obj) {
         const data = [];

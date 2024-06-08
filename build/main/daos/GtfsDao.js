@@ -2,17 +2,19 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.GtfsDao = void 0;
 const GtfsAgencyDao_1 = require("./GtfsAgencyDao");
+const GtfsCalendarDatesDao_1 = require("./GtfsCalendarDatesDao");
 const GtfsStopDao_1 = require("./GtfsStopDao");
 class GtfsDao {
-    constructor(id, filename, agencies, stops) {
+    constructor(id, filename, agencies, stops, calendarDates) {
         this.visible = true;
         this.id = id;
         this.filename = filename;
         this.agencies = agencies;
         this.stops = stops;
+        this.calendarDates = calendarDates;
     }
     static fromObject(obj) {
-        return new GtfsDao(obj.id, obj.filename, GtfsAgencyDao_1.GtfsAgencyDao.fromObjectToArray(obj.agencies), GtfsStopDao_1.GtfsStopDao.fromObjectToArray(obj.stops));
+        return new GtfsDao(obj.id, obj.filename, GtfsAgencyDao_1.GtfsAgencyDao.fromObjectToArray(obj.agencies), GtfsStopDao_1.GtfsStopDao.fromObjectToArray(obj.stops), GtfsCalendarDatesDao_1.GtfsCalendarDatesDao.fromObjectToArray(obj.calendarDates));
     }
 }
 exports.GtfsDao = GtfsDao;

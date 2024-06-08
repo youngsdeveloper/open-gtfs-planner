@@ -9,9 +9,12 @@
         <div uk-grid>
             <aside class="uk-width-1-4" aria-label="capas">
                 <div class="uk-container">
-                    <Capas :gtfs="gtfs" />
+                    <Capas :gtfs_files="gtfs_files" />
                 </div>
             </aside>
+
+
+            
 
     
             <section class="uk-width-expand">
@@ -24,13 +27,17 @@
                     ></l-tile-layer>
 
 
-                    <l-marker v-if="gtfs.visible" v-for="stop in gtfs.stops" :lat-lng="stop.getLatLng()">
                     
-                        <l-popup>
-                            {{ stop.stop_name }}
-                        </l-popup>
 
-                    </l-marker>
+                    <template v-for="gtfs_file in gtfs_files">
+                        <l-marker v-if="gtfs_file.visible" v-for="stop in gtfs_file.stops" :lat-lng="stop.getLatLng()">
+                        
+                            <l-popup>
+                                {{ stop.stop_name }}
+                            </l-popup>
+
+                        </l-marker>
+                    </template>
 
                 </l-map>
 
@@ -132,7 +139,7 @@ export default {
   },
   data() {
     return {
-      gtfs: {} as GtfsDao,
+      gtfs_files: [] as GtfsDao[],
       zoom: 15
     };
   },
@@ -142,8 +149,7 @@ export default {
 
     let ctx = this;
     window.electronAPI.onLoadedGtfs((event, gtfs:GtfsDao) => {
-        ctx.gtfs = GtfsDao.fromObject(gtfs);
-        console.log(gtfs.agencies[0])
+        ctx.gtfs_files.push(GtfsDao.fromObject(gtfs));
     })
   },
 };

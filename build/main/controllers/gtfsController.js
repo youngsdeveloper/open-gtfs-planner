@@ -15,6 +15,7 @@ const gtfsfile_model_1 = require("../models/gtfsfile.model");
 const gtfsagency_model_1 = require("../models/gtfsagency.model");
 const gtfsstop_model_1 = require("../models/gtfsstop.model");
 const gtfsroute_model_1 = require("../models/gtfsroute.model");
+const gtfscalendardates_model_1 = require("../models/gtfscalendardates.model");
 function downloadProject(window, idProject) {
     return __awaiter(this, void 0, void 0, function* () {
         const project = yield project_model_1.Project.findOne({
@@ -30,12 +31,17 @@ function downloadProject(window, idProject) {
                     },
                     {
                         model: gtfsstop_model_1.GtfsStop
+                    },
+                    {
+                        model: gtfscalendardates_model_1.GtfsCalendarDates
                     }
                 ]
             }
         });
-        const DAO = GtfsDao_1.GtfsDao.fromObject(project === null || project === void 0 ? void 0 : project.gtfsFiles[0]);
-        window.webContents.send('loaded-gtfs', DAO);
+        for (const gtfsFile of project === null || project === void 0 ? void 0 : project.gtfsFiles) {
+            const DAO = GtfsDao_1.GtfsDao.fromObject(gtfsFile);
+            window.webContents.send('loaded-gtfs', DAO);
+        }
     });
 }
 module.exports = {

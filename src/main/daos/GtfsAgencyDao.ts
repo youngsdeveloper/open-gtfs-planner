@@ -13,7 +13,7 @@ export class GtfsAgencyDao {
     }
 
     static fromObject(obj: any): GtfsAgencyDao {
-        return new GtfsAgencyDao(obj.id, obj.name, GtfsRouteDao.fromObjectToArray(obj.routes));
+        return new GtfsAgencyDao(obj.name,obj.id,GtfsRouteDao.fromObjectToArray(obj.routes));
     }
 
     static fromObjectToArray(obj: any): GtfsAgencyDao[] {

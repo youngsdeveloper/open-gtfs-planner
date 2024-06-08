@@ -10,6 +10,8 @@ import { GtfsAgency } from "../models/gtfsagency.model";
 import { GtfsStop } from "../models/gtfsstop.model";
 import { GtfsRoute } from "../models/gtfsroute.model";
 import { GtfsRouteDao } from "../daos/GtfsRouteDao";
+import { GtfsCalendarDates } from "../models/gtfscalendardates.model";
+import { GtfsCalendarDatesDao } from "../daos/GtfsCalendarDatesDao";
 
 const {DataTypes} = require("sequelize")
 
@@ -40,9 +42,10 @@ async function selectDirectory(window) {
         const gtfsDB = await uploadGTFS(gtfsData, path);
 
         const routesDAO:GtfsRouteDao[] = [] as GtfsRouteDao[];
-        gtfsData.routes.forEach(route => {
+        gtfsDB.routes.forEach(route => {
           routesDAO.push(GtfsRouteDao.fromObject(route));
         });
+
 
         const agenciesDAO:GtfsAgencyDao[] = [] as GtfsAgencyDao[];
         gtfsDB.agencies.forEach(a => {
@@ -52,23 +55,17 @@ async function selectDirectory(window) {
 
 
         const stospDao:GtfsStopDao[] = [] as GtfsStopDao[];
-        gtfsData.stops.forEach(stop => {
-          stospDao.push(new GtfsStopDao(
-                        stop.id,
-                        stop.stop_id,
-                        stop.stop_name,
-                        stop.stop_lat,
-                        stop.stop_lon,
-                        stop.agency_id
-                      ));
+        gtfsDB.stops.forEach(stop => {
+          stospDao.push(GtfsStopDao.fromObject(stop));
         }); 
 
+        const calendarDatesDao:GtfsCalendarDatesDao[] = [] as GtfsCalendarDatesDao[];
+        gtfsDB.calendarDates.forEach(calendarDate => {
+          calendarDatesDao.push(GtfsCalendarDatesDao.fromObject(calendarDate));
+        });
+
         
-
-        console.log("test----")
-        console.log(routesDAO);
-
-        const gtfsDAO = new GtfsDao(gtfsDB.file.id, gtfsDB.file.filename, agenciesDAO, stospDao);
+        const gtfsDAO = new GtfsDao(gtfsDB.file.id, gtfsDB.file.filename, agenciesDAO, stospDao, calendarDatesDao);
 
         window.webContents.send('loaded-gtfs', gtfsDAO);
       }
@@ -78,7 +75,8 @@ function parseGTFS(path){
   return {
     agencies: parseFile(path,"agency"),
     stops: parseFile(path,"stops"),
-    routes: parseFile(path, "routes")
+    routes: parseFile(path, "routes"),
+    calendarDates: parseFile(path,"calendar_dates")
   }
 }
 
@@ -90,8 +88,6 @@ async function uploadGTFS(gtfsData, path){
       name: "Initial Project"
     }
   });
-
-  console.log(project);
 
   var filename = path.split("/").at(-1);
   
@@ -122,7 +118,20 @@ async function uploadGTFS(gtfsData, path){
     routes.push(routeInDb);
   }
 
-  return {file: gtfsFile, agencies: agencies, stops: stops, routes: routes};
+  const calendarDates = [] as GtfsCalendarDates[];
+  for(const calendarDate of gtfsData.calendarDates){
+    const year = calendarDate.date.substring(0, 4);
+    const month = calendarDate.date.substring(4, 6) - 1; // Month is zero-based
+    const day = calendarDate.date.substring(6, 8);
+
+    const date = new Date(year, month, day);
+
+    const gtfsCalendarDate = {service_id: calendarDate.service_id, date: date, exception_type: parseInt(calendarDate.exception_type), gtfs_file_id: gtfsFile.id};
+    const calendarInDb = await GtfsCalendarDates.create(gtfsCalendarDate);
+    calendarDates.push(calendarInDb);
+  }
+
+  return {file: gtfsFile, agencies: agencies, stops: stops, routes: routes, calendarDates: calendarDates};
 }
 
 function parseFile(path, file){
