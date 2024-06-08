@@ -26,6 +26,7 @@ const GtfsRouteDao_1 = require("../daos/GtfsRouteDao");
 const gtfscalendardates_model_1 = require("../models/gtfscalendardates.model");
 const GtfsCalendarDatesDao_1 = require("../daos/GtfsCalendarDatesDao");
 const gtfstrip_model_1 = require("../models/gtfstrip.model");
+const gtfsshape_model_1 = require("../models/gtfsshape.model");
 const { DataTypes } = require("sequelize");
 const fs = require('fs');
 function selectDirectory(window) {
@@ -73,8 +74,17 @@ function parseGTFS(path) {
         stops: parseFile(path, "stops"),
         routes: parseFile(path, "routes"),
         calendarDates: parseFile(path, "calendar_dates"),
-        trips: parseFile(path, "trips")
+        trips: parseFile(path, "trips"),
+        shapes: parseFile(path, "shapes")
     };
+}
+function parseFile(path, file) {
+    const csvData = fs.readFileSync(`${path}/${file}.txt`, 'utf8');
+    // Parsea el archivo CSV usando Papa Parse
+    const results = papaparse_1.default.parse(csvData, {
+        header: true
+    });
+    return results.data;
 }
 function uploadGTFS(gtfsData, path) {
     return __awaiter(this, void 0, void 0, function* () {
@@ -126,16 +136,14 @@ function uploadGTFS(gtfsData, path) {
             trips.push(gtfsTrip);
         }
         gtfstrip_model_1.GtfsTrip.bulkCreate(trips);
+        const shapes = [];
+        for (const shape of gtfsData.shapes) {
+            const gtfsShape = Object.assign(Object.assign({}, shape), { gtfs_file_id: gtfsFile.id });
+            shapes.push(gtfsShape);
+        }
+        gtfsshape_model_1.GtfsShape.bulkCreate(shapes);
         return { file: gtfsFile, agencies: agencies, stops: stops, routes: routes, calendarDates: calendarDates };
     });
-}
-function parseFile(path, file) {
-    const csvData = fs.readFileSync(`${path}/${file}.txt`, 'utf8');
-    // Parsea el archivo CSV usando Papa Parse
-    const results = papaparse_1.default.parse(csvData, {
-        header: true
-    });
-    return results.data;
 }
 module.exports = {
     selectDirectory
