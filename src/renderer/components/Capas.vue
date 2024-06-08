@@ -16,7 +16,7 @@
                                         <label><input class="uk-checkbox" type="checkbox"> {{ agency.name }}</label>
                                         <ul>
                                             <li v-for="route in agency.routes">
-                                                <li><label><input class="uk-checkbox" type="checkbox"> {{ route.route_short_name }}</label></li>
+                                                <li><label><input   @change="downloadShape(route)" class="uk-checkbox" v-model="route.visible" type="checkbox"> {{ route.route_short_name }}</label></li>
                                             </li>
                                         </ul>
                                     </li>
@@ -51,9 +51,16 @@ export default{
             type: Array
         }
     },
+
     methods: {
         importarCapa: function(){
             window.electronAPI.importGTFS();
+        },
+        downloadShape: function(route){
+            console.log("Hola!")
+            if(route.visible){
+                window.electronAPI.downloadShapesByRoute(route.id);
+            }
         }
     },
 

@@ -5,7 +5,7 @@ const { buildMenu } = require('./menu');
 const { createMainWindow } = require('./controllers/mainWindowController');
 
 const { selectDirectory } = require('./controllers/gtfsImporterController');
-const { downloadProject } = require('./controllers/gtfsController');
+const { downloadProject, downloadShapesByRoute } = require('./controllers/gtfsController');
 
 import sequelize from "./models"
 
@@ -52,6 +52,10 @@ ipcMain.on("importGTFS",()=>{
 
 ipcMain.on("downloadCurrentProject",()=>{
   downloadProject(mainWindow,1);
+})
+
+ipcMain.on("downloadShapesByRoute",(event, routeId)=>{
+  downloadShapesByRoute(mainWindow, routeId);
 })
 
 Menu.setApplicationMenu(buildMenu(mainWindow))

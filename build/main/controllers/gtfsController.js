@@ -16,6 +16,9 @@ const gtfsagency_model_1 = require("../models/gtfsagency.model");
 const gtfsstop_model_1 = require("../models/gtfsstop.model");
 const gtfsroute_model_1 = require("../models/gtfsroute.model");
 const gtfscalendardates_model_1 = require("../models/gtfscalendardates.model");
+const gtfstrip_model_1 = require("../models/gtfstrip.model");
+const gtfsshape_model_1 = require("../models/gtfsshape.model");
+const sequelize_1 = require("sequelize");
 function downloadProject(window, idProject) {
     return __awaiter(this, void 0, void 0, function* () {
         const project = yield project_model_1.Project.findOne({
@@ -44,6 +47,27 @@ function downloadProject(window, idProject) {
         }
     });
 }
+function downloadShapesByRoute(window, idRoute) {
+    return __awaiter(this, void 0, void 0, function* () {
+        const trips = yield gtfstrip_model_1.GtfsTrip.findAll({
+            attributes: ['shape_id'],
+            where: {
+                route_id: idRoute
+            }
+        });
+        let shapes_ids = trips.map(t => t.shape_id);
+        shapes_ids = Array.from(new Set(shapes_ids));
+        const shapes = yield gtfsshape_model_1.GtfsShape.findAll({
+            where: {
+                shape_id: {
+                    [sequelize_1.Op.in]: shapes_ids
+                }
+            }
+        });
+        window.webContents.send('loaded-shapes', shapes);
+    });
+}
 module.exports = {
-    downloadProject
+    downloadProject,
+    downloadShapesByRoute
 };

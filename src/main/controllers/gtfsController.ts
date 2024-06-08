@@ -10,6 +10,9 @@ import { GtfsAgency } from "../models/gtfsagency.model";
 import { GtfsStop } from "../models/gtfsstop.model";
 import { GtfsRoute } from "../models/gtfsroute.model";
 import { GtfsCalendarDates } from "../models/gtfscalendardates.model";
+import { GtfsTrip } from "../models/gtfstrip.model";
+import { GtfsShape } from "../models/gtfsshape.model";
+import { Op } from "sequelize";
 
 
 
@@ -43,7 +46,34 @@ async function downloadProject(window, idProject) {
     }
 }
 
+async function downloadShapesByRoute(window, idRoute){
+
+    const trips = await GtfsTrip.findAll({
+        attributes: ['shape_id'],
+        where: {
+            route_id: idRoute
+        }
+    });
+
+    let shapes_ids = trips.map(t => t.shape_id);
+
+    shapes_ids = Array.from(new Set(shapes_ids));
+
+    const shapes = await GtfsShape.findAll({
+        where: {
+            shape_id: {
+                [Op.in]: shapes_ids
+            }
+        }
+    })
+
+
+    window.webContents.send('loaded-shapes', shapes);
+
+}
+
 
 module.exports = {
-    downloadProject
+    downloadProject,
+    downloadShapesByRoute
 };

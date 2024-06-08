@@ -127,8 +127,6 @@ async function uploadGTFS(gtfsData, path){
     agencies.push(agencyInDb)
   }
 
-  console.log(agencyMap);
-
   let stops = [] as any[];
   const stopsMap = {};
 
@@ -158,7 +156,7 @@ async function uploadGTFS(gtfsData, path){
   }
 
   routes = await GtfsRoute.bulkCreate(routes);
-  routes.forEach(r => agencyMap[r.route_id] = r.id);
+  routes.forEach(r => routesMap[r.route_id] = r.id);
 
 
 
@@ -175,6 +173,15 @@ async function uploadGTFS(gtfsData, path){
     calendarDates.push(calendarInDb);
   }
 
+  const shapesMap = {};
+  const shapes = [] as any[];
+  for(const shape of gtfsData.shapes){
+    const gtfsShape = {...shape, gtfs_file_id: gtfsFile.id};
+    shapes.push(gtfsShape);
+  }
+
+  const shapesInDB = await GtfsShape.bulkCreate(shapes);
+
   const trips = [] as any[];
   for(const trip of gtfsData.trips){
     const gtfsTrip = {...trip,route_id: routesMap[trip.route_id]};
@@ -187,13 +194,7 @@ async function uploadGTFS(gtfsData, path){
   
   tripsInDb.forEach(trip => tripsMap[trip.trip_id] = trip.id);
 
-  const shapes = [] as any[];
-  for(const shape of gtfsData.shapes){
-    const gtfsShape = {...shape, gtfs_file_id: gtfsFile.id};
-    shapes.push(gtfsShape);
-  }
-
-  await GtfsShape.bulkCreate(shapes);
+  
 
   const stopTimes = [] as any[];
   for(const stopTime of gtfsData.stopTimes){

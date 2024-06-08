@@ -110,7 +110,6 @@ function uploadGTFS(gtfsData, path) {
             agencyMap[agency.agency_id] = agencyInDb.id;
             agencies.push(agencyInDb);
         }
-        console.log(agencyMap);
         let stops = [];
         const stopsMap = {};
         for (const stop of gtfsData.stops) {
@@ -134,7 +133,7 @@ function uploadGTFS(gtfsData, path) {
             routes.push(gtfsRoute);
         }
         routes = yield gtfsroute_model_1.GtfsRoute.bulkCreate(routes);
-        routes.forEach(r => agencyMap[r.route_id] = r.id);
+        routes.forEach(r => routesMap[r.route_id] = r.id);
         const calendarDates = [];
         for (const calendarDate of gtfsData.calendarDates) {
             const year = calendarDate.date.substring(0, 4);
@@ -145,6 +144,13 @@ function uploadGTFS(gtfsData, path) {
             const calendarInDb = yield gtfscalendardates_model_1.GtfsCalendarDates.create(gtfsCalendarDate);
             calendarDates.push(calendarInDb);
         }
+        const shapesMap = {};
+        const shapes = [];
+        for (const shape of gtfsData.shapes) {
+            const gtfsShape = Object.assign(Object.assign({}, shape), { gtfs_file_id: gtfsFile.id });
+            shapes.push(gtfsShape);
+        }
+        const shapesInDB = yield gtfsshape_model_1.GtfsShape.bulkCreate(shapes);
         const trips = [];
         for (const trip of gtfsData.trips) {
             const gtfsTrip = Object.assign(Object.assign({}, trip), { route_id: routesMap[trip.route_id] });
@@ -153,12 +159,6 @@ function uploadGTFS(gtfsData, path) {
         const tripsInDb = yield gtfstrip_model_1.GtfsTrip.bulkCreate(trips);
         const tripsMap = {};
         tripsInDb.forEach(trip => tripsMap[trip.trip_id] = trip.id);
-        const shapes = [];
-        for (const shape of gtfsData.shapes) {
-            const gtfsShape = Object.assign(Object.assign({}, shape), { gtfs_file_id: gtfsFile.id });
-            shapes.push(gtfsShape);
-        }
-        yield gtfsshape_model_1.GtfsShape.bulkCreate(shapes);
         const stopTimes = [];
         for (const stopTime of gtfsData.stopTimes) {
             const gtfsStopTime = Object.assign(Object.assign({}, stopTime), { trip_id: tripsMap[stopTime.trip_id], stop_id: stopsMap[stopTime.stop_id] });

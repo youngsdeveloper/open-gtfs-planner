@@ -1,10 +1,13 @@
 export class GtfsRouteDao {
 
+    visible: boolean = false;
     id: Number;
     route_short_name: string
     route_long_name: string
     route_id: string
     agency_id: Number
+
+
 
     constructor(
         id: Number,

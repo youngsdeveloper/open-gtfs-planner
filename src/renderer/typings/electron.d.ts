@@ -1,5 +1,6 @@
 import {IpcRendererEvent} from 'electron';
 import { GtfsDao } from '../../main/daos/GtfsDao';
+import { GtfsShapeDao } from '../../main/daos/GtfsShapeDao';
 
 
 /**
@@ -11,6 +12,9 @@ export default interface ElectronApi {
   addListener: (channel:string, listener:(event: IpcRendererEvent, ...args: any[]) => void)=>void,
   onLoadedGtfs: (listener:(event: IpcRendererEvent, gtfs: GtfsDao) => void) =>void
   downloadCurrentProject: ()=>void,
+
+  downloadShapesByRoute: (route_id:Number) => void
+  onLoadedShapes: (listener:(event: IpcRendererEvent, shapes: GtfsShapeDao[]) => void) =>void
 
 }
 

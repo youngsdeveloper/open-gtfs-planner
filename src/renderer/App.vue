@@ -37,6 +37,9 @@
                             </l-popup>
 
                         </l-marker>
+
+                        <!-- <l-polyline v-if="shapes" :lat-lngs="GtfsShapeDao.getLatLngs(shapes)"></l-polyline>  -->
+
                     </template>
 
                 </l-map>
@@ -125,9 +128,10 @@
 
 <script lang="ts">
 import "leaflet/dist/leaflet.css";
-import { LMap, LMarker, LPopup, LTileLayer } from "@vue-leaflet/vue-leaflet";
+import { LMap, LMarker, LPopup, LTileLayer, LPolyline } from "@vue-leaflet/vue-leaflet";
 
 import { GtfsDao } from '../main/daos/GtfsDao';
+import { GtfsShapeDao } from '../main/daos/GtfsShapeDao';
 
 
 export default {
@@ -135,12 +139,14 @@ export default {
     LMap,
     LTileLayer,
     LMarker,
-    LPopup
+    LPopup,
+    LPolyline
   },
   data() {
     return {
       gtfs_files: [] as GtfsDao[],
-      zoom: 15
+      zoom: 15,
+      shapes: [] as GtfsShapeDao[]
     };
   },
   mounted(){
@@ -151,7 +157,14 @@ export default {
     window.electronAPI.onLoadedGtfs((event, gtfs:GtfsDao) => {
         ctx.gtfs_files.push(GtfsDao.fromObject(gtfs));
     })
+
+
+    window.electronAPI.onLoadedShapes((event, shapes: GtfsShapeDao[]) => {
+        ctx.shapes = GtfsShapeDao.fromObjectToArray(shapes);
+        console.log(GtfsShapeDao.getLatLngs(shapes));
+    })
   },
+
 };
 </script>
 
