@@ -12,6 +12,7 @@ import { GtfsRoute } from "../models/gtfsroute.model";
 import { GtfsRouteDao } from "../daos/GtfsRouteDao";
 import { GtfsCalendarDates } from "../models/gtfscalendardates.model";
 import { GtfsCalendarDatesDao } from "../daos/GtfsCalendarDatesDao";
+import { GtfsTrip } from "../models/gtfstrip.model";
 
 const {DataTypes} = require("sequelize")
 
@@ -76,7 +77,8 @@ function parseGTFS(path){
     agencies: parseFile(path,"agency"),
     stops: parseFile(path,"stops"),
     routes: parseFile(path, "routes"),
-    calendarDates: parseFile(path,"calendar_dates")
+    calendarDates: parseFile(path,"calendar_dates"),
+    trips: parseFile(path, "trips")
   }
 }
 
@@ -111,10 +113,13 @@ async function uploadGTFS(gtfsData, path){
     }
   }
 
+  const routesMap = {};
   const routes = [] as GtfsRoute[];
   for(const route of gtfsData.routes){
     const gtfsRoute = {...route, agency_id: agencyMap[route.agency_id]}
     const routeInDb = await GtfsRoute.create(gtfsRoute);
+    agencyMap[route.route_id] = routeInDb.id;
+
     routes.push(routeInDb);
   }
 
@@ -130,6 +135,14 @@ async function uploadGTFS(gtfsData, path){
     const calendarInDb = await GtfsCalendarDates.create(gtfsCalendarDate);
     calendarDates.push(calendarInDb);
   }
+
+  const trips = [] as any[];
+  for(const trip of gtfsData.trips){
+    const gtfsTrip = {...trip,route_id: routesMap[trip.route_id]};
+    trips.push(gtfsTrip);
+  }
+
+  GtfsTrip.bulkCreate(trips);
 
   return {file: gtfsFile, agencies: agencies, stops: stops, routes: routes, calendarDates: calendarDates};
 }

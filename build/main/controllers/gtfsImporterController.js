@@ -25,6 +25,7 @@ const gtfsroute_model_1 = require("../models/gtfsroute.model");
 const GtfsRouteDao_1 = require("../daos/GtfsRouteDao");
 const gtfscalendardates_model_1 = require("../models/gtfscalendardates.model");
 const GtfsCalendarDatesDao_1 = require("../daos/GtfsCalendarDatesDao");
+const gtfstrip_model_1 = require("../models/gtfstrip.model");
 const { DataTypes } = require("sequelize");
 const fs = require('fs');
 function selectDirectory(window) {
@@ -71,7 +72,8 @@ function parseGTFS(path) {
         agencies: parseFile(path, "agency"),
         stops: parseFile(path, "stops"),
         routes: parseFile(path, "routes"),
-        calendarDates: parseFile(path, "calendar_dates")
+        calendarDates: parseFile(path, "calendar_dates"),
+        trips: parseFile(path, "trips")
     };
 }
 function uploadGTFS(gtfsData, path) {
@@ -100,10 +102,12 @@ function uploadGTFS(gtfsData, path) {
             catch (error) {
             }
         }
+        const routesMap = {};
         const routes = [];
         for (const route of gtfsData.routes) {
             const gtfsRoute = Object.assign(Object.assign({}, route), { agency_id: agencyMap[route.agency_id] });
             const routeInDb = yield gtfsroute_model_1.GtfsRoute.create(gtfsRoute);
+            agencyMap[route.route_id] = routeInDb.id;
             routes.push(routeInDb);
         }
         const calendarDates = [];
@@ -116,6 +120,12 @@ function uploadGTFS(gtfsData, path) {
             const calendarInDb = yield gtfscalendardates_model_1.GtfsCalendarDates.create(gtfsCalendarDate);
             calendarDates.push(calendarInDb);
         }
+        const trips = [];
+        for (const trip of gtfsData.trips) {
+            const gtfsTrip = Object.assign(Object.assign({}, trip), { route_id: routesMap[trip.route_id] });
+            trips.push(gtfsTrip);
+        }
+        gtfstrip_model_1.GtfsTrip.bulkCreate(trips);
         return { file: gtfsFile, agencies: agencies, stops: stops, routes: routes, calendarDates: calendarDates };
     });
 }
