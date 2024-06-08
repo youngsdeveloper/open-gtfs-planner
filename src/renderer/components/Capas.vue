@@ -6,8 +6,8 @@
         <ul uk-accordion="multiple: true">
             <li class="uk-open">
                 <a class="uk-accordion-title">Capas</a>
-                <div class="uk-accordion-content">
-                    <div class="uk-panel uk-panel-scrollable">
+                <div class="uk-accordion-content" >
+                    <div class="uk-panel uk-panel-scrollable" style="min-height: 500px">
                         <ul class="uk-list" v-for="gtfs in gtfs_files">
                             <li>
                                 <label><input class="uk-checkbox" type="checkbox" v-model="gtfs.visible"> {{ gtfs.filename }}</label>
@@ -34,12 +34,7 @@
 
                 </div>
             </li>
-            <li>
-                <a class="uk-accordion-title">Mapa Base</a>
-                <div class="uk-accordion-content">
-                    <p>Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor reprehenderit.</p>
-                </div>
-            </li>
+            
         </ul>
     </div>
 </template>

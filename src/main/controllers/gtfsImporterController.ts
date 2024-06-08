@@ -123,9 +123,11 @@ async function uploadGTFS(gtfsData, path){
   const agencyMap = {};
   for(const agency of gtfsData.agencies){
     const agencyInDb = await GtfsAgency.create({name: agency.agency_name, gtfs_agency_id: agency.agency_id, gtfs_file_id: gtfsFile.id})
-    agencyMap[parseInt(agency.agency_id)] = agencyInDb.id;
+    agencyMap[agency.agency_id] = agencyInDb.id;
     agencies.push(agencyInDb)
   }
+
+  console.log(agencyMap);
 
   let stops = [] as any[];
   const stopsMap = {};
@@ -145,14 +147,20 @@ async function uploadGTFS(gtfsData, path){
 
 
   const routesMap = {};
-  const routes = [] as GtfsRoute[];
+  let routes = [] as any[];
   for(const route of gtfsData.routes){
-    const gtfsRoute = {...route, agency_id: agencyMap[route.agency_id]}
-    const routeInDb = await GtfsRoute.create(gtfsRoute);
-    agencyMap[route.route_id] = routeInDb.id;
-
-    routes.push(routeInDb);
+    let agency_id = agencyMap[route.agency_id];
+    if(!route.agency_id){
+      agency_id = agencyMap[Object.keys(agencyMap)[0]]
+    }
+    const gtfsRoute = {...route, agency_id: agency_id}
+    routes.push(gtfsRoute);
   }
+
+  routes = await GtfsRoute.bulkCreate(routes);
+  routes.forEach(r => agencyMap[r.route_id] = r.id);
+
+
 
   const calendarDates = [] as GtfsCalendarDates[];
   for(const calendarDate of gtfsData.calendarDates){
