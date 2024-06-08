@@ -2,3 +2,4 @@ node_modules
 dist
 build
 gtfs_planner_data.db
+gtfs

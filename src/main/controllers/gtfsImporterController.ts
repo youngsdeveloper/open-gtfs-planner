@@ -88,14 +88,21 @@ function parseGTFS(path){
 }
 function parseFile(path, file){
 
-  const csvData = fs.readFileSync(`${path}/${file}.txt`, 'utf8');
+  try {
+    const csvData = fs.readFileSync(`${path}/${file}.txt`, 'utf8');
 
-  // Parsea el archivo CSV usando Papa Parse
-  const results = Papa.parse(csvData, {
-      header: true
-  });
+    // Parsea el archivo CSV usando Papa Parse
+    const results = Papa.parse(csvData, {
+        header: true,
+        skipEmptyLines: true,
+    });
 
-  return results.data;
+    return results.data;
+  } catch (error) {
+    return [];
+  }
+
+  
 }
 
 
@@ -120,18 +127,22 @@ async function uploadGTFS(gtfsData, path){
     agencies.push(agencyInDb)
   }
 
-  const stops = [] as GtfsStop[];
+  let stops = [] as any[];
   const stopsMap = {};
 
   for(const stop of gtfsData.stops){
     const gtfsStop = {...stop, gtfs_stop_id: stop.stop_id, gtfs_file_id: gtfsFile.id};
     try {
-      const stopInDb = await GtfsStop.create(gtfsStop);
-      stops.push(stopInDb);
-      stopsMap[stopInDb.gtfs_stop_id.toString()] = stopInDb.id;
+      stops.push(gtfsStop);
     } catch (error) {
     }
   }
+
+  stops = await GtfsStop.bulkCreate(stops);
+
+
+  stops.forEach(s => stopsMap[s.gtfs_stop_id.toString()] = s.id);
+
 
   const routesMap = {};
   const routes = [] as GtfsRoute[];

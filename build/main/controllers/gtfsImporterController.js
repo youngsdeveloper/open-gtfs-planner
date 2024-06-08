@@ -81,12 +81,18 @@ function parseGTFS(path) {
     };
 }
 function parseFile(path, file) {
-    const csvData = fs.readFileSync(`${path}/${file}.txt`, 'utf8');
-    // Parsea el archivo CSV usando Papa Parse
-    const results = papaparse_1.default.parse(csvData, {
-        header: true
-    });
-    return results.data;
+    try {
+        const csvData = fs.readFileSync(`${path}/${file}.txt`, 'utf8');
+        // Parsea el archivo CSV usando Papa Parse
+        const results = papaparse_1.default.parse(csvData, {
+            header: true,
+            skipEmptyLines: true,
+        });
+        return results.data;
+    }
+    catch (error) {
+        return [];
+    }
 }
 function uploadGTFS(gtfsData, path) {
     return __awaiter(this, void 0, void 0, function* () {
@@ -104,18 +110,18 @@ function uploadGTFS(gtfsData, path) {
             agencyMap[parseInt(agency.agency_id)] = agencyInDb.id;
             agencies.push(agencyInDb);
         }
-        const stops = [];
+        let stops = [];
         const stopsMap = {};
         for (const stop of gtfsData.stops) {
             const gtfsStop = Object.assign(Object.assign({}, stop), { gtfs_stop_id: stop.stop_id, gtfs_file_id: gtfsFile.id });
             try {
-                const stopInDb = yield gtfsstop_model_1.GtfsStop.create(gtfsStop);
-                stops.push(stopInDb);
-                stopsMap[stopInDb.gtfs_stop_id.toString()] = stopInDb.id;
+                stops.push(gtfsStop);
             }
             catch (error) {
             }
         }
+        stops = yield gtfsstop_model_1.GtfsStop.bulkCreate(stops);
+        stops.forEach(s => stopsMap[s.gtfs_stop_id.toString()] = s.id);
         const routesMap = {};
         const routes = [];
         for (const route of gtfsData.routes) {
