@@ -24,17 +24,14 @@
 
                         </template>
                     </template>
+
+
+                    <l-marker v-for="stop in gtfs_file.stops" :lat-lng="stop.getLatLng()">
+                        <l-popup>
+                            {{ stop.stop_name }}
+                        </l-popup>
+                    </l-marker>
                 </template>
-
-
-                <l-marker v-for="stop in gtfs_file.stops" :lat-lng="stop.getLatLng()">
-                    <l-popup>
-                        {{ stop.stop_name }}
-                    </l-popup>
-                </l-marker>
-                
-
-
             </template>
 
         </l-map>
