@@ -11,7 +11,13 @@
         <div uk-grid>
             <aside class="uk-width-1-4" aria-label="capas">
                 <div class="uk-container">
-                    <Layers :gtfs_files="gtfs_files" />
+
+                    <div v-if="loading" style="text-align: center;">
+                        <div uk-spinner="ratio: 2"></div>
+                    </div>
+                    <div v-else>
+                        <Layers :gtfs_files="gtfs_files" />
+                    </div>
                 </div>
             </aside>
 
@@ -114,16 +120,22 @@ export default {
   data() {
     return {
       gtfs_files: [] as GtfsDao[],
-      shapes: [] as GtfsShapeDao[]
+      shapes: [] as GtfsShapeDao[],
+      loading: false
     };
   },
   mounted(){
 
+    this.loading = true;
     window.electronAPI.downloadCurrentProject();
 
     let ctx = this;
     window.electronAPI.onLoadedGtfs((event, gtfs:GtfsDao) => {
         ctx.gtfs_files.push(GtfsDao.fromObject(gtfs));
+    })
+
+    window.electronAPI.addListener("loaded-project", ()=>{
+        ctx.loading = false;
     })
 
 

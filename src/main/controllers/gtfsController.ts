@@ -20,8 +20,8 @@ import { GtfsShapeDao } from "../daos/GtfsShapeDao";
 
 async function downloadProject(window, idProject) {
 
-    const project = await Project.findOne({
-        where: { id: idProject },
+    const [project, created] = await Project.findOrCreate({
+        where: { id: idProject, name: "Initial Project"},
         include: {
             model: GtfsFile,
             include: [
@@ -40,6 +40,9 @@ async function downloadProject(window, idProject) {
             ]
         }
     });
+
+    window.webContents.send('loaded-project');
+
 
     for(const gtfsFile of project?.gtfsFiles!!){
         const DAO = GtfsDao.fromObject(gtfsFile);

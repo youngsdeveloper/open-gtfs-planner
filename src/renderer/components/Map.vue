@@ -13,13 +13,6 @@
 
             <template v-for="gtfs_file in gtfs_files">
                 <template v-if="gtfs_file.visible">
-                    <l-marker v-for="stop in gtfs_file.stops" :lat-lng="stop.getLatLng()">
-                
-                        <l-popup>
-                            {{ stop.stop_name }}
-                        </l-popup>
-
-                    </l-marker>
                     
                     <template v-for="agency in gtfs_file.agencies">
                         <template v-for="route in agency.routes">
@@ -32,6 +25,13 @@
                         </template>
                     </template>
                 </template>
+
+
+                <l-marker v-for="stop in gtfs_file.stops" :lat-lng="stop.getLatLng()">
+                    <l-popup>
+                        {{ stop.stop_name }}
+                    </l-popup>
+                </l-marker>
                 
 
 

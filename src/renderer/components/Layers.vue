@@ -27,9 +27,63 @@
                     </div>
                     
 
-                    <button v-on:click="importarCapa()" class="uk-button uk-button-primary uk-width-1-1 uk-margin-small-bottom uk-margin-small-top">
+                    <a href="#modal-importar" uk-toggle class="uk-button uk-button-primary uk-width-1-1 uk-margin-small-bottom uk-margin-small-top">
                         Importar capa
-                    </button>
+                    </a>
+
+
+                    <div id="modal-importar"  ref="modal_importar" class="uk-flex-top" uk-modal>
+                        <div class="uk-modal-dialog uk-modal-body uk-margin-auto-vertical">
+
+                            <button class="uk-modal-close-default" type="button" uk-close></button>
+
+                            <div v-if="!loadingImporting">
+                                <h2 class="uk-modal-title">
+                                    <span uk-icon="upload"></span>
+                                    Importa archivos GTFS
+                                </h2>
+
+                                <p>
+                                    Puedes importar tus archivos GTFS desde archivos en tu dispositivo o bien
+                                    puedes descargar directamente archivos GTFS desde repositorios de OpenData.
+                                </p>
+
+                                <div class="uk-child-width-expand@s uk-text-center" uk-grid>
+
+                                    <div>
+                                        <div class="uk-card uk-card-default uk-card-body">
+                                            <h3 class="uk-card-title">Desde este PC...</h3>
+                                            <p>
+                                                Selecciona una carpeta con todos los ficheros GTFS.
+                                            </p>
+                                            <button v-on:click="importarCapa()" class="uk-button uk-button-secondary  uk-button-small">Importar GTFS</button>
+
+
+                                        </div>
+                                    </div>
+                                    <div>
+                                        <div class="uk-card uk-card-default uk-card-body">
+                                            <h3 class="uk-card-title">Punto de acceso nacional</h3>
+                                            <img src='/logonap.svg' alt="Logo NAP Mitma" />
+                                            <p>
+                                                Utiliza el repositorio del NAP para buscar GTFS Públicos de España
+                                            </p>
+                                            <button disabled class="uk-button uk-button-secondary  uk-button-small">Buscar en NAP</button>
+
+
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div v-else-if="loadingImporting" style="text-align: center;">
+                                <progress id="js-progressbar" class="uk-progress" :value="loadingImportingStatus" max="100"></progress>
+                            </div>
+
+                            
+
+                        </div>
+                    </div>
+
 
 
                 </div>
@@ -45,6 +99,14 @@ import { GtfsDao } from '../../main/daos/GtfsDao';
 
 export default{
 
+    data(){
+        return {
+            loadingImporting: false,
+            loadingImportingStatus: 0,
+            dialogImportOpen: false
+        }
+    },
+
     props:{
         gtfs_files: {
             type: Array,
@@ -54,6 +116,7 @@ export default{
     methods: {
         importarCapa: function(){
             window.electronAPI.importGTFS();
+            console.log("Hola!");
         },
         downloadShape: function(route){
             if(route.visible && route.shapes.length==0){
@@ -61,6 +124,32 @@ export default{
             }
         }
     },
+
+    mounted(){
+
+        var ctx = this;
+
+        window.electronAPI.addListener("start-loading-gtfs", ()=>{
+            ctx.loadingImporting = true;
+        });
+
+
+        window.electronAPI.addListener("update-loading-gtfs", (event, value)=>{
+            ctx.loadingImportingStatus = value;
+        });
+
+        window.electronAPI.addListener("update-loading-gtfs", (event, value)=>{
+            ctx.loadingImportingStatus = value;
+        });
+
+        
+        window.electronAPI.addListener("end-loading-gtfs", ()=>{
+
+
+            UIkit.modal(ctx.$refs.modal_importar).hide();
+
+        });
+    }
 
 }
 </script>

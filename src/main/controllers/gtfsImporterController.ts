@@ -37,12 +37,17 @@ async function selectDirectory(window) {
 
       if (!result.canceled && result.filePaths.length > 0) {
 
+        window.webContents.send('start-loading-gtfs');
+
+
         const path = result.filePaths[0];
         
         const gtfsData = parseGTFS(path);
 
+        window.webContents.send('update-loading-gtfs', 10);
 
-        const gtfsDB = await uploadGTFS(gtfsData, path);
+
+        const gtfsDB = await uploadGTFS(gtfsData, path, window);
 
         const routesDAO:GtfsRouteDao[] = [] as GtfsRouteDao[];
         gtfsDB.routes.forEach(route => {
@@ -56,6 +61,8 @@ async function selectDirectory(window) {
             agenciesDAO.push(new GtfsAgencyDao(a.name,a.id, routes_by_agency));
         });
 
+        window.webContents.send('update-loading-gtfs', 95);
+
 
         const stospDao:GtfsStopDao[] = [] as GtfsStopDao[];
         gtfsDB.stops.forEach(stop => {
@@ -67,10 +74,14 @@ async function selectDirectory(window) {
           calendarDatesDao.push(GtfsCalendarDatesDao.fromObject(calendarDate));
         });
 
+        window.webContents.send('update-loading-gtfs', 100);
+
         
         const gtfsDAO = new GtfsDao(gtfsDB.file.id, gtfsDB.file.filename, agenciesDAO, stospDao, calendarDatesDao);
 
         window.webContents.send('loaded-gtfs', gtfsDAO);
+        window.webContents.send('end-loading-gtfs', gtfsDAO);
+
       }
 }
 
@@ -106,7 +117,7 @@ function parseFile(path, file){
 }
 
 
-async function uploadGTFS(gtfsData, path){
+async function uploadGTFS(gtfsData, path, window){
 
   
   const [project,created] = await Project.findOrCreate({
@@ -119,6 +130,8 @@ async function uploadGTFS(gtfsData, path){
   
   const gtfsFile = await GtfsFile.create({project_id: project.id, filename: filename});
 
+  window.webContents.send('update-loading-gtfs', 15);
+
   const agencies = [] as GtfsAgency[];
   const agencyMap = {};
   for(const agency of gtfsData.agencies){
@@ -126,6 +139,8 @@ async function uploadGTFS(gtfsData, path){
     agencyMap[agency.agency_id] = agencyInDb.id;
     agencies.push(agencyInDb)
   }
+
+  window.webContents.send('update-loading-gtfs', 20);
 
   let stops = [] as any[];
   const stopsMap = {};
@@ -143,6 +158,8 @@ async function uploadGTFS(gtfsData, path){
 
   stops.forEach(s => stopsMap[s.gtfs_stop_id.toString()] = s.id);
 
+  window.webContents.send('update-loading-gtfs', 40);
+
 
   const routesMap = {};
   let routes = [] as any[];
@@ -158,6 +175,7 @@ async function uploadGTFS(gtfsData, path){
   routes = await GtfsRoute.bulkCreate(routes);
   routes.forEach(r => routesMap[r.route_id] = r.id);
 
+  window.webContents.send('update-loading-gtfs', 45);
 
 
   const calendarDates = [] as GtfsCalendarDates[];
@@ -173,6 +191,9 @@ async function uploadGTFS(gtfsData, path){
     calendarDates.push(calendarInDb);
   }
 
+  window.webContents.send('update-loading-gtfs', 50);
+
+
   const shapesMap = {};
   const shapes = [] as any[];
   for(const shape of gtfsData.shapes){
@@ -180,7 +201,10 @@ async function uploadGTFS(gtfsData, path){
     shapes.push(gtfsShape);
   }
 
+
   const shapesInDB = await GtfsShape.bulkCreate(shapes);
+
+  window.webContents.send('update-loading-gtfs', 60);
 
   const trips = [] as any[];
   for(const trip of gtfsData.trips){
@@ -194,7 +218,8 @@ async function uploadGTFS(gtfsData, path){
   
   tripsInDb.forEach(trip => tripsMap[trip.trip_id] = trip.id);
 
-  
+  window.webContents.send('update-loading-gtfs', 80);
+
 
   const stopTimes = [] as any[];
   for(const stopTime of gtfsData.stopTimes){
@@ -203,6 +228,9 @@ async function uploadGTFS(gtfsData, path){
   }
 
   await GtfsStopTime.bulkCreate(stopTimes);
+
+  window.webContents.send('update-loading-gtfs', 90);
+
 
   return {file: gtfsFile, agencies: agencies, stops: stops, routes: routes, calendarDates: calendarDates};
 }

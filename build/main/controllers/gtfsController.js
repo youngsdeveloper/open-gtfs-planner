@@ -22,8 +22,8 @@ const sequelize_1 = require("sequelize");
 const GtfsShapeDao_1 = require("../daos/GtfsShapeDao");
 function downloadProject(window, idProject) {
     return __awaiter(this, void 0, void 0, function* () {
-        const project = yield project_model_1.Project.findOne({
-            where: { id: idProject },
+        const [project, created] = yield project_model_1.Project.findOrCreate({
+            where: { id: idProject, name: "Initial Project" },
             include: {
                 model: gtfsfile_model_1.GtfsFile,
                 include: [
@@ -42,6 +42,7 @@ function downloadProject(window, idProject) {
                 ]
             }
         });
+        window.webContents.send('loaded-project');
         for (const gtfsFile of project === null || project === void 0 ? void 0 : project.gtfsFiles) {
             const DAO = GtfsDao_1.GtfsDao.fromObject(gtfsFile);
             window.webContents.send('loaded-gtfs', DAO);
