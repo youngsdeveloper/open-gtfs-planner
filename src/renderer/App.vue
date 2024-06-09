@@ -1,5 +1,7 @@
 <script lang="ts" setup>
-    import Capas from './components/Capas.vue'
+    import Layers from './components/Layers.vue'
+    import Map from './components/Map.vue'
+
 </script>
 
 <template>
@@ -9,7 +11,7 @@
         <div uk-grid>
             <aside class="uk-width-1-4" aria-label="capas">
                 <div class="uk-container">
-                    <Capas :gtfs_files="gtfs_files" />
+                    <Layers :gtfs_files="gtfs_files" />
                 </div>
             </aside>
 
@@ -18,44 +20,7 @@
 
     
             <section class="uk-width-expand">
-                <l-map ref="map" :zoom="zoom" :center="[37.9915664, -1.1323996]" >
-                    <l-tile-layer
-                        url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-                        layer-type="base"
-                        name="OpenStreetMap"
-                        attribution="Creado con OpenStreetMap"
-                    ></l-tile-layer>
-
-
-                    
-
-                    <template v-for="gtfs_file in gtfs_files">
-                        <template v-if="gtfs_file.visible">
-                            <l-marker v-for="stop in gtfs_file.stops" :lat-lng="stop.getLatLng()">
-                        
-                                <l-popup>
-                                    {{ stop.stop_name }}
-                                </l-popup>
-
-                            </l-marker>
-                            
-                            <template v-for="agency in gtfs_file.agencies">
-                                <template v-for="route in agency.routes">
-                                    <template v-if="route.visible">
-                                        <l-polyline v-if="route.shapes" 
-                                                    weight="10"
-                                                    :lat-lngs="GtfsShapeDao.getLatLngs(route.shapes)" />
-                                    </template>
-
-                                </template>
-                            </template>
-                        </template>
-                        
-
-
-                    </template>
-
-                </l-map>
+                <Map :gtfs_files="gtfs_files"></Map>
 
             </section>
     
@@ -140,25 +105,15 @@
 
 
 <script lang="ts">
-import "leaflet/dist/leaflet.css";
-import { LMap, LMarker, LPopup, LTileLayer, LPolyline } from "@vue-leaflet/vue-leaflet";
 
 import { GtfsDao } from '../main/daos/GtfsDao';
 import { GtfsShapeDao } from '../main/daos/GtfsShapeDao';
 
 
 export default {
-  components: {
-    LMap,
-    LTileLayer,
-    LMarker,
-    LPopup,
-    LPolyline
-  },
   data() {
     return {
       gtfs_files: [] as GtfsDao[],
-      zoom: 15,
       shapes: [] as GtfsShapeDao[]
     };
   },
