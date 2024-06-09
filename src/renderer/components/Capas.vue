@@ -43,12 +43,11 @@
 <script>
 import { GtfsDao } from '../../main/daos/GtfsDao';
 
-
 export default{
 
     props:{
         gtfs_files: {
-            type: Array
+            type: Array,
         }
     },
 
@@ -57,8 +56,7 @@ export default{
             window.electronAPI.importGTFS();
         },
         downloadShape: function(route){
-            console.log("Hola!")
-            if(route.visible){
+            if(route.visible && route.shapes.length==0){
                 window.electronAPI.downloadShapesByRoute(route.id);
             }
         }

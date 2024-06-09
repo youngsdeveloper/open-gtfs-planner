@@ -14,7 +14,7 @@ export default interface ElectronApi {
   downloadCurrentProject: ()=>void,
 
   downloadShapesByRoute: (route_id:Number) => void
-  onLoadedShapes: (listener:(event: IpcRendererEvent, shapes: GtfsShapeDao[]) => void) =>void
+  onLoadedShapes: (listener:(event: IpcRendererEvent, shapes: GtfsShapeDao[], route_id: Number) => void) =>void
 
 }
 

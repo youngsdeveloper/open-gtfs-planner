@@ -1,3 +1,5 @@
+import { GtfsShapeDao } from "./GtfsShapeDao";
+
 export class GtfsRouteDao {
 
     visible: boolean = false;
@@ -7,6 +9,7 @@ export class GtfsRouteDao {
     route_id: string
     agency_id: Number
 
+    shapes: GtfsShapeDao[] = [] as GtfsShapeDao[]
 
 
     constructor(

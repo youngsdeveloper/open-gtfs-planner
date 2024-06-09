@@ -23,11 +23,12 @@ export class GtfsShapeDao {
   }  
 
   static fromObject(obj: any): GtfsShapeDao {
-      return new GtfsShapeDao(obj.id, obj.shape_id, obj.shape_pt_lat, obj.shape_pt_lon, obj.shape_pt_sequence);
+      const dao = new GtfsShapeDao(obj.id, obj.shape_id, obj.shape_pt_lat, obj.shape_pt_lon, obj.shape_pt_sequence);
+      return dao;
   }
 
   static fromObjectToArray(obj: any): GtfsShapeDao[] {
-      const data: GtfsShapeDao[] = [];
+      const data: GtfsShapeDao[] = [] as GtfsShapeDao[];
       obj.forEach(s => data.push(this.fromObject(s)));
       return data;
   }
@@ -36,7 +37,6 @@ export class GtfsShapeDao {
     return [this.shape_pt_lat, this.shape_pt_lon];
   }
   static getLatLngs(shapes:GtfsShapeDao[]){
-    console.log(shapes);
     const points = []as any[];
     shapes.forEach(s2 => {
       points.push(s2.getLatLng());

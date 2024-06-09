@@ -19,6 +19,7 @@ const gtfscalendardates_model_1 = require("../models/gtfscalendardates.model");
 const gtfstrip_model_1 = require("../models/gtfstrip.model");
 const gtfsshape_model_1 = require("../models/gtfsshape.model");
 const sequelize_1 = require("sequelize");
+const GtfsShapeDao_1 = require("../daos/GtfsShapeDao");
 function downloadProject(window, idProject) {
     return __awaiter(this, void 0, void 0, function* () {
         const project = yield project_model_1.Project.findOne({
@@ -64,7 +65,7 @@ function downloadShapesByRoute(window, idRoute) {
                 }
             }
         });
-        window.webContents.send('loaded-shapes', shapes);
+        window.webContents.send('loaded-shapes', GtfsShapeDao_1.GtfsShapeDao.fromObjectToArray(shapes), idRoute);
     });
 }
 module.exports = {

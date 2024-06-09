@@ -9,6 +9,6 @@ contextBridge.exposeInMainWorld('electronAPI', {
   onLoadedGtfs: (listener:(event: IpcRendererEvent, gtfs: GtfsDao) => void) => ipcRenderer.on("loaded-gtfs", listener),
   downloadCurrentProject: () => ipcRenderer.send("downloadCurrentProject"),
   downloadShapesByRoute: (route_id:Number) => ipcRenderer.send("downloadShapesByRoute",route_id),
-  onLoadedShapes: (listener:(event: IpcRendererEvent, shapes: GtfsShapeDao[]) => void) => ipcRenderer.on("loaded-shapes", listener),
+  onLoadedShapes: (listener:(event: IpcRendererEvent, shapes: GtfsShapeDao[], route_id: Number) => void) => ipcRenderer.on("loaded-shapes", listener),
 
 })

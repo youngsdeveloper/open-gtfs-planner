@@ -13,6 +13,7 @@ import { GtfsCalendarDates } from "../models/gtfscalendardates.model";
 import { GtfsTrip } from "../models/gtfstrip.model";
 import { GtfsShape } from "../models/gtfsshape.model";
 import { Op } from "sequelize";
+import { GtfsShapeDao } from "../daos/GtfsShapeDao";
 
 
 
@@ -68,7 +69,7 @@ async function downloadShapesByRoute(window, idRoute){
     })
 
 
-    window.webContents.send('loaded-shapes', shapes);
+    window.webContents.send('loaded-shapes', GtfsShapeDao.fromObjectToArray(shapes), idRoute);
 
 }
 

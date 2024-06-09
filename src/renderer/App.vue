@@ -30,15 +30,28 @@
                     
 
                     <template v-for="gtfs_file in gtfs_files">
-                        <l-marker v-if="gtfs_file.visible" v-for="stop in gtfs_file.stops" :lat-lng="stop.getLatLng()">
+                        <template v-if="gtfs_file.visible">
+                            <l-marker v-for="stop in gtfs_file.stops" :lat-lng="stop.getLatLng()">
                         
-                            <l-popup>
-                                {{ stop.stop_name }}
-                            </l-popup>
+                                <l-popup>
+                                    {{ stop.stop_name }}
+                                </l-popup>
 
-                        </l-marker>
+                            </l-marker>
+                            
+                            <template v-for="agency in gtfs_file.agencies">
+                                <template v-for="route in agency.routes">
+                                    <template v-if="route.visible">
+                                        <l-polyline v-if="route.shapes" 
+                                                    weight="10"
+                                                    :lat-lngs="GtfsShapeDao.getLatLngs(route.shapes)" />
+                                    </template>
 
-                        <!-- <l-polyline v-if="shapes" :lat-lngs="GtfsShapeDao.getLatLngs(shapes)"></l-polyline>  -->
+                                </template>
+                            </template>
+                        </template>
+                        
+
 
                     </template>
 
@@ -159,9 +172,19 @@ export default {
     })
 
 
-    window.electronAPI.onLoadedShapes((event, shapes: GtfsShapeDao[]) => {
-        ctx.shapes = GtfsShapeDao.fromObjectToArray(shapes);
-        console.log(GtfsShapeDao.getLatLngs(shapes));
+    window.electronAPI.onLoadedShapes((event, shapes: GtfsShapeDao[], route_id: Number) => {
+
+        for(const gtfs_file of ctx.gtfs_files){
+            for(const agency of gtfs_file.agencies){
+                for(const route of agency.routes){
+                    if(route.id == route_id){
+                        const shapesDAO = GtfsShapeDao.fromObjectToArray(shapes);
+                        route.shapes.push(...shapesDAO)
+                        return;
+                    }
+                }
+            }
+        }
     })
   },
 
