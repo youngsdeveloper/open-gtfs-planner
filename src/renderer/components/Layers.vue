@@ -10,7 +10,24 @@
                     <div class="uk-panel uk-panel-scrollable" style="min-height: 500px">
                         <ul class="uk-list" v-for="gtfs in gtfs_files">
                             <li>
-                                <label><input class="uk-checkbox" type="checkbox" v-model="gtfs.visible"> {{ gtfs.filename }}</label>
+                                <label>
+                                    
+                                    <span>
+                                        <input class="uk-checkbox" type="checkbox" v-model="gtfs.visible">
+                                        {{ gtfs.filename }}
+
+                                    </span>
+                                    <span>
+                                        <div class="uk-inline" style="margin-left: 30px;">
+                                        <a href="" class="uk-button uk-icon-link" uk-icon="more"></a>
+
+
+                                        <div uk-dropdown="mode: click">Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.</div>
+                                        </div>
+
+                                    </span>
+
+                                </label>
                                 <ul>
                                     <li v-for="agency in gtfs.agencies">
                                         <label><input class="uk-checkbox" type="checkbox"> {{ agency.name }}</label>

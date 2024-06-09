@@ -5,3 +5,8 @@
     height: 600px; 
     width: 100%;
 }
+
+.uk-button.uk-icon-link{
+    padding: 0;
+    float: right;
+}
