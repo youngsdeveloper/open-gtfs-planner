@@ -12,7 +12,6 @@
             </button>
             <a class="services"  uk-toggle="target: #modal-services">{{ services.length }} servicio<span v-if="services.length>1">s</span></a>
 
-
             <!-- This is the modal -->
             <div id="modal-services" uk-modal>
                 <div class="uk-modal-dialog uk-modal-body">
@@ -65,7 +64,7 @@ export default{
 
     data(){
         return {
-            dateSelected: new Date().toISOString().split('T')[0],
+            dateSelected: this.getDate(new Date().toLocaleDateString()),
             timeSelected: new Date().toTimeString().split(' ')[0],
             speedIndex: 0,
             speedPosibilities: [1,2,3,5],
@@ -78,7 +77,7 @@ export default{
 
             for(const _gtfs_file of this.gtfs_files!!){
                 const gtfs_file = GtfsDao.fromObject(_gtfs_file);
-                const calendarDates = gtfs_file.calendarDates.filter(c => c.date.toISOString().split('T')[0] == this.dateSelected && c.exception_type==1)
+                const calendarDates = gtfs_file.calendarDates.filter(c => this.getDate(c.date.toLocaleDateString()) == this.dateSelected && c.exception_type==1)
 
                 calendarDates.forEach(c => {
                     services.push(new GtfsServiceDao(c.service_id, c.gtfs_file_id, c));
@@ -87,6 +86,17 @@ export default{
             return services;
         }
     },
+
+    methods: {
+        getDate: function(date:String){
+            let year = date.split("/")[2];
+            let month = date.split("/")[1].padStart(2,"0");
+            let day = date.split("/")[0].padStart(2, '0');
+
+            return `${year}-${month}-${day}`;
+
+        }
+    }
 
 }
 </script>
