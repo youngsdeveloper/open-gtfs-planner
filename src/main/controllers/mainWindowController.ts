@@ -14,6 +14,9 @@ function createMainWindow () {
     }
   });
 
+  mainWindow.maximize();
+
+
   if (process.env.NODE_ENV === 'development') {
     const rendererPort = process.argv[2];
     mainWindow.loadURL(`http://localhost:${rendererPort}`);

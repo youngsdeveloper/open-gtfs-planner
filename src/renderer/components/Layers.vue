@@ -189,6 +189,7 @@ export default{
 
             UIkit.modal(ctx.$refs.modal_importar).hide();
             ctx.loadingImporting = false;
+            ctx.loadingImportingStatus = 0;
 
         });
     }

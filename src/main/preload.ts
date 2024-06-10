@@ -11,4 +11,5 @@ contextBridge.exposeInMainWorld('electronAPI', {
   downloadShapesByRoute: (route_id:Number) => ipcRenderer.send("downloadShapesByRoute",route_id),
   onLoadedShapes: (listener:(event: IpcRendererEvent, shapes: GtfsShapeDao[], route_id: Number) => void) => ipcRenderer.on("loaded-shapes", listener),
   deleteGtfs: (gtfs_id:Number) => ipcRenderer.send("deleteGTFS",gtfs_id),
+
 })

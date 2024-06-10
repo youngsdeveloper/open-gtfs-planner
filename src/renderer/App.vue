@@ -1,6 +1,7 @@
 <script lang="ts" setup>
     import Layers from './components/Layers.vue'
     import Map from './components/Map.vue'
+    import SimulatioBar from './components/SimulatioBar.vue'
 
 </script>
 
@@ -12,6 +13,8 @@
             <aside class="uk-width-1-4" aria-label="capas">
                 <div class="uk-container">
 
+
+                    <img src="/logo.svg" alt="logo OpenGTFSPlanner">
                     <div v-if="loading" style="text-align: center;">
                         <div uk-spinner="ratio: 2"></div>
                     </div>
@@ -26,6 +29,9 @@
 
     
             <section class="uk-width-expand">
+
+                <SimulatioBar :gtfs_files="gtfs_files"></SimulatioBar>
+
                 <Map :gtfs_files="gtfs_files"></Map>
 
             </section>
@@ -121,7 +127,8 @@ export default {
     return {
       gtfs_files: [] as GtfsDao[],
       shapes: [] as GtfsShapeDao[],
-      loading: false
+      loading: false,
+      current_services: []
     };
   },
   mounted(){
