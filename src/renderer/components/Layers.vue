@@ -186,9 +186,9 @@ export default{
         
         window.electronAPI.addListener("end-loading-gtfs", ()=>{
 
-            ctx.loadingImporting = false;
 
             UIkit.modal(ctx.$refs.modal_importar).hide();
+            ctx.loadingImporting = false;
 
         });
     }
