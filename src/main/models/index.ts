@@ -23,7 +23,15 @@ const sequelize = new Sequelize({
 });
 
 
+
+
 sequelize.addModels([Project, GtfsFile, GtfsAgency,GtfsStop, GtfsRoute,
                      GtfsCalendarDates, GtfsTrip, GtfsShape, GtfsStopTime]);
+
+
+// Habilitar claves foráneas
+sequelize.query("PRAGMA foreign_keys = ON;").then(() => {
+  console.log("Foreign Key support is enabled.");
+});
 
 export default sequelize;

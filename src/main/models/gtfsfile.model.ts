@@ -4,6 +4,7 @@ import { GtfsAgency } from './gtfsagency.model';
 import { GtfsStop } from './gtfsstop.model';
 import { GtfsRoute } from './gtfsroute.model';
 import { GtfsCalendarDates } from './gtfscalendardates.model';
+import { GtfsShape } from './gtfsshape.model';
 
 @Table
 export class GtfsFile extends Model{
@@ -20,14 +21,29 @@ export class GtfsFile extends Model{
   @BelongsTo(() => Project)
   project!: Project;
 
-  @HasMany(() => GtfsAgency)
+  @HasMany(() => GtfsAgency,{
+    onUpdate: "CASCADE",
+    onDelete: "CASCADE",
+  })
   agencies!: GtfsAgency[];
 
-  @HasMany(() => GtfsStop)
+  @HasMany(() => GtfsStop,{
+    onUpdate: "CASCADE",
+    onDelete: "CASCADE",
+  })
   stops!: GtfsStop[];
 
-  @HasMany(() => GtfsCalendarDates)
+  @HasMany(() => GtfsCalendarDates,{
+    onUpdate: "CASCADE",
+    onDelete: "CASCADE",
+  })
   calendarDates!: GtfsCalendarDates[];
+
+  @HasMany(() => GtfsShape,{
+    onUpdate: "CASCADE",
+    onDelete: "CASCADE",
+  })
+  shapes!: GtfsShape[];
 
 
 }

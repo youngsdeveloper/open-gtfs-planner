@@ -9,4 +9,5 @@ electron_1.contextBridge.exposeInMainWorld('electronAPI', {
     downloadCurrentProject: () => electron_1.ipcRenderer.send("downloadCurrentProject"),
     downloadShapesByRoute: (route_id) => electron_1.ipcRenderer.send("downloadShapesByRoute", route_id),
     onLoadedShapes: (listener) => electron_1.ipcRenderer.on("loaded-shapes", listener),
+    deleteGtfs: (gtfs_id) => electron_1.ipcRenderer.send("deleteGTFS", gtfs_id),
 });

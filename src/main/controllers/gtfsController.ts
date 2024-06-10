@@ -5,7 +5,6 @@ import {GtfsStopDao} from "../daos/GtfsStopDao";
 import { GtfsDao } from "../daos/GtfsDao";
 import { GtfsAgencyDao } from "../daos/GtfsAgencyDao";
 import { Project } from "../models/project.model";
-import { GtfsFile } from "../models/gtfsfile.model";
 import { GtfsAgency } from "../models/gtfsagency.model";
 import { GtfsStop } from "../models/gtfsstop.model";
 import { GtfsRoute } from "../models/gtfsroute.model";
@@ -14,6 +13,8 @@ import { GtfsTrip } from "../models/gtfstrip.model";
 import { GtfsShape } from "../models/gtfsshape.model";
 import { Op } from "sequelize";
 import { GtfsShapeDao } from "../daos/GtfsShapeDao";
+import { GtfsFile } from "../models/gtfsfile.model";
+import { GtfsStopTime } from "../models/gtfsstoptime.model";
 
 
 
@@ -79,8 +80,42 @@ async function downloadShapesByRoute(window, idRoute){
 
 }
 
+async function deleteGTFS(window, idGtfs) {
+    const gtfsFile = await GtfsFile.findByPk(idGtfs);
+    if(gtfsFile){
+        try {
+
+            const stops = await GtfsStop.findAll({
+                attributes: ["id"],
+                where:{
+                    gtfs_file_id: gtfsFile.id
+                }
+            });
+
+            const stopsId = stops.map( s => s.id);
+
+            await GtfsStopTime.destroy({
+                where: {
+                    stop_id: {
+                        [Op.in]: stopsId
+                    }
+                }
+            });
+            
+            await gtfsFile.destroy();
+
+            console.log("GTFS FILE eliminado");
+
+            window.webContents.send('deleted-gtfs', idGtfs);
+    
+        } catch (error) {
+            console.error(error);
+        }
+    } 
+}
 
 module.exports = {
     downloadProject,
-    downloadShapesByRoute
+    downloadShapesByRoute,
+    deleteGTFS
 };

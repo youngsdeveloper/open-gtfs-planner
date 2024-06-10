@@ -15,14 +15,24 @@
                                     <span>
                                         <input class="uk-checkbox" type="checkbox" v-model="gtfs.visible">
                                         {{ gtfs.filename }}
-
                                     </span>
                                     <span>
-                                        <div class="uk-inline" style="margin-left: 30px;">
-                                        <a href="" class="uk-button uk-icon-link" uk-icon="more"></a>
+                                        <div class="uk-inline" style="float: right;">
+                                            <a href="" class="uk-button uk-icon-link" style="line-height: 0;" uk-icon="more"></a>
 
 
-                                        <div uk-dropdown="mode: click">Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.</div>
+                                            <div uk-dropdown="mode: click">
+                                                <div style="text-align: center;">
+                                                    {{ gtfs.filename }}
+                                                    <hr class="uk-divider-small">
+
+                                                </div>
+                                                <button class="uk-button uk-button-danger" v-on:click="eliminarGTFS(gtfs)">
+                                                    <span uk-icon="trash"></span>
+                                                    Eliminar
+                                                </button>
+
+                                            </div>
                                         </div>
 
                                     </span>
@@ -93,6 +103,15 @@
                                 </div>
                             </div>
                             <div v-else-if="loadingImporting" style="text-align: center;">
+                                <h2 class="uk-modal-title">
+                                    <span uk-icon="upload"></span>
+                                    Importando GTFS...
+                                </h2>
+
+                                <p>
+                                    Espera un momento a que se complete la importación.
+                                </p>
+
                                 <progress id="js-progressbar" class="uk-progress" :value="loadingImportingStatus" max="100"></progress>
                             </div>
 
@@ -139,6 +158,11 @@ export default{
             if(route.visible && route.shapes.length==0){
                 window.electronAPI.downloadShapesByRoute(route.id);
             }
+        },
+        eliminarGTFS: function(gtfs){
+            UIkit.modal.confirm(`Estas a punto de eliminar el GTFS ${gtfs.filename}. Esta acción es irreversible. ¿Estás seguro?`).then(function() {
+                window.electronAPI.deleteGtfs(gtfs.id);
+            });
         }
     },
 

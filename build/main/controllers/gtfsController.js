@@ -11,7 +11,6 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 Object.defineProperty(exports, "__esModule", { value: true });
 const GtfsDao_1 = require("../daos/GtfsDao");
 const project_model_1 = require("../models/project.model");
-const gtfsfile_model_1 = require("../models/gtfsfile.model");
 const gtfsagency_model_1 = require("../models/gtfsagency.model");
 const gtfsstop_model_1 = require("../models/gtfsstop.model");
 const gtfsroute_model_1 = require("../models/gtfsroute.model");
@@ -20,6 +19,8 @@ const gtfstrip_model_1 = require("../models/gtfstrip.model");
 const gtfsshape_model_1 = require("../models/gtfsshape.model");
 const sequelize_1 = require("sequelize");
 const GtfsShapeDao_1 = require("../daos/GtfsShapeDao");
+const gtfsfile_model_1 = require("../models/gtfsfile.model");
+const gtfsstoptime_model_1 = require("../models/gtfsstoptime.model");
 function downloadProject(window, idProject) {
     return __awaiter(this, void 0, void 0, function* () {
         const [project, created] = yield project_model_1.Project.findOrCreate({
@@ -71,7 +72,37 @@ function downloadShapesByRoute(window, idRoute) {
         window.webContents.send('loaded-shapes', GtfsShapeDao_1.GtfsShapeDao.fromObjectToArray(shapes), idRoute);
     });
 }
+function deleteGTFS(window, idGtfs) {
+    return __awaiter(this, void 0, void 0, function* () {
+        const gtfsFile = yield gtfsfile_model_1.GtfsFile.findByPk(idGtfs);
+        if (gtfsFile) {
+            try {
+                const stops = yield gtfsstop_model_1.GtfsStop.findAll({
+                    attributes: ["id"],
+                    where: {
+                        gtfs_file_id: gtfsFile.id
+                    }
+                });
+                const stopsId = stops.map(s => s.id);
+                yield gtfsstoptime_model_1.GtfsStopTime.destroy({
+                    where: {
+                        stop_id: {
+                            [sequelize_1.Op.in]: stopsId
+                        }
+                    }
+                });
+                yield gtfsFile.destroy();
+                console.log("GTFS FILE eliminado");
+                window.webContents.send('deleted-gtfs', idGtfs);
+            }
+            catch (error) {
+                console.error(error);
+            }
+        }
+    });
+}
 module.exports = {
     downloadProject,
-    downloadShapesByRoute
+    downloadShapesByRoute,
+    deleteGTFS
 };

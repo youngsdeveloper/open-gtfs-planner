@@ -153,6 +153,10 @@ export default {
             }
         }
     })
+
+    window.electronAPI.addListener("deleted-gtfs", (event, gtfsId)=>{
+        ctx.gtfs_files = ctx.gtfs_files.filter(f => f.id != gtfsId); // Eliminar archivo GTFS Borrado
+    })
   },
 
 };

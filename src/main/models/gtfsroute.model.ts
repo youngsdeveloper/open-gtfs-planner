@@ -1,6 +1,7 @@
-import { Column, Model, Table,ForeignKey,BelongsTo } from 'sequelize-typescript';
+import { Column, Model, Table,ForeignKey,BelongsTo, HasMany } from 'sequelize-typescript';
 import { GtfsFile } from './gtfsfile.model';
 import { GtfsAgency } from './gtfsagency.model';
+import { GtfsTrip } from './gtfstrip.model';
 
 @Table
 export class GtfsRoute extends Model{
@@ -21,5 +22,12 @@ export class GtfsRoute extends Model{
 
   @BelongsTo(() => GtfsAgency)
   agency!: GtfsAgency;
+
+
+  @HasMany(() => GtfsTrip,{
+    onUpdate: "CASCADE",
+    onDelete: "CASCADE",
+  })
+  trips!: GtfsTrip[];
 }
 

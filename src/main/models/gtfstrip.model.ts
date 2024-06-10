@@ -1,7 +1,8 @@
-import { Column, Model, Table,ForeignKey,BelongsTo } from 'sequelize-typescript';
+import { Column, Model, Table,ForeignKey,BelongsTo, HasMany } from 'sequelize-typescript';
 import { GtfsFile } from './gtfsfile.model';
 import { GtfsAgency } from './gtfsagency.model';
 import { GtfsRoute } from './gtfsroute.model';
+import { GtfsStopTime } from './gtfsstoptime.model';
 
 @Table
 export class GtfsTrip extends Model{
@@ -30,5 +31,12 @@ export class GtfsTrip extends Model{
 
   @BelongsTo(() => GtfsRoute)
   route!: GtfsRoute;
+
+
+  @HasMany(() => GtfsStopTime,{
+    onUpdate: "CASCADE",
+    onDelete: "CASCADE",
+  })
+  stopTimes!: GtfsStopTime[];
 }
 

@@ -15,6 +15,7 @@ const project_model_1 = require("./project.model");
 const gtfsagency_model_1 = require("./gtfsagency.model");
 const gtfsstop_model_1 = require("./gtfsstop.model");
 const gtfscalendardates_model_1 = require("./gtfscalendardates.model");
+const gtfsshape_model_1 = require("./gtfsshape.model");
 let GtfsFile = class GtfsFile extends sequelize_typescript_1.Model {
 };
 exports.GtfsFile = GtfsFile;
@@ -32,17 +33,33 @@ __decorate([
     __metadata("design:type", project_model_1.Project)
 ], GtfsFile.prototype, "project", void 0);
 __decorate([
-    (0, sequelize_typescript_1.HasMany)(() => gtfsagency_model_1.GtfsAgency),
+    (0, sequelize_typescript_1.HasMany)(() => gtfsagency_model_1.GtfsAgency, {
+        onUpdate: "CASCADE",
+        onDelete: "CASCADE",
+    }),
     __metadata("design:type", Array)
 ], GtfsFile.prototype, "agencies", void 0);
 __decorate([
-    (0, sequelize_typescript_1.HasMany)(() => gtfsstop_model_1.GtfsStop),
+    (0, sequelize_typescript_1.HasMany)(() => gtfsstop_model_1.GtfsStop, {
+        onUpdate: "CASCADE",
+        onDelete: "CASCADE",
+    }),
     __metadata("design:type", Array)
 ], GtfsFile.prototype, "stops", void 0);
 __decorate([
-    (0, sequelize_typescript_1.HasMany)(() => gtfscalendardates_model_1.GtfsCalendarDates),
+    (0, sequelize_typescript_1.HasMany)(() => gtfscalendardates_model_1.GtfsCalendarDates, {
+        onUpdate: "CASCADE",
+        onDelete: "CASCADE",
+    }),
     __metadata("design:type", Array)
 ], GtfsFile.prototype, "calendarDates", void 0);
+__decorate([
+    (0, sequelize_typescript_1.HasMany)(() => gtfsshape_model_1.GtfsShape, {
+        onUpdate: "CASCADE",
+        onDelete: "CASCADE",
+    }),
+    __metadata("design:type", Array)
+], GtfsFile.prototype, "shapes", void 0);
 exports.GtfsFile = GtfsFile = __decorate([
     sequelize_typescript_1.Table
 ], GtfsFile);

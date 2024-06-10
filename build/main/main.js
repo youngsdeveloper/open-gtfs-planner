@@ -7,7 +7,7 @@ const electron_1 = require("electron");
 const { buildMenu } = require('./menu');
 const { createMainWindow } = require('./controllers/mainWindowController');
 const { selectDirectory } = require('./controllers/gtfsImporterController');
-const { downloadProject, downloadShapesByRoute } = require('./controllers/gtfsController');
+const { downloadProject, downloadShapesByRoute, deleteGTFS } = require('./controllers/gtfsController');
 const models_1 = __importDefault(require("./models"));
 let mainWindow;
 electron_1.app.whenReady().then(() => {
@@ -43,5 +43,8 @@ electron_1.ipcMain.on("downloadCurrentProject", () => {
 });
 electron_1.ipcMain.on("downloadShapesByRoute", (event, routeId) => {
     downloadShapesByRoute(mainWindow, routeId);
+});
+electron_1.ipcMain.on("deleteGTFS", (event, gtfsId) => {
+    deleteGTFS(mainWindow, gtfsId);
 });
 electron_1.Menu.setApplicationMenu(buildMenu(mainWindow));
