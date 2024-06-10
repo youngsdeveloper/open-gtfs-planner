@@ -43,11 +43,14 @@ async function downloadProject(window, idProject) {
 
     window.webContents.send('loaded-project');
 
-
-    for(const gtfsFile of project?.gtfsFiles!!){
-        const DAO = GtfsDao.fromObject(gtfsFile);
-        window.webContents.send('loaded-gtfs', DAO);
+    if(project?.gtfsFiles){
+        for(const gtfsFile of project?.gtfsFiles!!){
+            const DAO = GtfsDao.fromObject(gtfsFile);
+            window.webContents.send('loaded-gtfs', DAO);
+        }
     }
+
+    
 }
 
 async function downloadShapesByRoute(window, idRoute){
