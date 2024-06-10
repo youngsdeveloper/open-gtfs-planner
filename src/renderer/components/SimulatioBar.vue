@@ -25,7 +25,7 @@
                         <ul class="uk-list uk-list-divider">
 
                             <li v-for="service in services">
-                                {{ service.service_id }}
+                                {{ service.service_id }} -- {{ service.gtfs_file_name }}
                             </li>
                         </ul>
 
@@ -80,8 +80,30 @@ export default{
                 const calendarDates = gtfs_file.calendarDates.filter(c => this.getDate(c.date.toLocaleDateString()) == this.dateSelected && c.exception_type==1)
 
                 calendarDates.forEach(c => {
-                    services.push(new GtfsServiceDao(c.service_id, c.gtfs_file_id, c));
+                    services.push(new GtfsServiceDao(c.service_id, c.gtfs_file_id, gtfs_file.filename));
                 })
+
+                for(const rule of gtfs_file.calendar){
+
+                    let localNow = new Date(this.dateSelected);
+                        let dayOfWeek = localNow.getDay();
+
+                    if(rule.isDay(dayOfWeek)){ // Cumple con el dia  de la semana
+
+                        let localStartDate = new Date(this.getDate(rule.start_date.toLocaleDateString()))
+                        let localEndDate = new Date(this.getDate(rule.end_date.toLocaleDateString())) 
+
+                        if(localNow > localStartDate && localNow<localEndDate){ // Esta en el rango de fechas
+                            services.push(new GtfsServiceDao(rule.service_id, rule.gtfs_file_id, gtfs_file.filename));
+                        }
+                    }
+
+
+
+                    
+
+
+                }
             }
             return services;
         }

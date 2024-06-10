@@ -15,6 +15,8 @@ import { GtfsCalendarDatesDao } from "../daos/GtfsCalendarDatesDao";
 import { GtfsTrip } from "../models/gtfstrip.model";
 import { GtfsShape } from "../models/gtfsshape.model";
 import { GtfsStopTime } from "../models/gtfsstoptime.model";
+import { GtfsCalendarDao } from "../daos/GtfsCalendarDao";
+import { GtfsCalendar } from "../models/gtfscalendar.model";
 
 const {DataTypes} = require("sequelize")
 
@@ -74,10 +76,15 @@ async function selectDirectory(window) {
           calendarDatesDao.push(GtfsCalendarDatesDao.fromObject(calendarDate));
         });
 
+        const calendarsDao:GtfsCalendarDao[] = [] as GtfsCalendarDao[];
+        gtfsDB.calendars.forEach(calendar => {
+          calendarsDao.push(GtfsCalendarDao.fromObject(calendar));
+        });
+
         window.webContents.send('update-loading-gtfs', 100);
 
         
-        const gtfsDAO = new GtfsDao(gtfsDB.file.id, gtfsDB.file.filename, agenciesDAO, stospDao, calendarDatesDao);
+        const gtfsDAO = new GtfsDao(gtfsDB.file.id, gtfsDB.file.filename, agenciesDAO, stospDao, calendarDatesDao, calendarsDao);
 
         window.webContents.send('loaded-gtfs', gtfsDAO);
         window.webContents.send('end-loading-gtfs', gtfsDAO);
@@ -91,6 +98,7 @@ function parseGTFS(path){
     agencies: parseFile(path,"agency"),
     stops: parseFile(path,"stops"),
     routes: parseFile(path, "routes"),
+    calendars: parseFile(path,"calendar"),
     calendarDates: parseFile(path,"calendar_dates"),
     trips: parseFile(path, "trips"),
     shapes: parseFile(path, "shapes"),
@@ -191,6 +199,27 @@ async function uploadGTFS(gtfsData, path, window){
     calendarDates.push(calendarInDb);
   }
 
+  const calendars = [] as GtfsCalendar[];
+  for(const calendar of gtfsData.calendars){
+    let year = calendar.start_date.substring(0, 4);
+    let month = calendar.start_date.substring(4, 6) - 1; 
+    let day = calendar.start_date.substring(6, 8);
+
+    const startDate = new Date(year, month, day);
+
+    year = calendar.end_date.substring(0, 4);
+    month = calendar.end_date.substring(4, 6) - 1; 
+    day = calendar.end_date.substring(6, 8);
+
+    const endDate = new Date(year, month, day);
+
+    
+    const gtfsCalendar = { ...calendar, service_id: calendar.service_id, start_date: startDate, end_date: endDate, gtfs_file_id: gtfsFile.id};
+        
+    const calendarInDb = await GtfsCalendar.create(gtfsCalendar);
+    calendars.push(calendarInDb);
+  }
+
   window.webContents.send('update-loading-gtfs', 50);
 
 
@@ -232,7 +261,7 @@ async function uploadGTFS(gtfsData, path, window){
   window.webContents.send('update-loading-gtfs', 90);
 
 
-  return {file: gtfsFile, agencies: agencies, stops: stops, routes: routes, calendarDates: calendarDates};
+  return {file: gtfsFile, agencies: agencies, stops: stops, routes: routes, calendarDates: calendarDates, calendars: calendars};
 }
 
 

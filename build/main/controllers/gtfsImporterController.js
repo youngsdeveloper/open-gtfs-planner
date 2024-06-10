@@ -28,6 +28,8 @@ const GtfsCalendarDatesDao_1 = require("../daos/GtfsCalendarDatesDao");
 const gtfstrip_model_1 = require("../models/gtfstrip.model");
 const gtfsshape_model_1 = require("../models/gtfsshape.model");
 const gtfsstoptime_model_1 = require("../models/gtfsstoptime.model");
+const GtfsCalendarDao_1 = require("../daos/GtfsCalendarDao");
+const gtfscalendar_model_1 = require("../models/gtfscalendar.model");
 const { DataTypes } = require("sequelize");
 const fs = require('fs');
 function selectDirectory(window) {
@@ -67,8 +69,12 @@ function selectDirectory(window) {
             gtfsDB.calendarDates.forEach(calendarDate => {
                 calendarDatesDao.push(GtfsCalendarDatesDao_1.GtfsCalendarDatesDao.fromObject(calendarDate));
             });
+            const calendarsDao = [];
+            gtfsDB.calendars.forEach(calendar => {
+                calendarsDao.push(GtfsCalendarDao_1.GtfsCalendarDao.fromObject(calendar));
+            });
             window.webContents.send('update-loading-gtfs', 100);
-            const gtfsDAO = new GtfsDao_1.GtfsDao(gtfsDB.file.id, gtfsDB.file.filename, agenciesDAO, stospDao, calendarDatesDao);
+            const gtfsDAO = new GtfsDao_1.GtfsDao(gtfsDB.file.id, gtfsDB.file.filename, agenciesDAO, stospDao, calendarDatesDao, calendarsDao);
             window.webContents.send('loaded-gtfs', gtfsDAO);
             window.webContents.send('end-loading-gtfs', gtfsDAO);
         }
@@ -79,6 +85,7 @@ function parseGTFS(path) {
         agencies: parseFile(path, "agency"),
         stops: parseFile(path, "stops"),
         routes: parseFile(path, "routes"),
+        calendars: parseFile(path, "calendar"),
         calendarDates: parseFile(path, "calendar_dates"),
         trips: parseFile(path, "trips"),
         shapes: parseFile(path, "shapes"),
@@ -153,6 +160,20 @@ function uploadGTFS(gtfsData, path, window) {
             const calendarInDb = yield gtfscalendardates_model_1.GtfsCalendarDates.create(gtfsCalendarDate);
             calendarDates.push(calendarInDb);
         }
+        const calendars = [];
+        for (const calendar of gtfsData.calendars) {
+            let year = calendar.start_date.substring(0, 4);
+            let month = calendar.start_date.substring(4, 6) - 1;
+            let day = calendar.start_date.substring(6, 8);
+            const startDate = new Date(year, month, day);
+            year = calendar.end_date.substring(0, 4);
+            month = calendar.end_date.substring(4, 6) - 1;
+            day = calendar.end_date.substring(6, 8);
+            const endDate = new Date(year, month, day);
+            const gtfsCalendar = Object.assign(Object.assign({}, calendar), { service_id: calendar.service_id, start_date: startDate, end_date: endDate, gtfs_file_id: gtfsFile.id });
+            const calendarInDb = yield gtfscalendar_model_1.GtfsCalendar.create(gtfsCalendar);
+            calendars.push(calendarInDb);
+        }
         window.webContents.send('update-loading-gtfs', 50);
         const shapesMap = {};
         const shapes = [];
@@ -178,7 +199,7 @@ function uploadGTFS(gtfsData, path, window) {
         }
         yield gtfsstoptime_model_1.GtfsStopTime.bulkCreate(stopTimes);
         window.webContents.send('update-loading-gtfs', 90);
-        return { file: gtfsFile, agencies: agencies, stops: stops, routes: routes, calendarDates: calendarDates };
+        return { file: gtfsFile, agencies: agencies, stops: stops, routes: routes, calendarDates: calendarDates, calendars: calendars };
     });
 }
 module.exports = {

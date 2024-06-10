@@ -15,6 +15,7 @@ import { Op } from "sequelize";
 import { GtfsShapeDao } from "../daos/GtfsShapeDao";
 import { GtfsFile } from "../models/gtfsfile.model";
 import { GtfsStopTime } from "../models/gtfsstoptime.model";
+import { GtfsCalendar } from "../models/gtfscalendar.model";
 
 
 
@@ -33,14 +34,23 @@ async function downloadProject(window, idProject) {
                     ]
                 },
                 {
-                    model: GtfsStop
+                    model: GtfsStop,
+                    separate: true
                 },
                 {
-                    model: GtfsCalendarDates
+                    model: GtfsCalendarDates,
+                    separate: true
+
+                },
+                {
+                    model: GtfsCalendar,
+                    separate: true
                 }
             ]
         }
     });
+
+    console.log("GTFS Cargado...");
 
     window.webContents.send('loaded-project');
 

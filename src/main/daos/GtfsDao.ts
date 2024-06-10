@@ -1,4 +1,5 @@
 import { GtfsAgencyDao } from "./GtfsAgencyDao";
+import { GtfsCalendarDao } from "./GtfsCalendarDao";
 import { GtfsCalendarDatesDao } from "./GtfsCalendarDatesDao";
 import { GtfsRouteDao } from "./GtfsRouteDao";
 import { GtfsStopDao } from "./GtfsStopDao";
@@ -10,6 +11,7 @@ export class GtfsDao {
     agencies: GtfsAgencyDao[];
     stops: GtfsStopDao[];
     calendarDates: GtfsCalendarDatesDao[];
+    calendar: GtfsCalendarDao[];
     visible: boolean = true;
 
     constructor(
@@ -17,19 +19,23 @@ export class GtfsDao {
         filename: String,
         agencies: GtfsAgencyDao[],
         stops: GtfsStopDao[],
-        calendarDates: GtfsCalendarDatesDao[]
+        calendarDates: GtfsCalendarDatesDao[],
+        calendar: GtfsCalendarDao[]
     ) {
         this.id = id
         this.filename = filename
         this.agencies = agencies
         this.stops = stops
         this.calendarDates = calendarDates
+        this.calendar = calendar
     }
 
     static fromObject(obj: any): GtfsDao {
         return new GtfsDao(obj.id, obj.filename,
             GtfsAgencyDao.fromObjectToArray(obj.agencies),
             GtfsStopDao.fromObjectToArray(obj.stops),
-            GtfsCalendarDatesDao.fromObjectToArray(obj.calendarDates));
+            GtfsCalendarDatesDao.fromObjectToArray(obj.calendarDates),
+            GtfsCalendarDao.fromObjectToArray(obj.calendar)
+        );
     }
 }

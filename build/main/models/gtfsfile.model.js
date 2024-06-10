@@ -16,6 +16,7 @@ const gtfsagency_model_1 = require("./gtfsagency.model");
 const gtfsstop_model_1 = require("./gtfsstop.model");
 const gtfscalendardates_model_1 = require("./gtfscalendardates.model");
 const gtfsshape_model_1 = require("./gtfsshape.model");
+const gtfscalendar_model_1 = require("./gtfscalendar.model");
 let GtfsFile = class GtfsFile extends sequelize_typescript_1.Model {
 };
 exports.GtfsFile = GtfsFile;
@@ -46,6 +47,13 @@ __decorate([
     }),
     __metadata("design:type", Array)
 ], GtfsFile.prototype, "stops", void 0);
+__decorate([
+    (0, sequelize_typescript_1.HasMany)(() => gtfscalendar_model_1.GtfsCalendar, {
+        onUpdate: "CASCADE",
+        onDelete: "CASCADE",
+    }),
+    __metadata("design:type", Array)
+], GtfsFile.prototype, "calendar", void 0);
 __decorate([
     (0, sequelize_typescript_1.HasMany)(() => gtfscalendardates_model_1.GtfsCalendarDates, {
         onUpdate: "CASCADE",

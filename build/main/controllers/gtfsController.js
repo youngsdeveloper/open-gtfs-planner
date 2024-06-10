@@ -21,6 +21,7 @@ const sequelize_1 = require("sequelize");
 const GtfsShapeDao_1 = require("../daos/GtfsShapeDao");
 const gtfsfile_model_1 = require("../models/gtfsfile.model");
 const gtfsstoptime_model_1 = require("../models/gtfsstoptime.model");
+const gtfscalendar_model_1 = require("../models/gtfscalendar.model");
 function downloadProject(window, idProject) {
     return __awaiter(this, void 0, void 0, function* () {
         const [project, created] = yield project_model_1.Project.findOrCreate({
@@ -35,14 +36,21 @@ function downloadProject(window, idProject) {
                         ]
                     },
                     {
-                        model: gtfsstop_model_1.GtfsStop
+                        model: gtfsstop_model_1.GtfsStop,
+                        separate: true
                     },
                     {
-                        model: gtfscalendardates_model_1.GtfsCalendarDates
+                        model: gtfscalendardates_model_1.GtfsCalendarDates,
+                        separate: true
+                    },
+                    {
+                        model: gtfscalendar_model_1.GtfsCalendar,
+                        separate: true
                     }
                 ]
             }
         });
+        console.log("GTFS Cargado...");
         window.webContents.send('loaded-project');
         if (project === null || project === void 0 ? void 0 : project.gtfsFiles) {
             for (const gtfsFile of project === null || project === void 0 ? void 0 : project.gtfsFiles) {
