@@ -35,7 +35,7 @@
             </template>
 
             <l-marker v-for="trip in trips_in_route"
-                        :lat-lng="trip.getCurrentPrevStop(simulation_settings.datetimeSelected)?.getLatLng()"
+                        :lat-lng="trip.getCurrentPosition(simulation_settings.datetimeSelected)"
                         ></l-marker>
             
 
@@ -45,7 +45,7 @@
         {{  simulation_settings.datetimeSelected }}
 
         <div v-for="trip in trips_in_route">
-            {{  trip.getCurrentPrevStop(simulation_settings.datetimeSelected) }}
+            {{  trip.getCurrentPosition(simulation_settings.datetimeSelected) }}
         </div>
 
     </div>

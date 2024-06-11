@@ -1,3 +1,4 @@
+import { InterpolationHelper } from "../geo/InterpolationHelper";
 import { GtfsStopTimeDao } from "./GtfsStopTimeDao";
 
 export class GtfsTripDao {
@@ -62,20 +63,58 @@ export class GtfsTripDao {
         this.end_datetime = endDatetime;
     }
 
-    getCurrentPrevStop(d:Date){
+    getCurrentPrevNextStop(d:Date){
+        let index =0;
         for(const stopTime of this.stopTimes){
-            const stopTimeArrival = new Date(d);
 
-            const stopTimeArrivalHours = stopTime.arrival_time.split(":").map(h =>parseInt(h))
+            const stopTimeArrival = stopTime.getArrivalTimeInDate(d);
 
-            stopTimeArrival.setHours(stopTimeArrivalHours[0],stopTimeArrivalHours[1],stopTimeArrivalHours[2])
             if(stopTimeArrival>d){
-                return stopTime.stop;
+                if(this.stopTimes.at(index+1)!=undefined){
+                    return {prev: stopTime, next: this.stopTimes.at(index+1)!!}
+                }else{
+                    return {prev: stopTime, next: null}
+                }
             }
+            index++;
         }
     }
 
-    getCurrentNextStop(d:Date){
+    getCurrentPosition(d:Date){
+
+        const currentStopTimes = this.getCurrentPrevNextStop(d);
+
+        console.log("--");
+
+        if(!currentStopTimes?.next){
+            console.log("NO NEXT");
+
+            return currentStopTimes?.prev.stop.getLatLng();
+        }
+
+
+        // Calculamos fraccion
+
+        const datePrev = currentStopTimes.prev.getArrivalTimeInDate(d);
+        const dateNext = currentStopTimes.next.getArrivalTimeInDate(d);
+
+        const timePrev = datePrev.getTime();
+        const timeNext = dateNext.getTime();
+        const timeCurrent = d.getTime();
+
+        const fraction = this.getFraction(timeCurrent, timePrev, timeNext);
+
+      
+        console.log("Hola");
+
+        return InterpolationHelper.interpolateGeodetic(currentStopTimes?.prev.stop.getLatLng(), currentStopTimes?.next.stop.getLatLng(),fraction)
+    }
+
+    getFraction(timeCurrent, timePrev, timeNext){
+        if (timeCurrent <= timePrev) return 0;
+        if (timeCurrent >= timeNext) return 1;
+      
+        return (timeCurrent - timePrev) / (timeNext - timePrev);
 
     }
 

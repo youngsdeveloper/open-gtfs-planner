@@ -45,4 +45,14 @@ export class GtfsStopTimeDao {
         return data;
     }
 
+    getArrivalTimeInDate(d:Date){
+        const stopTimeArrival = new Date(d);
+
+        const stopTimeArrivalHours = this.arrival_time.split(":").map(h =>parseInt(h))
+        stopTimeArrival.setHours(stopTimeArrivalHours[0],stopTimeArrivalHours[1],stopTimeArrivalHours[2])
+        return stopTimeArrival;
+    }
+
+
+    
 }
