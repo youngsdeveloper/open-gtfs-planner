@@ -38,8 +38,8 @@
 
             <span class="buttons_play">
                 
-                <img src="/play-button.png" alt="">
-                <img src="/pause-button.png" alt="">
+                <img src="/play-button.png" v-on:click="playSimulation()" alt="">
+                <img src="/pause-button.png" v-on:click="pauseSimulation()" alt="">
 
             </span>
         </div>
@@ -52,6 +52,9 @@
 import { GtfsCalendarDatesDao } from '../../main/daos/GtfsCalendarDatesDao';
 import { GtfsDao } from '../../main/daos/GtfsDao';
 import { GtfsServiceDao } from '../../main/daos/GtfsServiceDao';
+
+
+type IntervalID = ReturnType<typeof setInterval>;
 
 export default{
 
@@ -70,6 +73,7 @@ export default{
         return {
             speedIndex: 0,
             speedPosibilities: [1,2,3,5],
+            intervalSimulation: null as IntervalID | null
         }
     },
 
@@ -119,15 +123,17 @@ export default{
             let day = date.split("/")[0].padStart(2, '0');
 
             return `${year}-${month}-${day}`;
-
-        }
-    },
-
-    mounted(){
-
-        let ctx = this;
-        function updateTime(){
-            const [hours, mins] = ctx.simulationSettings.timeSelected.split(':').map(Number);
+        },
+        playSimulation: function(){
+            this.intervalSimulation = setInterval(this.updateTime, 500);
+        },
+        pauseSimulation: function(){
+            if(this.intervalSimulation!=null){
+                clearInterval(this.intervalSimulation)
+            }
+        },
+        updateTime: function(){
+            const [hours, mins] = this.simulationSettings.timeSelected.split(':').map(Number);
             const date = new Date();
             date.setHours(hours);
             date.setMinutes(mins + 1); // Le sumamos 2 minutos cada segundo
@@ -136,10 +142,13 @@ export default{
             const formattedHours = String(date.getHours()).padStart(2, '0');
             const formattedMinutes = String(date.getMinutes()).padStart(2, '0');
 
-            ctx.simulationSettings.timeSelected = `${formattedHours}:${formattedMinutes}:00`;
-
+            this.simulationSettings.timeSelected = `${formattedHours}:${formattedMinutes}:00`;
         }
-        setInterval(updateTime, 1000);
+    },
+
+    mounted(){
+
+        
     }
 
 }
