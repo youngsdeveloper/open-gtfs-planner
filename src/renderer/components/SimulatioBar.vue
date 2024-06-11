@@ -5,8 +5,8 @@
         <div class="input">
 
             <label for="fechaSimulacion">Fecha Simulación: </label>
-            <input id="fechaSimulacion" class="uk-input" type="date" v-model="dateSelected">
-            <input id="horaSimulacion" class="uk-input" type="time" v-model="timeSelected">
+            <input id="fechaSimulacion" class="uk-input" type="date" v-model="simulationSettings.dateSelected">
+            <input id="horaSimulacion" class="uk-input" type="time" v-model="simulationSettings.timeSelected">
             <button class="speedButton" v-on:click="speedIndex = (speedIndex + 1) % speedPosibilities.length">
                 {{speedPosibilities[speedIndex]}}x
             </button>
@@ -59,13 +59,15 @@ export default{
     props:{
         gtfs_files: {
             type: Array,
+        },
+        simulationSettings: {
+            type: Object,
+            required: true
         }
     },
 
     data(){
         return {
-            dateSelected: this.getDate(new Date().toLocaleDateString()),
-            timeSelected: new Date().toTimeString().split(' ')[0],
             speedIndex: 0,
             speedPosibilities: [1,2,3,5],
         }
@@ -77,7 +79,7 @@ export default{
 
             for(const _gtfs_file of this.gtfs_files!!){
                 const gtfs_file = GtfsDao.fromObject(_gtfs_file);
-                const calendarDates = gtfs_file.calendarDates.filter(c => this.getDate(c.date.toLocaleDateString()) == this.dateSelected && c.exception_type==1)
+                const calendarDates = gtfs_file.calendarDates.filter(c => this.getDate(c.date.toLocaleDateString()) == this.simulationSettings.dateSelected && c.exception_type==1)
 
                 calendarDates.forEach(c => {
                     services.push(new GtfsServiceDao(c.service_id, c.gtfs_file_id, gtfs_file.filename));
@@ -85,7 +87,7 @@ export default{
 
                 for(const rule of gtfs_file.calendar){
 
-                    let localNow = new Date(this.dateSelected);
+                    let localNow = new Date(this.simulationSettings.dateSelected);
                         let dayOfWeek = localNow.getDay();
 
                     if(rule.isDay(dayOfWeek)){ // Cumple con el dia  de la semana
@@ -97,15 +99,16 @@ export default{
                             services.push(new GtfsServiceDao(rule.service_id, rule.gtfs_file_id, gtfs_file.filename));
                         }
                     }
-
-
-
-                    
-
-
                 }
             }
             return services;
+        }
+    },
+
+    watch: {
+        services(newServices: GtfsServiceDao[], old){
+            const servicesId = newServices.map( s => s.service_id);
+            window.electronAPI.downloadTripsByServices(servicesId);
         }
     },
 

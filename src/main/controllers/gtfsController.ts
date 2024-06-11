@@ -16,6 +16,7 @@ import { GtfsShapeDao } from "../daos/GtfsShapeDao";
 import { GtfsFile } from "../models/gtfsfile.model";
 import { GtfsStopTime } from "../models/gtfsstoptime.model";
 import { GtfsCalendar } from "../models/gtfscalendar.model";
+import { GtfsTripDao } from "../daos/GtfsTripDao";
 
 
 
@@ -87,7 +88,6 @@ async function downloadShapesByRoute(window, idRoute){
 
 
     window.webContents.send('loaded-shapes', GtfsShapeDao.fromObjectToArray(shapes), idRoute);
-
 }
 
 async function deleteGTFS(window, idGtfs) {
@@ -124,8 +124,35 @@ async function deleteGTFS(window, idGtfs) {
     } 
 }
 
+
+async function downloadTripsByServices(window, servicesId){
+
+    const trips = await GtfsTrip.findAll({
+        where: {
+            service_id: {
+                [Op.in]: servicesId
+            }
+        },
+        include: [
+            {
+                model: GtfsStopTime,
+                include: [
+                    GtfsStop
+                ],
+                separate: true
+            }
+        ]
+    });
+
+    
+
+    window.webContents.send("trips_by_service", GtfsTripDao.fromObjectToArray(trips));
+
+}
+
 module.exports = {
     downloadProject,
     downloadShapesByRoute,
-    deleteGTFS
+    deleteGTFS,
+    downloadTripsByServices
 };

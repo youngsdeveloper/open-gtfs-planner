@@ -22,6 +22,7 @@ const GtfsShapeDao_1 = require("../daos/GtfsShapeDao");
 const gtfsfile_model_1 = require("../models/gtfsfile.model");
 const gtfsstoptime_model_1 = require("../models/gtfsstoptime.model");
 const gtfscalendar_model_1 = require("../models/gtfscalendar.model");
+const GtfsTripDao_1 = require("../daos/GtfsTripDao");
 function downloadProject(window, idProject) {
     return __awaiter(this, void 0, void 0, function* () {
         const [project, created] = yield project_model_1.Project.findOrCreate({
@@ -109,8 +110,30 @@ function deleteGTFS(window, idGtfs) {
         }
     });
 }
+function downloadTripsByServices(window, servicesId) {
+    return __awaiter(this, void 0, void 0, function* () {
+        const trips = yield gtfstrip_model_1.GtfsTrip.findAll({
+            where: {
+                service_id: {
+                    [sequelize_1.Op.in]: servicesId
+                }
+            },
+            include: [
+                {
+                    model: gtfsstoptime_model_1.GtfsStopTime,
+                    include: [
+                        gtfsstop_model_1.GtfsStop
+                    ],
+                    separate: true
+                }
+            ]
+        });
+        window.webContents.send("trips_by_service", GtfsTripDao_1.GtfsTripDao.fromObjectToArray(trips));
+    });
+}
 module.exports = {
     downloadProject,
     downloadShapesByRoute,
-    deleteGTFS
+    deleteGTFS,
+    downloadTripsByServices
 };

@@ -30,8 +30,13 @@
     
             <section class="uk-width-expand">
 
-                <SimulatioBar :gtfs_files="gtfs_files"></SimulatioBar>
+                <SimulatioBar :gtfs_files="gtfs_files" :simulation-settings="simulationSettings"></SimulatioBar>
 
+                <div style="text-align: center; margin-bottom: 20px">
+                    {{ trips_in_route.length }} viajes en ruta.
+                </div>
+
+                
                 <Map :gtfs_files="gtfs_files"></Map>
 
             </section>
@@ -120,6 +125,8 @@
 
 import { GtfsDao } from '../main/daos/GtfsDao';
 import { GtfsShapeDao } from '../main/daos/GtfsShapeDao';
+import { GtfsTripDao } from '../main/daos/GtfsTripDao';
+import { withCtx } from 'vue';
 
 
 export default {
@@ -128,8 +135,19 @@ export default {
       gtfs_files: [] as GtfsDao[],
       shapes: [] as GtfsShapeDao[],
       loading: false,
-      current_services: []
+      current_services: [],
+      active_trips: [] as GtfsTripDao[],
+      simulationSettings: {
+        dateSelected: this.getDate(new Date().toLocaleDateString()),
+        timeSelected: new Date().toTimeString().split(' ')[0],
+      },
+      trips_in_route: [] as GtfsTripDao[]
     };
+  },
+  watch: {
+    "simulationSettings.timeSelected": function(){
+        this.recalculateSimulation()
+    }
   },
   mounted(){
 
@@ -164,8 +182,39 @@ export default {
     window.electronAPI.addListener("deleted-gtfs", (event, gtfsId)=>{
         ctx.gtfs_files = ctx.gtfs_files.filter(f => f.id != gtfsId); // Eliminar archivo GTFS Borrado
     })
+
+    window.electronAPI.addListener("trips_by_service", (event, trips:GtfsTripDao[])=>{
+        
+        const tripsDao = GtfsTripDao.fromObjectToArray(trips);
+        tripsDao.forEach( t => t.generateDatetimes(new Date(ctx.simulationSettings.dateSelected))) // Generamos Datetipes
+
+        ctx.active_trips = tripsDao;
+
+        this.recalculateSimulation();
+
+    });
   },
 
+  methods: {
+        getDate: function(date:String){
+            let year = date.split("/")[2];
+            let month = date.split("/")[1].padStart(2,"0");
+            let day = date.split("/")[0].padStart(2, '0');
+
+            return `${year}-${month}-${day}`;
+        },
+        recalculateSimulation: function(){
+            const simulationDateTime = new Date(this.simulationSettings.dateSelected);
+
+            const simulationTimes = this.simulationSettings.timeSelected.split(":").map(t => parseInt(t));
+            simulationDateTime.setHours(simulationTimes[0],simulationTimes[1]);
+
+            const tripsInRoute = this.active_trips.filter(t => t.isActiveInThisDate(simulationDateTime));
+
+            this.trips_in_route = tripsInRoute;
+
+        }
+    }
 };
 </script>
 
