@@ -125,7 +125,7 @@ export default{
             return `${year}-${month}-${day}`;
         },
         playSimulation: function(){
-            this.intervalSimulation = setInterval(this.updateTime, 200);
+            this.intervalSimulation = setInterval(this.updateTime, 250);
         },
         pauseSimulation: function(){
             if(this.intervalSimulation!=null){
@@ -134,17 +134,18 @@ export default{
         },
         updateTime: function(){
             const [hours, mins,secs] = this.simulationSettings.timeSelected.split(':').map(Number);
-            const date = new Date();
-            date.setHours(hours);
-            date.setMinutes(mins);
-            date.setSeconds(secs+10);
+            const datetimeSelected = new Date(this.simulationSettings.dateSelected);
+            datetimeSelected.setHours(hours);
+            datetimeSelected.setMinutes(mins);
+            datetimeSelected.setSeconds(secs+5);
 
             // Formatear horas y minutos con dos dígitos
-            const formattedHours = String(date.getHours()).padStart(2, '0');
-            const formattedMinutes = String(date.getMinutes()).padStart(2, '0');
-            const formattedSecs = String(date.getSeconds()).padStart(2, '0');
+            const formattedHours = String(datetimeSelected.getHours()).padStart(2, '0');
+            const formattedMinutes = String(datetimeSelected.getMinutes()).padStart(2, '0');
+            const formattedSecs = String(datetimeSelected.getSeconds()).padStart(2, '0');
 
             this.simulationSettings.timeSelected = `${formattedHours}:${formattedMinutes}:${formattedSecs}`;
+            this.simulationSettings.datetimeSelected = datetimeSelected
         }
     },
 

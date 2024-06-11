@@ -64,14 +64,14 @@ export class GtfsTripDao {
     }
 
     getCurrentPrevNextStop(d:Date){
-        let index =0;
+        let index=0;
         for(const stopTime of this.stopTimes){
 
             const stopTimeArrival = stopTime.getArrivalTimeInDate(d);
 
             if(stopTimeArrival>d){
-                if(this.stopTimes.at(index+1)!=undefined){
-                    return {prev: stopTime, next: this.stopTimes.at(index+1)!!}
+                if(this.stopTimes.at(index-1)!=undefined){
+                    return {prev: this.stopTimes.at(index-1)!!, next: stopTime}
                 }else{
                     return {prev: stopTime, next: null}
                 }
@@ -105,12 +105,17 @@ export class GtfsTripDao {
         const fraction = this.getFraction(timeCurrent, timePrev, timeNext);
 
       
-        console.log("Hola");
+        console.log("Fracción" + fraction);
 
         return InterpolationHelper.interpolateGeodetic(currentStopTimes?.prev.stop.getLatLng(), currentStopTimes?.next.stop.getLatLng(),fraction)
     }
 
     getFraction(timeCurrent, timePrev, timeNext){
+
+        console.log("Current" + timeCurrent);
+        console.log("Prev" + timePrev);
+        console.log("Next" + timeNext);
+
         if (timeCurrent <= timePrev) return 0;
         if (timeCurrent >= timeNext) return 1;
       

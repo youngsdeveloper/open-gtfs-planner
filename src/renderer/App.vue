@@ -147,12 +147,14 @@ export default {
   },
   watch: {
     "simulationSettings.timeSelected": function(){
+
+        console.log("Updating...");
         this.recalculateSimulation()
 
         const datetimeSelected = new Date(this.simulationSettings.dateSelected);
 
         const datetimeSelectedlHours = this.simulationSettings.timeSelected.split(":").map(h =>parseInt(h))
-        datetimeSelected.setHours(datetimeSelectedlHours[0], datetimeSelectedlHours[1]);
+        datetimeSelected.setHours(datetimeSelectedlHours[0], datetimeSelectedlHours[1], datetimeSelectedlHours[2]);
 
         this.simulationSettings.datetimeSelected = datetimeSelected;
     }
@@ -215,7 +217,7 @@ export default {
             const simulationDateTime = new Date(this.simulationSettings.dateSelected);
 
             const simulationTimes = this.simulationSettings.timeSelected.split(":").map(t => parseInt(t));
-            simulationDateTime.setHours(simulationTimes[0],simulationTimes[1]);
+            simulationDateTime.setHours(simulationTimes[0],simulationTimes[1],simulationTimes[2]);
 
             const tripsInRoute = this.active_trips.filter(t => t.isActiveInThisDate(simulationDateTime));
 
