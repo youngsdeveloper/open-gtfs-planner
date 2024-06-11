@@ -37,7 +37,7 @@
                 </div>
 
                 
-                <Map :gtfs_files="gtfs_files"></Map>
+                <Map :gtfs_files="gtfs_files" :trips_in_route="trips_in_route" :simulation_settings="simulationSettings"></Map>
 
             </section>
     
@@ -140,6 +140,7 @@ export default {
       simulationSettings: {
         dateSelected: this.getDate(new Date().toLocaleDateString()),
         timeSelected: new Date().toTimeString().split(' ')[0],
+        datetimeSelected: new Date()
       },
       trips_in_route: [] as GtfsTripDao[]
     };
@@ -147,6 +148,13 @@ export default {
   watch: {
     "simulationSettings.timeSelected": function(){
         this.recalculateSimulation()
+
+        const datetimeSelected = new Date(this.simulationSettings.dateSelected);
+
+        const datetimeSelectedlHours = this.simulationSettings.timeSelected.split(":").map(h =>parseInt(h))
+        datetimeSelected.setHours(datetimeSelectedlHours[0], datetimeSelectedlHours[1]);
+
+        this.simulationSettings.datetimeSelected = datetimeSelected;
     }
   },
   mounted(){
@@ -212,6 +220,8 @@ export default {
             const tripsInRoute = this.active_trips.filter(t => t.isActiveInThisDate(simulationDateTime));
 
             this.trips_in_route = tripsInRoute;
+
+            console.log(tripsInRoute)
 
         }
     }

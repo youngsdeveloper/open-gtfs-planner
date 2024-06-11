@@ -17,7 +17,7 @@
                     <template v-for="agency in gtfs_file.agencies">
                         <template v-for="route in agency.routes">
                             <template v-if="route.visible && route.shapes">
-                                <l-polyline 
+                                <l-polyline
                                             :weight="10"
                                             :lat-lngs="getLatLngsShapes(route.shapes)" />
                             </template>
@@ -34,7 +34,20 @@
                 </template>
             </template>
 
+            <l-marker v-for="trip in trips_in_route"
+                        :lat-lng="trip.getCurrentPrevStop(simulation_settings.datetimeSelected)?.getLatLng()"
+                        ></l-marker>
+            
+
+
         </l-map>
+
+        {{  simulation_settings.datetimeSelected }}
+
+        <div v-for="trip in trips_in_route">
+            {{  trip.getCurrentPrevStop(simulation_settings.datetimeSelected) }}
+        </div>
+
     </div>
 </template>
 
@@ -44,7 +57,10 @@ import { GtfsDao } from '../../main/daos/GtfsDao';
 import { GtfsShapeDao } from '../../main/daos/GtfsShapeDao';
 
 import "leaflet/dist/leaflet.css";
-import { LMap, LMarker, LPopup, LTileLayer, LPolyline } from "@vue-leaflet/vue-leaflet";
+import { LMap, LMarker, LPopup, LTileLayer, LPolyline, LIcon } from "@vue-leaflet/vue-leaflet";
+import { GtfsTripDao } from '../../main/daos/GtfsTripDao';
+import { PropType } from 'vue';
+import * as L from 'leaflet';
 
 export default{
 
@@ -53,23 +69,37 @@ export default{
         LTileLayer,
         LMarker,
         LPopup,
-        LPolyline
+        LPolyline,
+        LIcon
     },
 
     props:{
         gtfs_files: {
-            type: Array,
+            type: Array as PropType<GtfsDao[]>
+        },
+        trips_in_route: {
+            type: Array as PropType<GtfsTripDao[]>
+        },
+        simulation_settings: {
+            type: Object,
+            required: true
         }
     },
 
     data(){
         return {
-            zoom: 15
+            zoom: 15,
+            iconBus: L.icon({
+                iconUrl: "/bus_icon.png",
+                iconSize: [40,40],
+                iconAnchor: [40,40]
+
+            })
         }
     },
 
     methods: {
-        getLatLngsShapes: function(shapes){
+        getLatLngsShapes: function(shapes:GtfsShapeDao[]){
             return GtfsShapeDao.getLatLngs(shapes);
         }
     }

@@ -121,6 +121,25 @@ export default{
             return `${year}-${month}-${day}`;
 
         }
+    },
+
+    mounted(){
+
+        let ctx = this;
+        function updateTime(){
+            const [hours, mins] = ctx.simulationSettings.timeSelected.split(':').map(Number);
+            const date = new Date();
+            date.setHours(hours);
+            date.setMinutes(mins + 1); // Le sumamos 2 minutos cada segundo
+
+            // Formatear horas y minutos con dos dígitos
+            const formattedHours = String(date.getHours()).padStart(2, '0');
+            const formattedMinutes = String(date.getMinutes()).padStart(2, '0');
+
+            ctx.simulationSettings.timeSelected = `${formattedHours}:${formattedMinutes}:00`;
+
+        }
+        setInterval(updateTime, 1000);
     }
 
 }

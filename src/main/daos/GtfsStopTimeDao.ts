@@ -1,3 +1,5 @@
+import { GtfsStopDao } from "./GtfsStopDao";
+
 export class GtfsStopTimeDao {
 
     id: Number;
@@ -7,6 +9,7 @@ export class GtfsStopTimeDao {
     stop_headsign: string;
     pickup_type: Number;
     drop_off_type: Number;
+    stop: GtfsStopDao
 
     constructor(
         id: Number, 
@@ -15,7 +18,8 @@ export class GtfsStopTimeDao {
         stop_sequence: Number, 
         stop_headsign: string, 
         pickup_type: Number, 
-        drop_off_type: Number
+        drop_off_type: Number, 
+        stop: GtfsStopDao
     ) {
         this.id = id
         this.arrival_time = arrival_time
@@ -24,13 +28,14 @@ export class GtfsStopTimeDao {
         this.stop_headsign = stop_headsign
         this.pickup_type = pickup_type
         this.drop_off_type = drop_off_type
-    }    
+        this.stop = stop
+    }
 
 
     static fromObject(obj: any): GtfsStopTimeDao {
         return new GtfsStopTimeDao(obj.id, obj.arrival_time,
             obj.departure_time, obj.stop_sequence, obj.stop_headsign,
-            obj.pickup_type, obj.drop_off_type
+            obj.pickup_type, obj.drop_off_type, GtfsStopDao.fromObject(obj.stop)
         );
     }
 

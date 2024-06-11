@@ -62,6 +62,24 @@ export class GtfsTripDao {
         this.end_datetime = endDatetime;
     }
 
+    getCurrentPrevStop(d:Date){
+        for(const stopTime of this.stopTimes){
+            const stopTimeArrival = new Date(d);
+
+            const stopTimeArrivalHours = stopTime.arrival_time.split(":").map(h =>parseInt(h))
+
+            stopTimeArrival.setHours(stopTimeArrivalHours[0],stopTimeArrivalHours[1],stopTimeArrivalHours[2])
+            if(stopTimeArrival>d){
+                return stopTime.stop;
+            }
+        }
+    }
+
+    getCurrentNextStop(d:Date){
+
+    }
+
+
     isActiveInThisDate(d:Date){
         if(!this.start_datetime||!this.end_datetime){
             return false; // No se han generado los datetimes
