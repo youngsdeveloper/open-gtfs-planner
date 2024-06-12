@@ -11,6 +11,9 @@ export class GtfsRouteDao {
 
     shapes: GtfsShapeDao[] = [] as GtfsShapeDao[]
 
+    stopsVisible: boolean = false;
+    simulationVisble: boolean = false;
+
 
     constructor(
         id: Number,

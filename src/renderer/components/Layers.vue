@@ -39,11 +39,30 @@
 
                                 </label>
                                 <ul>
+                                    <li>
+                                        <label><input class="uk-checkbox" type="checkbox" v-model="gtfs.stopsVisible"> Paradas </label>
+                                    </li>
+                                    <li>
+                                        <label><input class="uk-checkbox" type="checkbox" v-model="gtfs.simulationVisble"> Simulación </label>
+                                    </li>
+
                                     <li v-for="agency in gtfs.agencies">
                                         <label><input class="uk-checkbox" type="checkbox"> {{ agency.name }}</label>
                                         <ul>
                                             <li v-for="route in agency.routes">
-                                                <li><label><input   @change="downloadShape(route)" class="uk-checkbox" v-model="route.visible" type="checkbox"> {{ route.route_short_name }}</label></li>
+                                                <li>
+                                                    <label>
+                                                        <input @change="downloadShape(route)" class="uk-checkbox" v-model="route.visible" type="checkbox"> {{ route.route_short_name }}
+                                                    </label>
+                                                    <ul style="margin-top: 0; margin-bottom: 0;">
+                                                        <li>
+                                                            <label><input class="uk-checkbox" type="checkbox" v-model="route.stopsVisible"> Paradas </label>
+                                                        </li>
+                                                        <li>
+                                                            <label><input class="uk-checkbox" type="checkbox" v-model="route.simulationVisble"> Simulación </label>
+                                                        </li>
+                                                    </ul>
+                                                </li>
                                             </li>
                                         </ul>
                                     </li>

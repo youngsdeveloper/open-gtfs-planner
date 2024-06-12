@@ -13,6 +13,8 @@ export class GtfsDao {
     calendarDates: GtfsCalendarDatesDao[];
     calendar: GtfsCalendarDao[];
     visible: boolean = true;
+    stopsVisible: boolean = false;
+    simulationVisble: boolean = false;
 
     constructor(
         id: Number,

@@ -26,7 +26,7 @@
                     </template>
 
 
-                    <l-marker v-for="stop in gtfs_file.stops" :lat-lng="stop.getLatLng()">
+                    <l-marker v-for="stop in gtfs_file.stops" :lat-lng="stop.getLatLng()" v-if="gtfs_file.stopsVisible">
                         <l-popup>
                             {{ stop.stop_name }}
                         </l-popup>
@@ -34,15 +34,19 @@
                 </template>
             </template>
 
-            <l-marker v-for="trip in trips_in_route"
-                        :lat-lng="trip.getCurrentPosition(simulation_settings.datetimeSelected)"
-                        ></l-marker>
-            
+            <!--
+
+            <l-marker v-for="stop_trip in trips_in_route?.flatMap(t => t.stopTimes).flatMap(st => st.stop)"
+                :lat-lng="stop_trip.getLatLng()">
+        
+            </l-marker>-->
+
+
+
+            <l-marker v-for="trip in trips_in_route" :lat-lng="trip.getCurrentPosition(simulation_settings.datetimeSelected)!" />
 
 
         </l-map>
-
-        {{  simulation_settings.datetimeSelected }}
 
         <div v-for="trip in trips_in_route">
             {{  trip.getCurrentPosition(simulation_settings.datetimeSelected) }}
