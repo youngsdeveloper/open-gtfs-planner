@@ -9,7 +9,7 @@ class GtfsDao {
     constructor(id, filename, agencies, stops, calendarDates, calendar) {
         this.visible = true;
         this.stopsVisible = false;
-        this.simulationVisble = false;
+        this.simulationVisible = false;
         this.id = id;
         this.filename = filename;
         this.agencies = agencies;

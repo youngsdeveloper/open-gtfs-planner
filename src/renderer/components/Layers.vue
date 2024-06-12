@@ -43,7 +43,7 @@
                                         <label><input class="uk-checkbox" type="checkbox" v-model="gtfs.stopsVisible"> Paradas </label>
                                     </li>
                                     <li>
-                                        <label><input class="uk-checkbox" type="checkbox" v-model="gtfs.simulationVisble"> Simulación </label>
+                                        <label><input class="uk-checkbox" type="checkbox" v-model="gtfs.simulationVisible"> Simulación </label>
                                     </li>
 
                                     <li v-for="agency in gtfs.agencies">
@@ -59,7 +59,7 @@
                                                             <label><input class="uk-checkbox" type="checkbox" v-model="route.stopsVisible"> Paradas </label>
                                                         </li>
                                                         <li>
-                                                            <label><input class="uk-checkbox" type="checkbox" v-model="route.simulationVisble"> Simulación </label>
+                                                            <label><input class="uk-checkbox" type="checkbox" v-model="route.simulationVisible"> Simulación </label>
                                                         </li>
                                                     </ul>
                                                 </li>

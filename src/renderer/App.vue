@@ -220,11 +220,11 @@ export default {
             simulationDateTime.setHours(simulationTimes[0],simulationTimes[1],simulationTimes[2]);
 
 
-            const visibleSimulationRoutes = this.gtfs_files.flatMap(g => g.agencies).flatMap(a => a.routes).filter(r => r.simulationVisble).map(r => r.id);
+            let visibleSimulationRoutes = this.gtfs_files.flatMap(g => g.agencies).flatMap(a => a.routes).filter(r => r.simulationVisible).map(r => r.id);
 
+            visibleSimulationRoutes = visibleSimulationRoutes.concat(this.gtfs_files.filter(gtfs => gtfs.simulationVisible).flatMap(g => g.agencies).flatMap(a => a.routes).map(r => r.id));
 
             const tripsInRoute = this.active_trips.filter(t => t.isActiveInThisDate(simulationDateTime)).filter(t => visibleSimulationRoutes.includes(parseInt(t.route_id)));
-
 
             this.trips_in_route = tripsInRoute;
 

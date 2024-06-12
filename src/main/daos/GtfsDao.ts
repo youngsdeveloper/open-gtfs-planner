@@ -14,7 +14,7 @@ export class GtfsDao {
     calendar: GtfsCalendarDao[];
     visible: boolean = true;
     stopsVisible: boolean = false;
-    simulationVisble: boolean = false;
+    simulationVisible: boolean = false;
 
     constructor(
         id: Number,
