@@ -42,15 +42,21 @@
             </l-marker>-->
 
 
+            <template v-for="trip in trips_in_route">
 
-            <l-marker v-for="trip in trips_in_route" :lat-lng="trip.getCurrentPosition(simulation_settings.datetimeSelected)!" />
+                <l-marker v-if="visibleSimulationRoutes.includes(parseInt(trip.route_id))" :lat-lng="getLeafletLatLng(trip.getCurrentPosition(simulation_settings.datetimeSelected)!)" />
+            
+                <template v-if="visibleStopsRoutes.includes(parseInt(trip.route_id))" >
+                    <l-marker v-for="stop_trip in trip.stopTimes.flatMap(st => st.stop)" :lat-lng="getLeafletLatLng(stop_trip.getLatLng())" />
 
+                </template>
+                
+            </template>
 
         </l-map>
 
-        <div v-for="trip in trips_in_route">
-            {{  trip.getCurrentPosition(simulation_settings.datetimeSelected) }}
-        </div>
+        {{ visibleStopsRoutes }}
+
 
     </div>
 </template>
@@ -79,7 +85,8 @@ export default{
 
     props:{
         gtfs_files: {
-            type: Array as PropType<GtfsDao[]>
+            type: Array as PropType<GtfsDao[]>,
+            required: true
         },
         trips_in_route: {
             type: Array as PropType<GtfsTripDao[]>
@@ -105,6 +112,23 @@ export default{
     methods: {
         getLatLngsShapes: function(shapes:GtfsShapeDao[]){
             return GtfsShapeDao.getLatLngs(shapes);
+        },
+
+        getLeafletLatLng: function(position: number[]){
+            return L.latLng(position[0], position[1]);
+        }
+    },
+
+    computed: {
+        visibleSimulationRoutes: function(){
+            let visibleSimulationRoutes = this.gtfs_files.flatMap(g => g.agencies).flatMap(a => a.routes).filter(r => r.simulationVisible).map(r => r.id);
+            visibleSimulationRoutes = visibleSimulationRoutes.concat(this.gtfs_files.filter(gtfs => gtfs.simulationVisible).flatMap(g => g.agencies).flatMap(a => a.routes).map(r => r.id));
+            return visibleSimulationRoutes;
+        },
+        visibleStopsRoutes: function(){
+            let visibleStopsRoutes = this.gtfs_files.flatMap(g => g.agencies).flatMap(a => a.routes).filter(r => r.stopsVisible).map(r => r.id);
+            visibleStopsRoutes = visibleStopsRoutes.concat(this.gtfs_files.filter(gtfs => gtfs.stopsVisible).flatMap(g => g.agencies).flatMap(a => a.routes).map(r => r.id));
+            return visibleStopsRoutes;
         }
     }
 

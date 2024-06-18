@@ -224,7 +224,7 @@ export default {
 
             visibleSimulationRoutes = visibleSimulationRoutes.concat(this.gtfs_files.filter(gtfs => gtfs.simulationVisible).flatMap(g => g.agencies).flatMap(a => a.routes).map(r => r.id));
 
-            const tripsInRoute = this.active_trips.filter(t => t.isActiveInThisDate(simulationDateTime)).filter(t => visibleSimulationRoutes.includes(parseInt(t.route_id)));
+            const tripsInRoute = this.active_trips.filter(t => t.isActiveInThisDate(simulationDateTime));
 
             this.trips_in_route = tripsInRoute;
 
