@@ -10,9 +10,9 @@
             <button class="speedButton" v-on:click="speedIndex = (speedIndex + 1) % speedPosibilities.length">
                 {{speedPosibilities[speedIndex]}}x
             </button>
-            <a class="services"  uk-toggle="target: #modal-services">{{ services.length }} servicio<span v-if="services.length>1">s</span></a>
+            <a class="services" uk-toggle="target: #modal-services">{{ services.length }} servicio<span v-if="services.length>1">s</span></a>
 
-            <!-- This is the modal -->
+            <!-- Modal Servicios -->
             <div id="modal-services" uk-modal>
                 <div class="uk-modal-dialog uk-modal-body">
                     <div class="uk-modal-header">

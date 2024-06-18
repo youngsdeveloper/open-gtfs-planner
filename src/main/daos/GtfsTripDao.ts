@@ -82,6 +82,22 @@ export class GtfsTripDao {
         }
     }
 
+
+    getTripPercent(d: Date):number
+    {
+        if(d.getTime() <= this.start_datetime.getTime())
+            return 0;
+
+        if(d.getTime() >= this.end_datetime.getTime())
+            return 100;
+
+        const max = this.end_datetime.getTime() - this.start_datetime.getTime();
+        const current = d.getTime() - this.start_datetime.getTime();
+    
+        return (current / max) * 100;
+            
+
+    }
     getCurrentPosition(d:Date):[number, number]|undefined{
 
         const currentStopTimes = this.getCurrentPrevNextStop(d);

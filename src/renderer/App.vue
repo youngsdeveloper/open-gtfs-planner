@@ -43,7 +43,35 @@
 
                 <div v-show="!loading_widgets">
                     <div style="text-align: center; margin-bottom: 20px">
-                        {{ trips_in_route.filter(t => visibleSimulationRoutes.includes(t.route.id)).length }} viajes en ruta.
+                        <a style="color: black" uk-toggle="target: #modal-trips">
+                            {{ trips_in_route.filter(t => visibleSimulationRoutes.includes(t.route.id)).length }} viajes en ruta.
+                        </a>
+                    </div>
+
+                    <!-- Modal Viajes -->
+                    <div id="modal-trips" uk-modal>
+                        <div class="uk-modal-dialog uk-modal-body">
+                            <div class="uk-modal-header">
+                                <h2 class="uk-modal-title">
+                                    {{ trips_in_route.filter(t => visibleSimulationRoutes.includes(t.route.id)).length  }} viajes
+                                </h2>
+                            </div>
+                            <div class="uk-modal-body">
+
+                                <ul class="uk-list uk-list-divider">
+
+                                    <li v-for="trip in trips_in_route.filter(t => visibleSimulationRoutes.includes(t.route.id))">
+                                        {{ trip.route.route_short_name }} -- {{ trip.start_datetime.toTimeString().split(' ')[0] }} - {{ trip.end_datetime.toTimeString().split(' ')[0] }}
+                                        <br><br>
+                                        {{  trip.getTripPercent(simulationSettings.datetimeSelected) }}%
+                                    </li>
+                                </ul>
+
+
+                            </div>
+
+                            <button class="uk-modal-close-default" type="button" uk-close></button>
+                        </div>
                     </div>
 
                     
