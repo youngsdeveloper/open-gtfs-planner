@@ -1,4 +1,5 @@
 import { InterpolationHelper } from "../geo/InterpolationHelper";
+import { GtfsRouteDao } from "./GtfsRouteDao";
 import { GtfsStopTimeDao } from "./GtfsStopTimeDao";
 
 export class GtfsTripDao {
@@ -10,12 +11,13 @@ export class GtfsTripDao {
     direction_id: Number;
     block_id: string;
     shape_id: string;
-    route_id: string
+    route: GtfsRouteDao
 
     start_datetime!: Date;
     end_datetime!: Date;
 
     stopTimes: GtfsStopTimeDao[];
+
 
     constructor(
         id: number, 
@@ -25,7 +27,7 @@ export class GtfsTripDao {
         direction_id: Number, 
         block_id: string, 
         shape_id: string, 
-        route_id: string, 
+        route: GtfsRouteDao, 
         stopTimes: GtfsStopTimeDao[]
     ) {
         this.id = id
@@ -35,7 +37,7 @@ export class GtfsTripDao {
         this.direction_id = direction_id
         this.block_id = block_id
         this.shape_id = shape_id
-        this.route_id = route_id
+        this.route = route
         this.stopTimes = stopTimes
 
 
@@ -80,7 +82,7 @@ export class GtfsTripDao {
         }
     }
 
-    getCurrentPosition(d:Date){
+    getCurrentPosition(d:Date):[number, number]|undefined{
 
         const currentStopTimes = this.getCurrentPrevNextStop(d);
 
@@ -125,7 +127,7 @@ export class GtfsTripDao {
 
     static fromObject(obj: any): GtfsTripDao {
         return new GtfsTripDao(obj.id, obj.service_id, obj.trip_id, obj.trip_headsign, obj.direction_id,
-            obj.block_id, obj.shape_id, obj.route_id,
+            obj.block_id, obj.shape_id, GtfsRouteDao.fromObject(obj.route),
             GtfsStopTimeDao.fromObjectToArray(obj.stopTimes)
         );
     }

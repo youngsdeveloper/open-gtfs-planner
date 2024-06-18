@@ -135,6 +135,9 @@ async function downloadTripsByServices(window, servicesId){
         },
         include: [
             {
+                model: GtfsRoute
+            },
+            {
                 model: GtfsStopTime,
                 include: [
                     GtfsStop

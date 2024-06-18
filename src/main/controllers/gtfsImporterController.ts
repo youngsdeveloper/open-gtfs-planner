@@ -69,7 +69,7 @@ async function selectDirectory(window) {
         const stospDao:GtfsStopDao[] = [] as GtfsStopDao[];
         gtfsDB.stops.forEach(stop => {
           stospDao.push(GtfsStopDao.fromObject(stop));
-        }); 
+        });
 
         const calendarDatesDao:GtfsCalendarDatesDao[] = [] as GtfsCalendarDatesDao[];
         gtfsDB.calendarDates.forEach(calendarDate => {

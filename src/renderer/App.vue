@@ -33,15 +33,18 @@
                 <SimulatioBar :gtfs_files="gtfs_files" :simulation-settings="simulationSettings"></SimulatioBar>
 
                 <div style="text-align: center; margin-bottom: 20px">
-                    {{ trips_in_route.length }} viajes en ruta.
+                    {{ trips_in_route.filter(t => visibleSimulationRoutes.includes(t.route.id)).length }} viajes en ruta.
                 </div>
 
                 
-                <Map :gtfs_files="gtfs_files" :trips_in_route="trips_in_route" :simulation_settings="simulationSettings"></Map>
+                <Map
+                        :gtfs_files="gtfs_files" :trips_in_route="trips_in_route"
+                        :simulation_settings="simulationSettings"
+                        :visible-simulation-routes="visibleSimulationRoutes"></Map>
 
             </section>
     
-            <aside class="uk-width-1-5">
+            <aside class="uk-width-1-5" aria-label="lineas">
                 <div class="uk-container">
                     <ul uk-accordion="multiple: true">
                         <li class="uk-open">
@@ -229,6 +232,14 @@ export default {
             this.trips_in_route = tripsInRoute;
 
 
+        }
+    },
+
+    computed: {
+        visibleSimulationRoutes: function(){
+            let visibleSimulationRoutes = this.gtfs_files.flatMap(g => g.agencies).flatMap(a => a.routes).filter(r => r.simulationVisible).map(r => r.id);
+            visibleSimulationRoutes = visibleSimulationRoutes.concat(this.gtfs_files.filter(gtfs => gtfs.simulationVisible).flatMap(g => g.agencies).flatMap(a => a.routes).map(r => r.id));
+            return visibleSimulationRoutes;
         }
     }
 };

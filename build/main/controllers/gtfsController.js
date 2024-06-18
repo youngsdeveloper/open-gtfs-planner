@@ -120,6 +120,9 @@ function downloadTripsByServices(window, servicesId) {
             },
             include: [
                 {
+                    model: gtfsroute_model_1.GtfsRoute
+                },
+                {
                     model: gtfsstoptime_model_1.GtfsStopTime,
                     include: [
                         gtfsstop_model_1.GtfsStop

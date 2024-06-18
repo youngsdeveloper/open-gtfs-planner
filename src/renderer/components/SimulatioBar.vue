@@ -137,7 +137,7 @@ export default{
             const datetimeSelected = new Date(this.simulationSettings.dateSelected);
             datetimeSelected.setHours(hours);
             datetimeSelected.setMinutes(mins);
-            datetimeSelected.setSeconds(secs+5);
+            datetimeSelected.setSeconds(secs+5*this.speedPosibilities[this.speedIndex]);
 
             // Formatear horas y minutos con dos dígitos
             const formattedHours = String(datetimeSelected.getHours()).padStart(2, '0');

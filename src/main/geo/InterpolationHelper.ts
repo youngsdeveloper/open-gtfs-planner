@@ -1,15 +1,15 @@
 export class InterpolationHelper{
 
-
     static toRadians(degrees) {
-    return degrees * Math.PI / 180;
-    }
-    
-    static toDegrees(radians) {
-    return radians * 180 / Math.PI;
+      return degrees * Math.PI / 180;
     }
 
-    static interpolateGeodetic(point1, point2, fraction) {
+
+    static toDegrees(radians) {
+      return radians * 180 / Math.PI;
+    }
+
+    static interpolateGeodetic(point1, point2, fraction):[number,number]{
         const lat1 = this.toRadians(point1[0]);
         const lon1 = this.toRadians(point1[1]);
         const lat2 = this.toRadians(point2[0]);
@@ -30,5 +30,4 @@ export class InterpolationHelper{
 
         return [this.toDegrees(lat),this.toDegrees(lon)];
       }
-      
 }
