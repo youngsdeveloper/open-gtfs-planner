@@ -52,6 +52,7 @@
 import { GtfsCalendarDatesDao } from '../../main/daos/GtfsCalendarDatesDao';
 import { GtfsDao } from '../../main/daos/GtfsDao';
 import { GtfsServiceDao } from '../../main/daos/GtfsServiceDao';
+import { PropType } from 'vue';
 
 
 type IntervalID = ReturnType<typeof setInterval>;
@@ -66,6 +67,10 @@ export default{
         simulationSettings: {
             type: Object,
             required: true
+        },
+        services: {
+            type: Array as PropType<GtfsServiceDao[]>,
+            required: true
         }
     },
 
@@ -74,45 +79,6 @@ export default{
             speedIndex: 0,
             speedPosibilities: [1,2,3,5],
             intervalSimulation: null as IntervalID | null
-        }
-    },
-
-    computed: {
-        services(){
-            const services =  [] as GtfsServiceDao[];
-
-            for(const _gtfs_file of this.gtfs_files!!){
-                const gtfs_file = GtfsDao.fromObject(_gtfs_file);
-                const calendarDates = gtfs_file.calendarDates.filter(c => this.getDate(c.date.toLocaleDateString()) == this.simulationSettings.dateSelected && c.exception_type==1)
-
-                calendarDates.forEach(c => {
-                    services.push(new GtfsServiceDao(c.service_id, c.gtfs_file_id, gtfs_file.filename));
-                })
-
-                for(const rule of gtfs_file.calendar){
-
-                    let localNow = new Date(this.simulationSettings.dateSelected);
-                        let dayOfWeek = localNow.getDay();
-
-                    if(rule.isDay(dayOfWeek)){ // Cumple con el dia  de la semana
-
-                        let localStartDate = new Date(this.getDate(rule.start_date.toLocaleDateString()))
-                        let localEndDate = new Date(this.getDate(rule.end_date.toLocaleDateString())) 
-
-                        if(localNow > localStartDate && localNow<localEndDate){ // Esta en el rango de fechas
-                            services.push(new GtfsServiceDao(rule.service_id, rule.gtfs_file_id, gtfs_file.filename));
-                        }
-                    }
-                }
-            }
-            return services;
-        }
-    },
-
-    watch: {
-        services(newServices: GtfsServiceDao[], old){
-            const servicesId = newServices.map( s => s.service_id);
-            window.electronAPI.downloadTripsByServices(servicesId);
         }
     },
 

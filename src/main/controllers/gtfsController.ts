@@ -53,7 +53,6 @@ async function downloadProject(window, idProject) {
 
     console.log("GTFS Cargado...");
 
-    window.webContents.send('loaded-project');
 
     if(project?.gtfsFiles){
         for(const gtfsFile of project?.gtfsFiles!!){
@@ -62,7 +61,6 @@ async function downloadProject(window, idProject) {
         }
     }
 
-    
 }
 
 async function downloadShapesByRoute(window, idRoute){
@@ -150,7 +148,6 @@ async function downloadTripsByServices(window, servicesId){
     
 
     window.webContents.send("trips_by_service", GtfsTripDao.fromObjectToArray(trips));
-
 }
 
 module.exports = {

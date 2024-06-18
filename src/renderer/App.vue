@@ -2,25 +2,33 @@
     import Layers from './components/Layers.vue'
     import Map from './components/Map.vue'
     import SimulatioBar from './components/SimulatioBar.vue'
-
 </script>
 
 <template>
   <div>
 
-    <div class="uk-margin-medium-top">
+
+    <div v-show="loading" class="loading-screen">
+        <img src="/logo.svg" alt="logo OpenGTFSPlanner">
+        <div>
+            <span uk-spinner="ratio: 4.5"></span>
+        </div>
+
+    </div>
+
+    <div class="uk-margin-medium-top" v-show="!loading">
         <div uk-grid>
-            <aside class="uk-width-1-4" aria-label="capas">
-                <div class="uk-container">
+            <aside class="uk-width-1-4" aria-label="capas" >
+                <div class="uk-container" >
 
 
                     <img src="/logo.svg" alt="logo OpenGTFSPlanner">
-                    <div v-if="loading" style="text-align: center;">
-                        <div uk-spinner="ratio: 2"></div>
+                    
+                    <Layers :gtfs_files="gtfs_files" v-show="!loading_widgets" />
+                    <div v-show="loading_widgets" class="loading-widget">
+                        <span uk-spinner="ratio: 3.5"></span>
                     </div>
-                    <div v-else>
-                        <Layers :gtfs_files="gtfs_files" />
-                    </div>
+
                 </div>
             </aside>
 
@@ -30,17 +38,27 @@
     
             <section class="uk-width-expand">
 
-                <SimulatioBar :gtfs_files="gtfs_files" :simulation-settings="simulationSettings"></SimulatioBar>
+                <SimulatioBar :gtfs_files="gtfs_files" :simulation-settings="simulationSettings" :services="services"></SimulatioBar>
 
-                <div style="text-align: center; margin-bottom: 20px">
-                    {{ trips_in_route.filter(t => visibleSimulationRoutes.includes(t.route.id)).length }} viajes en ruta.
+
+                <div v-show="!loading_widgets">
+                    <div style="text-align: center; margin-bottom: 20px">
+                        {{ trips_in_route.filter(t => visibleSimulationRoutes.includes(t.route.id)).length }} viajes en ruta.
+                    </div>
+
+                    
+                    <Map    v-show="!loading_widgets"
+                            :gtfs_files="gtfs_files" :trips_in_route="trips_in_route"
+                            :simulation_settings="simulationSettings"
+                            :visible-simulation-routes="visibleSimulationRoutes"></Map>
+                </div>
+                
+
+
+                <div v-show="loading_widgets" class="loading-widget">
+                    <span uk-spinner="ratio: 3.5"></span>
                 </div>
 
-                
-                <Map
-                        :gtfs_files="gtfs_files" :trips_in_route="trips_in_route"
-                        :simulation_settings="simulationSettings"
-                        :visible-simulation-routes="visibleSimulationRoutes"></Map>
 
             </section>
     
@@ -129,8 +147,7 @@
 import { GtfsDao } from '../main/daos/GtfsDao';
 import { GtfsShapeDao } from '../main/daos/GtfsShapeDao';
 import { GtfsTripDao } from '../main/daos/GtfsTripDao';
-import { withCtx } from 'vue';
-
+import {GtfsServiceDao} from '../main/daos/GtfsServiceDao';
 
 export default {
   data() {
@@ -138,7 +155,7 @@ export default {
       gtfs_files: [] as GtfsDao[],
       shapes: [] as GtfsShapeDao[],
       loading: false,
-      current_services: [],
+      loading_widgets: false,
       active_trips: [] as GtfsTripDao[],
       simulationSettings: {
         dateSelected: this.getDate(new Date().toLocaleDateString()),
@@ -151,7 +168,6 @@ export default {
   watch: {
     "simulationSettings.timeSelected": function(){
 
-        console.log("Updating...");
         this.recalculateSimulation()
 
         const datetimeSelected = new Date(this.simulationSettings.dateSelected);
@@ -160,6 +176,13 @@ export default {
         datetimeSelected.setHours(datetimeSelectedlHours[0], datetimeSelectedlHours[1], datetimeSelectedlHours[2]);
 
         this.simulationSettings.datetimeSelected = datetimeSelected;
+    },
+    services: function(newServices: GtfsServiceDao[], old){
+        this.loading_widgets = true;
+
+
+        const servicesId = newServices.map( s => s.service_id);
+        window.electronAPI.downloadTripsByServices(servicesId);
     }
   },
   mounted(){
@@ -169,12 +192,10 @@ export default {
 
     let ctx = this;
     window.electronAPI.onLoadedGtfs((event, gtfs:GtfsDao) => {
+
         ctx.gtfs_files.push(GtfsDao.fromObject(gtfs));
     })
 
-    window.electronAPI.addListener("loaded-project", ()=>{
-        ctx.loading = false;
-    })
 
 
     window.electronAPI.onLoadedShapes((event, shapes: GtfsShapeDao[], route_id: Number) => {
@@ -198,12 +219,19 @@ export default {
 
     window.electronAPI.addListener("trips_by_service", (event, trips:GtfsTripDao[])=>{
         
+        
         const tripsDao = GtfsTripDao.fromObjectToArray(trips);
         tripsDao.forEach( t => t.generateDatetimes(new Date(ctx.simulationSettings.dateSelected))) // Generamos Datetipes
 
         ctx.active_trips = tripsDao;
 
         this.recalculateSimulation();
+
+        this.loading_widgets = false;
+
+        setTimeout(()=>{
+            ctx.loading = false;            
+        },4000); // 3s loading
 
     });
   },
@@ -214,6 +242,7 @@ export default {
             let month = date.split("/")[1].padStart(2,"0");
             let day = date.split("/")[0].padStart(2, '0');
 
+            
             return `${year}-${month}-${day}`;
         },
         recalculateSimulation: function(){
@@ -240,6 +269,37 @@ export default {
             let visibleSimulationRoutes = this.gtfs_files.flatMap(g => g.agencies).flatMap(a => a.routes).filter(r => r.simulationVisible).map(r => r.id);
             visibleSimulationRoutes = visibleSimulationRoutes.concat(this.gtfs_files.filter(gtfs => gtfs.simulationVisible).flatMap(g => g.agencies).flatMap(a => a.routes).map(r => r.id));
             return visibleSimulationRoutes;
+        },
+        services(){
+
+            const services =  [] as GtfsServiceDao[];
+
+            for(const _gtfs_file of this.gtfs_files!!){
+                const gtfs_file = GtfsDao.fromObject(_gtfs_file);
+                const calendarDates = gtfs_file.calendarDates.filter(c => this.getDate(c.date.toLocaleDateString()) == this.simulationSettings.dateSelected && c.exception_type==1)
+
+                calendarDates.forEach(c => {
+                    services.push(new GtfsServiceDao(c.service_id, c.gtfs_file_id, gtfs_file.filename));
+                })
+
+                for(const rule of gtfs_file.calendar){
+
+                    let localNow = new Date(this.simulationSettings.dateSelected);
+                        let dayOfWeek = localNow.getDay();
+
+                    if(rule.isDay(dayOfWeek)){ // Cumple con el dia  de la semana
+
+                        let localStartDate = new Date(this.getDate(rule.start_date.toLocaleDateString()))
+                        let localEndDate = new Date(this.getDate(rule.end_date.toLocaleDateString()))
+
+                        if(localNow > localStartDate && localNow<localEndDate){ // Esta en el rango de fechas
+                            services.push(new GtfsServiceDao(rule.service_id, rule.gtfs_file_id, gtfs_file.filename));
+                        }
+                    }
+                }
+            }
+
+            return services;
         }
     }
 };
@@ -247,4 +307,20 @@ export default {
 
 
 <style scoped>
+
+.loading-screen{
+    text-align: center;
+    display: grid;
+    place-content: center;
+    height: 100vh;
+}
+
+.loading-widget{
+    text-align: center;
+}
+
+.loading-screen span, .loading-widget span{
+    color: #3db295;
+    font-weight: bold;
+}
 </style>

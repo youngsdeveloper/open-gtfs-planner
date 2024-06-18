@@ -52,7 +52,6 @@ function downloadProject(window, idProject) {
             }
         });
         console.log("GTFS Cargado...");
-        window.webContents.send('loaded-project');
         if (project === null || project === void 0 ? void 0 : project.gtfsFiles) {
             for (const gtfsFile of project === null || project === void 0 ? void 0 : project.gtfsFiles) {
                 const DAO = GtfsDao_1.GtfsDao.fromObject(gtfsFile);
