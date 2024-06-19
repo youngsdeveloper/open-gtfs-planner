@@ -98,6 +98,14 @@ export class GtfsTripDao {
             
 
     }
+
+    getStartHour(){
+        return this.start_datetime.toTimeString().split(' ')[0];
+    }
+
+    getEndHour(){
+        return this.end_datetime.toTimeString().split(' ')[0];
+    }
     getCurrentPosition(d:Date):[number, number]|undefined{
 
         const currentStopTimes = this.getCurrentPrevNextStop(d);

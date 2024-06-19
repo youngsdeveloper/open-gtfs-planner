@@ -61,7 +61,7 @@
                                 <ul class="uk-list uk-list-divider">
 
                                     <li v-for="trip in trips_in_route.filter(t => visibleSimulationRoutes.includes(t.route.id))">
-                                        {{ trip.route.route_short_name }} -- {{ trip.start_datetime.toTimeString().split(' ')[0] }} - {{ trip.end_datetime.toTimeString().split(' ')[0] }}
+                                        {{ trip.route.route_short_name }} -- {{ trip.getStartHour() }} - {{ trip.getEndHour() }}
                                         <br><br>
                                         {{  trip.getTripPercent(simulationSettings.datetimeSelected) }}%
                                     </li>

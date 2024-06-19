@@ -38,6 +38,23 @@ import { PropType, defineComponent } from 'vue';
                                         {{ trip.route.route_short_name }}
                                     </span>
                             </l-icon>
+
+                            <l-popup>
+
+                                <div>
+                                    <b>Viaje: </b>{{ trip.trip_id }}
+                                </div>
+                                <div>
+                                    <b>Inicio: </b>{{ trip.getStartHour() }}
+                                </div>
+                                <div>
+                                    <b>Fin: </b>{{ trip.getEndHour() }}
+                                </div>
+                                <div>
+                                    <b>% Viaje: </b>{{ trip.getTripPercent(simulation_settings.datetimeSelected).toFixed(2) }}%
+                                </div>
+
+                            </l-popup>
                 </l-marker>
 
                 <template v-if="visibleStopsRoutes.includes(trip.route.id)">
@@ -80,7 +97,7 @@ import { PropType, defineComponent } from 'vue';
 <style>
 
     .marker-route{
-        background: #00b894;
+        background: #00AF8C;
         border: 3px solid black;
         color: white;
         font-weight: bold;
@@ -88,6 +105,11 @@ import { PropType, defineComponent } from 'vue';
         line-height: 1.95;
         text-align: center;
         border-radius: 30px;
+    }
+
+    .marker-route:hover{
+        background: #00493A;
+
     }
 
 </style>
