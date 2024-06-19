@@ -245,6 +245,13 @@ export default {
         ctx.gtfs_files = ctx.gtfs_files.filter(f => f.id != gtfsId); // Eliminar archivo GTFS Borrado
     })
 
+    window.electronAPI.addListener("end-loading", (event, gtfsId)=>{
+        setTimeout(()=>{
+            ctx.loading = false; 
+            window.dispatchEvent(new Event('resize'))
+        },1000); // 1s loading
+    })
+
     window.electronAPI.addListener("trips_by_service", (event, trips:GtfsTripDao[])=>{
         
         
@@ -258,7 +265,8 @@ export default {
         this.loading_widgets = false;
 
         setTimeout(()=>{
-            ctx.loading = false;            
+            ctx.loading = false;
+            window.dispatchEvent(new Event('resize'))
         },4000); // 3s loading
 
     });

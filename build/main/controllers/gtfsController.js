@@ -57,6 +57,13 @@ function downloadProject(window, idProject) {
                 const DAO = GtfsDao_1.GtfsDao.fromObject(gtfsFile);
                 window.webContents.send('loaded-gtfs', DAO);
             }
+            if ((project === null || project === void 0 ? void 0 : project.gtfsFiles.length) == 0) {
+                console.log("END");
+                window.webContents.send('end-loading');
+            }
+        }
+        else {
+            window.webContents.send('end-loading');
         }
     });
 }

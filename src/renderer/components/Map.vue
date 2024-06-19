@@ -4,15 +4,17 @@ import * as L from 'leaflet';
 import { GtfsDao } from '../../main/daos/GtfsDao';
 import { GtfsShapeDao } from '../../main/daos/GtfsShapeDao';
 
-import "leaflet/dist/leaflet.css";
 import { LMap, LMarker, LPopup, LTileLayer, LPolyline, LIcon } from "@vue-leaflet/vue-leaflet";
 import { GtfsTripDao } from '../../main/daos/GtfsTripDao';
 import { PropType, defineComponent } from 'vue';
+
+
+import "leaflet/dist/leaflet.css"
 </script>
 
 <template>
     <div style="width: 100%; height: 700px;">
-        <l-map ref="map" :zoom="zoom" :center="[37.9915664, -1.1323996]" >
+        <l-map ref="map" :zoom="zoom" :center="[37.9915664, -1.1323996]" style="width: 100%; height: 700px;" >
             <l-tile-layer
                 url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
                 layer-type="base"
@@ -95,6 +97,8 @@ import { PropType, defineComponent } from 'vue';
 
 
 <style>
+
+
 
     .marker-route{
         background: #00AF8C;
@@ -179,7 +183,8 @@ export default defineComponent({
             visibleStopsRoutes = visibleStopsRoutes.concat(this.gtfs_files.filter(gtfs => gtfs.stopsVisible).flatMap(g => g.agencies).flatMap(a => a.routes).map(r => r.id));
             return visibleStopsRoutes;
         }
-    }
+    },
+
 
 
 })

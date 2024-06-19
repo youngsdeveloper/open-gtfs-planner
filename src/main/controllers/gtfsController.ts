@@ -59,7 +59,17 @@ async function downloadProject(window, idProject) {
             const DAO = GtfsDao.fromObject(gtfsFile);
             window.webContents.send('loaded-gtfs', DAO);
         }
+
+
+        if(project?.gtfsFiles.length==0){
+            console.log("END");
+            window.webContents.send('end-loading');
+
+        }
+    }else{
+        window.webContents.send('end-loading');
     }
+
 
 }
 
