@@ -24,10 +24,15 @@ export class GtfsRoute extends Model{
   agency!: GtfsAgency;
 
 
-  @HasMany(() => GtfsTrip,{
-    onUpdate: "CASCADE",
-    onDelete: "CASCADE",
-  })
+  @HasMany(() => GtfsTrip)
   trips!: GtfsTrip[];
+
+  @ForeignKey(() => GtfsFile)
+  @Column
+  gtfs_file_id!: Number
+
+  @BelongsTo(() => GtfsFile)
+  gtfsFile!: GtfsFile;
+
 }
 

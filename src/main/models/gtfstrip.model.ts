@@ -33,10 +33,15 @@ export class GtfsTrip extends Model{
   route!: GtfsRoute;
 
 
-  @HasMany(() => GtfsStopTime,{
-    onUpdate: "CASCADE",
-    onDelete: "CASCADE",
-  })
+  @HasMany(() => GtfsStopTime)
   stopTimes!: GtfsStopTime[];
+
+  @ForeignKey(() => GtfsFile)
+  @Column
+  gtfs_file_id!: Number
+
+  @BelongsTo(() => GtfsFile)
+  gtfsFile!: GtfsFile;
+
 }
 

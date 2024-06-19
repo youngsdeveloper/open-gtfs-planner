@@ -48,4 +48,12 @@ export class GtfsStopTime extends Model{
   @BelongsTo(() => GtfsStop)
   stop!: GtfsStop;
 
+  @ForeignKey(() => GtfsFile)
+  @Column
+  gtfs_file_id!: Number
+
+  @BelongsTo(() => GtfsFile)
+  gtfsFile!: GtfsFile;
+
+
 }

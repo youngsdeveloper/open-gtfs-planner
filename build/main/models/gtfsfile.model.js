@@ -14,9 +14,12 @@ const sequelize_typescript_1 = require("sequelize-typescript");
 const project_model_1 = require("./project.model");
 const gtfsagency_model_1 = require("./gtfsagency.model");
 const gtfsstop_model_1 = require("./gtfsstop.model");
+const gtfsroute_model_1 = require("./gtfsroute.model");
 const gtfscalendardates_model_1 = require("./gtfscalendardates.model");
 const gtfsshape_model_1 = require("./gtfsshape.model");
 const gtfscalendar_model_1 = require("./gtfscalendar.model");
+const gtfstrip_model_1 = require("./gtfstrip.model");
+const gtfsstoptime_model_1 = require("./gtfsstoptime.model");
 let GtfsFile = class GtfsFile extends sequelize_typescript_1.Model {
 };
 exports.GtfsFile = GtfsFile;
@@ -68,6 +71,27 @@ __decorate([
     }),
     __metadata("design:type", Array)
 ], GtfsFile.prototype, "shapes", void 0);
+__decorate([
+    (0, sequelize_typescript_1.HasMany)(() => gtfstrip_model_1.GtfsTrip, {
+        onUpdate: "CASCADE",
+        onDelete: "CASCADE",
+    }),
+    __metadata("design:type", Array)
+], GtfsFile.prototype, "trips", void 0);
+__decorate([
+    (0, sequelize_typescript_1.HasMany)(() => gtfsstoptime_model_1.GtfsStopTime, {
+        onUpdate: "CASCADE",
+        onDelete: "CASCADE",
+    }),
+    __metadata("design:type", Array)
+], GtfsFile.prototype, "stopTimes", void 0);
+__decorate([
+    (0, sequelize_typescript_1.HasMany)(() => gtfsroute_model_1.GtfsRoute, {
+        onUpdate: "CASCADE",
+        onDelete: "CASCADE",
+    }),
+    __metadata("design:type", Array)
+], GtfsFile.prototype, "routes", void 0);
 exports.GtfsFile = GtfsFile = __decorate([
     sequelize_typescript_1.Table
 ], GtfsFile);

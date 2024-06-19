@@ -6,6 +6,8 @@ import { GtfsRoute } from './gtfsroute.model';
 import { GtfsCalendarDates } from './gtfscalendardates.model';
 import { GtfsShape } from './gtfsshape.model';
 import { GtfsCalendar } from './gtfscalendar.model';
+import { GtfsTrip } from './gtfstrip.model';
+import { GtfsStopTime } from './gtfsstoptime.model';
 
 @Table
 export class GtfsFile extends Model{
@@ -51,6 +53,24 @@ export class GtfsFile extends Model{
     onDelete: "CASCADE",
   })
   shapes!: GtfsShape[];
+
+  @HasMany(() => GtfsTrip,{
+    onUpdate: "CASCADE",
+    onDelete: "CASCADE",
+  })
+  trips!: GtfsTrip[];
+
+  @HasMany(() => GtfsStopTime,{
+    onUpdate: "CASCADE",
+    onDelete: "CASCADE",
+  })
+  stopTimes!: GtfsStopTime[];
+
+  @HasMany(() => GtfsRoute,{
+    onUpdate: "CASCADE",
+    onDelete: "CASCADE",
+  })
+  routes!: GtfsRoute[];
 
 
 }

@@ -19,10 +19,7 @@ export class GtfsAgency extends Model{
   gtfsFile!: GtfsFile;
 
   
-  @HasMany(() => GtfsRoute,{
-    onUpdate: "CASCADE",
-    onDelete: "CASCADE",
-  })
+  @HasMany(() => GtfsRoute)
   routes!: GtfsRoute[];
 
 }

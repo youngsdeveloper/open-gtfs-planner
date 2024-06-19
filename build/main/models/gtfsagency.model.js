@@ -34,10 +34,7 @@ __decorate([
     __metadata("design:type", gtfsfile_model_1.GtfsFile)
 ], GtfsAgency.prototype, "gtfsFile", void 0);
 __decorate([
-    (0, sequelize_typescript_1.HasMany)(() => gtfsroute_model_1.GtfsRoute, {
-        onUpdate: "CASCADE",
-        onDelete: "CASCADE",
-    }),
+    (0, sequelize_typescript_1.HasMany)(() => gtfsroute_model_1.GtfsRoute),
     __metadata("design:type", Array)
 ], GtfsAgency.prototype, "routes", void 0);
 exports.GtfsAgency = GtfsAgency = __decorate([

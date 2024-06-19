@@ -144,7 +144,7 @@ function uploadGTFS(gtfsData, path, window) {
             if (!route.agency_id) {
                 agency_id = agencyMap[Object.keys(agencyMap)[0]];
             }
-            const gtfsRoute = Object.assign(Object.assign({}, route), { agency_id: agency_id });
+            const gtfsRoute = Object.assign(Object.assign({}, route), { agency_id: agency_id, gtfs_file_id: gtfsFile.id });
             routes.push(gtfsRoute);
         }
         routes = yield gtfsroute_model_1.GtfsRoute.bulkCreate(routes);
@@ -156,12 +156,23 @@ function uploadGTFS(gtfsData, path, window) {
             const month = calendarDate.date.substring(4, 6) - 1; // Month is zero-based
             const day = calendarDate.date.substring(6, 8);
             const date = new Date(year, month, day);
-            const gtfsCalendarDate = { service_id: calendarDate.service_id, date: date, exception_type: parseInt(calendarDate.exception_type), gtfs_file_id: gtfsFile.id };
-            const calendarInDb = yield gtfscalendardates_model_1.GtfsCalendarDates.create(gtfsCalendarDate);
-            calendarDates.push(calendarInDb);
+            const gtfsCalendarDate = { service_id: calendarDate.service_id, date: date, exception_type: parseInt(calendarDate.exception_type.replace(/\n|\r|\W/g, "")), gtfs_file_id: gtfsFile.id };
+            calendarDates.push(gtfsCalendarDate);
+            console.log(gtfsCalendarDate);
+        }
+        const chunkSize = 1000;
+        for (let i = 0; i < calendarDates.length; i += chunkSize) {
+            const chunk = calendarDates.slice(i, i + chunkSize);
+            try {
+                const result_chunk = yield gtfscalendardates_model_1.GtfsCalendarDates.bulkCreate(chunk);
+            }
+            catch (error) {
+                console.error(error);
+            }
         }
         const calendars = [];
         for (const calendar of gtfsData.calendars) {
+            console.log(calendar);
             let year = calendar.start_date.substring(0, 4);
             let month = calendar.start_date.substring(4, 6) - 1;
             let day = calendar.start_date.substring(6, 8);
@@ -171,33 +182,43 @@ function uploadGTFS(gtfsData, path, window) {
             day = calendar.end_date.substring(6, 8);
             const endDate = new Date(year, month, day);
             const gtfsCalendar = Object.assign(Object.assign({}, calendar), { service_id: calendar.service_id, start_date: startDate, end_date: endDate, gtfs_file_id: gtfsFile.id });
-            const calendarInDb = yield gtfscalendar_model_1.GtfsCalendar.create(gtfsCalendar);
-            calendars.push(calendarInDb);
+            calendars.push(gtfsCalendar);
         }
+        yield gtfscalendar_model_1.GtfsCalendar.bulkCreate(calendars);
         window.webContents.send('update-loading-gtfs', 50);
-        const shapesMap = {};
         const shapes = [];
         for (const shape of gtfsData.shapes) {
             const gtfsShape = Object.assign(Object.assign({}, shape), { gtfs_file_id: gtfsFile.id });
             shapes.push(gtfsShape);
         }
-        const shapesInDB = yield gtfsshape_model_1.GtfsShape.bulkCreate(shapes);
+        yield gtfsshape_model_1.GtfsShape.bulkCreate(shapes);
         window.webContents.send('update-loading-gtfs', 60);
+        console.log("-- Subiendo trips --");
         const trips = [];
         for (const trip of gtfsData.trips) {
-            const gtfsTrip = Object.assign(Object.assign({}, trip), { route_id: routesMap[trip.route_id] });
+            const gtfsTrip = Object.assign(Object.assign({}, trip), { route_id: routesMap[trip.route_id], gtfs_file_id: gtfsFile.id });
             trips.push(gtfsTrip);
         }
-        const tripsInDb = yield gtfstrip_model_1.GtfsTrip.bulkCreate(trips);
+        // Chunk Size = 1000
+        const tripsInDb = [];
+        for (let i = 0; i < trips.length; i += chunkSize) {
+            const chunk = trips.slice(i, i + chunkSize);
+            const result_chunk = yield gtfstrip_model_1.GtfsTrip.bulkCreate(chunk);
+            tripsInDb.push(...result_chunk);
+        }
         const tripsMap = {};
         tripsInDb.forEach(trip => tripsMap[trip.trip_id] = trip.id);
         window.webContents.send('update-loading-gtfs', 80);
+        console.log("-- Subiendo stop times --");
         const stopTimes = [];
         for (const stopTime of gtfsData.stopTimes) {
-            const gtfsStopTime = Object.assign(Object.assign({}, stopTime), { trip_id: tripsMap[stopTime.trip_id], stop_id: stopsMap[stopTime.stop_id] });
+            const gtfsStopTime = Object.assign(Object.assign({}, stopTime), { trip_id: tripsMap[stopTime.trip_id], stop_id: stopsMap[stopTime.stop_id], gtfs_file_id: gtfsFile.id });
             stopTimes.push(gtfsStopTime);
         }
-        yield gtfsstoptime_model_1.GtfsStopTime.bulkCreate(stopTimes);
+        for (let i = 0; i < stopTimes.length; i += chunkSize) {
+            const chunk = stopTimes.slice(i, i + chunkSize);
+            yield gtfsstoptime_model_1.GtfsStopTime.bulkCreate(chunk);
+        }
         window.webContents.send('update-loading-gtfs', 90);
         return { file: gtfsFile, agencies: agencies, stops: stops, routes: routes, calendarDates: calendarDates, calendars: calendars };
     });

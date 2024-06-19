@@ -1,4 +1,4 @@
-import { GtfsRouteDao } from "./GtfsRouteDao";
+import moment from "moment";
 
 export class GtfsCalendarDao {
 
@@ -43,6 +43,14 @@ export class GtfsCalendarDao {
         this.friday = friday
         this.saturday = saturday
         this.sunday = sunday
+    }
+    
+    getStartDate(){
+        return moment(this.start_date).startOf('day');
+    }
+
+    getEndDate(){
+        return moment(this.end_date).endOf('day');
     }
 
     static fromObject(obj: any): GtfsCalendarDao {

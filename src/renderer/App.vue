@@ -2,6 +2,8 @@
     import Layers from './components/Layers.vue'
     import Map from './components/Map.vue'
     import SimulatioBar from './components/SimulatioBar.vue'
+    import moment from 'moment';
+
 </script>
 
 <template>
@@ -320,15 +322,18 @@ export default {
 
                 for(const rule of gtfs_file.calendar){
 
-                    let localNow = new Date(this.simulationSettings.dateSelected);
-                        let dayOfWeek = localNow.getDay();
+                    let localNow = moment(this.simulationSettings.dateSelected).add("hours",2);
+                    let dayOfWeek = localNow.isoWeekday();
+
+
 
                     if(rule.isDay(dayOfWeek)){ // Cumple con el dia  de la semana
 
-                        let localStartDate = new Date(this.getDate(rule.start_date.toLocaleDateString()))
-                        let localEndDate = new Date(this.getDate(rule.end_date.toLocaleDateString()))
+                        let localStartDate = rule.getStartDate();
+                        let localEndDate = rule.getEndDate();
 
-                        if(localNow > localStartDate && localNow<localEndDate){ // Esta en el rango de fechas
+
+                        if(localNow.isBetween(localStartDate, localEndDate)){ // Esta en el rango de fechas
                             services.push(new GtfsServiceDao(rule.service_id, rule.gtfs_file_id, gtfs_file.filename));
                         }
                     }

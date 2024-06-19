@@ -176,7 +176,7 @@ async function uploadGTFS(gtfsData, path, window){
     if(!route.agency_id){
       agency_id = agencyMap[Object.keys(agencyMap)[0]]
     }
-    const gtfsRoute = {...route, agency_id: agency_id}
+    const gtfsRoute = {...route, agency_id: agency_id, gtfs_file_id: gtfsFile.id}
     routes.push(gtfsRoute);
   }
 
@@ -186,7 +186,7 @@ async function uploadGTFS(gtfsData, path, window){
   window.webContents.send('update-loading-gtfs', 45);
 
 
-  const calendarDates = [] as GtfsCalendarDates[];
+  const calendarDates = [] as any[];
   for(const calendarDate of gtfsData.calendarDates){
     const year = calendarDate.date.substring(0, 4);
     const month = calendarDate.date.substring(4, 6) - 1; // Month is zero-based
@@ -194,13 +194,26 @@ async function uploadGTFS(gtfsData, path, window){
 
     const date = new Date(year, month, day);
 
-    const gtfsCalendarDate = {service_id: calendarDate.service_id, date: date, exception_type: parseInt(calendarDate.exception_type), gtfs_file_id: gtfsFile.id};
-    const calendarInDb = await GtfsCalendarDates.create(gtfsCalendarDate);
-    calendarDates.push(calendarInDb);
+    const gtfsCalendarDate = {service_id: calendarDate.service_id, date: date, exception_type: parseInt(calendarDate.exception_type.replace(/\n|\r|\W/g, "")), gtfs_file_id: gtfsFile.id};
+    calendarDates.push(gtfsCalendarDate);
+    console.log(gtfsCalendarDate)
   }
 
-  const calendars = [] as GtfsCalendar[];
+  const chunkSize = 1000;
+  for (let i = 0; i < calendarDates.length; i += chunkSize) {
+      const chunk = calendarDates.slice(i, i + chunkSize);
+      try {
+        const result_chunk = await GtfsCalendarDates.bulkCreate(chunk);
+      } catch (error) {
+        console.error(error);
+      }
+  }
+
+
+  const calendars = [] as any[];
   for(const calendar of gtfsData.calendars){
+
+    console.log(calendar);
     let year = calendar.start_date.substring(0, 4);
     let month = calendar.start_date.substring(4, 6) - 1; 
     let day = calendar.start_date.substring(6, 8);
@@ -215,15 +228,15 @@ async function uploadGTFS(gtfsData, path, window){
 
     
     const gtfsCalendar = { ...calendar, service_id: calendar.service_id, start_date: startDate, end_date: endDate, gtfs_file_id: gtfsFile.id};
-        
-    const calendarInDb = await GtfsCalendar.create(gtfsCalendar);
-    calendars.push(calendarInDb);
+    calendars.push(gtfsCalendar);
   }
+
+  await GtfsCalendar.bulkCreate(calendars);
+
 
   window.webContents.send('update-loading-gtfs', 50);
 
 
-  const shapesMap = {};
   const shapes = [] as any[];
   for(const shape of gtfsData.shapes){
     const gtfsShape = {...shape, gtfs_file_id: gtfsFile.id};
@@ -231,17 +244,29 @@ async function uploadGTFS(gtfsData, path, window){
   }
 
 
-  const shapesInDB = await GtfsShape.bulkCreate(shapes);
+  await GtfsShape.bulkCreate(shapes);
 
   window.webContents.send('update-loading-gtfs', 60);
 
+  console.log("-- Subiendo trips --")
   const trips = [] as any[];
   for(const trip of gtfsData.trips){
-    const gtfsTrip = {...trip,route_id: routesMap[trip.route_id]};
+    const gtfsTrip = {...trip,route_id: routesMap[trip.route_id], gtfs_file_id: gtfsFile.id};
     trips.push(gtfsTrip);
   }
 
-  const tripsInDb = await GtfsTrip.bulkCreate(trips);
+
+  // Chunk Size = 1000
+
+  
+
+  const tripsInDb = [] as GtfsTrip[];
+
+  for (let i = 0; i < trips.length; i += chunkSize) {
+      const chunk = trips.slice(i, i + chunkSize);
+      const result_chunk = await GtfsTrip.bulkCreate(chunk);
+      tripsInDb.push(...result_chunk);
+  }
   
   const tripsMap = {};
   
@@ -250,13 +275,18 @@ async function uploadGTFS(gtfsData, path, window){
   window.webContents.send('update-loading-gtfs', 80);
 
 
+  console.log("-- Subiendo stop times --")
+
   const stopTimes = [] as any[];
   for(const stopTime of gtfsData.stopTimes){
-    const gtfsStopTime = {...stopTime, trip_id: tripsMap[stopTime.trip_id], stop_id: stopsMap[stopTime.stop_id]};
+    const gtfsStopTime = {...stopTime, trip_id: tripsMap[stopTime.trip_id], stop_id: stopsMap[stopTime.stop_id], gtfs_file_id: gtfsFile.id};
     stopTimes.push(gtfsStopTime);
   }
 
-  await GtfsStopTime.bulkCreate(stopTimes);
+  for (let i = 0; i < stopTimes.length; i += chunkSize) {
+      const chunk = stopTimes.slice(i, i + chunkSize);
+      await GtfsStopTime.bulkCreate(chunk);
+  }
 
   window.webContents.send('update-loading-gtfs', 90);
 

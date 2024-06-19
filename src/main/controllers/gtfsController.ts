@@ -17,6 +17,7 @@ import { GtfsFile } from "../models/gtfsfile.model";
 import { GtfsStopTime } from "../models/gtfsstoptime.model";
 import { GtfsCalendar } from "../models/gtfscalendar.model";
 import { GtfsTripDao } from "../daos/GtfsTripDao";
+import sequelize from "sequelize";
 
 
 
@@ -103,21 +104,23 @@ async function deleteGTFS(window, idGtfs) {
     if(gtfsFile){
         try {
 
-            const stops = await GtfsStop.findAll({
-                attributes: ["id"],
-                where:{
-                    gtfs_file_id: gtfsFile.id
-                }
-            });
-
-            const stopsId = stops.map( s => s.id);
-
             await GtfsStopTime.destroy({
                 where: {
-                    stop_id: {
-                        [Op.in]: stopsId
-                    }
-                }
+                    gtfs_file_id: gtfsFile.id,
+                },
+                hooks: false,
+                individualHooks: false
+
+            });
+
+            await GtfsTrip.destroy({
+                where: {
+                    gtfs_file_id: gtfsFile.id,
+
+                },
+                hooks: false,
+                individualHooks: false
+
             });
             
             await gtfsFile.destroy();

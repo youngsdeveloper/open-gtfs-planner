@@ -92,19 +92,19 @@ function deleteGTFS(window, idGtfs) {
         const gtfsFile = yield gtfsfile_model_1.GtfsFile.findByPk(idGtfs);
         if (gtfsFile) {
             try {
-                const stops = yield gtfsstop_model_1.GtfsStop.findAll({
-                    attributes: ["id"],
-                    where: {
-                        gtfs_file_id: gtfsFile.id
-                    }
-                });
-                const stopsId = stops.map(s => s.id);
                 yield gtfsstoptime_model_1.GtfsStopTime.destroy({
                     where: {
-                        stop_id: {
-                            [sequelize_1.Op.in]: stopsId
-                        }
-                    }
+                        gtfs_file_id: gtfsFile.id,
+                    },
+                    hooks: false,
+                    individualHooks: false
+                });
+                yield gtfstrip_model_1.GtfsTrip.destroy({
+                    where: {
+                        gtfs_file_id: gtfsFile.id,
+                    },
+                    hooks: false,
+                    individualHooks: false
                 });
                 yield gtfsFile.destroy();
                 console.log("GTFS FILE eliminado");
