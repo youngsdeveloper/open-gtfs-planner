@@ -59,15 +59,34 @@
                                 </h2>
                             </div>
                             <div class="uk-modal-body">
+                                <table class="uk-table uk-table-hover uk-table-divider">
+                                    <thead>
+                                        <tr>
+                                            <th>Linea</th>
+                                            <th>Hora de inicio</th>
+                                            <th>Hora de fin</th>
+                                            <th>% de recorrido</th>
 
-                                <ul class="uk-list uk-list-divider">
-
-                                    <li v-for="trip in trips_in_route.filter(t => visibleSimulationRoutes.includes(t.route.id))">
-                                        {{ trip.route.route_short_name }} -- {{ trip.getStartHour() }} - {{ trip.getEndHour() }}
-                                        <br><br>
-                                        {{  trip.getTripPercent(simulationSettings.datetimeSelected) }}%
-                                    </li>
-                                </ul>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr v-for="trip in trips_in_route.filter(t => visibleSimulationRoutes.includes(t.route.id)).sort(t => parseInt(t.route.route_id))">
+                                            <td>
+                                                {{ trip.route.route_short_name }}
+                                            </td>
+                                            <td>
+                                                {{  trip.getStartHour() }}
+                                            </td>
+                                            <td>
+                                                {{  trip.getEndHour() }}
+                                            </td>
+                                            <td>
+                                                {{ trip.getTripPercent(simulationSettings.datetimeSelected).toFixed(2) }}%
+                                            </td>
+                                        </tr>
+                                        
+                                    </tbody>
+                                </table>
 
 
                             </div>
