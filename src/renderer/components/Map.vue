@@ -30,7 +30,9 @@ import "leaflet/dist/leaflet.css"
 
                 <l-marker v-if="visibleSimulationRoutes.includes(trip.route.id)"
                             :lat-lng="L.latLng(trip.getCurrentPosition(simulation_settings.datetimeSelected)!)"
-                            :z-index-offset="1000">
+                            :z-index-offset="1000"
+                            :key="trip.id"
+                            @click="trip.showPopup=true">
                         
                             <l-icon
                                 :icon-anchor="routeIcon.iconAnchor"
@@ -90,6 +92,12 @@ import "leaflet/dist/leaflet.css"
             </template>
 
         </l-map>
+
+
+        <template v-for="trip in trips_in_route?.filter(t => t.showPopup)">
+            {{ trip }}
+        </template>
+
 
 
     </div>

@@ -16,6 +16,8 @@ export class GtfsTripDao {
     start_datetime!: Date;
     end_datetime!: Date;
 
+    showPopup:boolean = false
+
     stopTimes: GtfsStopTimeDao[];
 
 
