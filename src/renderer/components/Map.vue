@@ -14,7 +14,11 @@ import "leaflet/dist/leaflet.css"
 
 <template>
     <div style="width: 100%; height: 700px;">
-        <l-map ref="map" :zoom="zoom" :center="[37.9915664, -1.1323996]" style="width: 100%; height: 700px;" >
+        <l-map ref="map" 
+                :zoom="zoom" 
+                :center="[37.9915664, -1.1323996]"
+                style="width: 100%; height: 700px;"
+                @click="handleMapClick">
             <l-tile-layer
                 url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
                 layer-type="base"
@@ -32,33 +36,17 @@ import "leaflet/dist/leaflet.css"
                             :lat-lng="L.latLng(trip.getCurrentPosition(simulation_settings.datetimeSelected)!)"
                             :z-index-offset="1000"
                             :key="trip.id"
-                            @click="trip.showPopup=true">
+                            @click="panelSettings.tripSelected=trip">
                         
                             <l-icon
                                 :icon-anchor="routeIcon.iconAnchor"
                                 :icon-size="routeIcon.iconSize"
-                                class-name="marker-route">
+                                :class-name="getClassNameMarker(trip)">
                                     <span class="marker-route-title">
                                         {{ trip.route.route_short_name }}
                                     </span>
                             </l-icon>
 
-                            <l-popup>
-
-                                <div>
-                                    <b>Viaje: </b>{{ trip.trip_id }}
-                                </div>
-                                <div>
-                                    <b>Inicio: </b>{{ trip.getStartHour() }}
-                                </div>
-                                <div>
-                                    <b>Fin: </b>{{ trip.getEndHour() }}
-                                </div>
-                                <div>
-                                    <b>% Viaje: </b>{{ trip.getTripPercent(simulation_settings.datetimeSelected).toFixed(2) }}%
-                                </div>
-
-                            </l-popup>
                 </l-marker>
 
                 <template v-if="visibleStopsRoutes.includes(trip.route.id)">
@@ -94,10 +82,6 @@ import "leaflet/dist/leaflet.css"
         </l-map>
 
 
-        <template v-for="trip in trips_in_route?.filter(t => t.showPopup)">
-            {{ trip }}
-        </template>
-
 
 
     </div>
@@ -108,7 +92,7 @@ import "leaflet/dist/leaflet.css"
 
 
 
-    .marker-route{
+    .marker-route, .marker-route-selected{
         background: #00AF8C;
         border: 3px solid black;
         color: white;
@@ -117,6 +101,10 @@ import "leaflet/dist/leaflet.css"
         line-height: 1.95;
         text-align: center;
         border-radius: 30px;
+    }
+
+    .marker-route-selected{
+        background: #0062B0;
     }
 
     .marker-route:hover{
@@ -155,6 +143,10 @@ export default defineComponent({
         visibleSimulationRoutes: {
             type: Array,
             required: true
+        },
+        panelSettings: {
+            type: Object,
+            required: true
         }
     },
 
@@ -177,12 +169,38 @@ export default defineComponent({
 
     methods: {
 
+        getClassNameMarker: function(trip:GtfsTripDao){
+            if(!this.panelSettings.tripSelected){
+                return "marker-route";
+            }
+            return this.panelSettings.tripSelected!!.id == trip.id ? 'marker-route-selected':'marker-route' 
+        },
+
         getLeafletRouteIcon: function(route: string): L.DivIcon{
             return L.divIcon({
                 className: "route-marker",
                 html: route
             })
-        }
+        },
+
+
+        handleMapClick(event:any) {
+            // Obtener la posición del clic
+            const clickedLatLng = event.latlng;
+
+            // Obtener la posición del marcador
+            const markerLatLng = this.panelSettings.tripSelected.getCurrentPosition(this.simulation_settings.datetimeSelected);
+
+            // Calcular la distancia entre el clic y el marcador (en metros)
+            const distance = clickedLatLng.distanceTo(markerLatLng);
+
+            // Si la distancia es mayor a cierto umbral, se considera fuera del marcador
+            const threshold = 50; // Umbral en metros
+            if (distance > threshold) {
+                this.panelSettings.tripSelected = null;
+            }
+        },
+
     },
 
     computed: {

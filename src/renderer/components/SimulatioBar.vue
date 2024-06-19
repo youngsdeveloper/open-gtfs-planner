@@ -128,7 +128,7 @@ export default{
 .simulationBar{
     padding: 15px 0px;
     background: linear-gradient(#78c89a,#39b29d);
-    width: 80%;
+    width: 95%;
     border-radius: 200px;
 
     margin-bottom: 40px !important;

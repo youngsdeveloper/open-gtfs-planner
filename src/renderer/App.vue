@@ -1,6 +1,8 @@
 <script lang="ts" setup>
     import Layers from './components/Layers.vue'
     import Map from './components/Map.vue'
+    import Trips from './components/Trips.vue'
+
     import SimulatioBar from './components/SimulatioBar.vue'
     import moment from 'moment';
 
@@ -99,7 +101,8 @@
                     <Map    v-show="!loading_widgets"
                             :gtfs_files="gtfs_files" :trips_in_route="trips_in_route"
                             :simulation_settings="simulationSettings"
-                            :visible-simulation-routes="visibleSimulationRoutes"></Map>
+                            :visible-simulation-routes="visibleSimulationRoutes"
+                            :panel-settings="panelSettings"></Map>
                 </div>
                 
 
@@ -111,37 +114,16 @@
 
             </section>
     
-            <aside class="uk-width-1-5" aria-label="lineas">
+            <aside class="uk-width-1-4" aria-label="viajes">
                 <div class="uk-container">
                     <ul uk-accordion="multiple: true">
                         <li class="uk-open">
-                            <a class="uk-accordion-title">Lineas</a>
+                            <a class="uk-accordion-title">Viajes</a>
                             <div class="uk-accordion-content">
-                                <ul class="uk-list uk-list-divider">
-                                    <li>
-                                        TMP Murcia - 1
-                                        <button class="uk-button uk-button-default uk-button-small uk-align-right">
-                                            <span uk-icon="eye"></span>
-                                        </button>
-                                    </li>
-                                    <li>
-                                        TMP Murcia - 26
-                                        <button class="uk-button uk-button-default uk-button-small uk-align-right">
-                                            <span uk-icon="eye"></span>
-                                        </button>
-                                    </li><li>
-                                        TMP Murcia - 39
-                                        <button class="uk-button uk-button-default uk-button-small uk-align-right">
-                                            <span uk-icon="eye"></span>
-                                        </button>
-                                    </li><li>
-                                        TMP Murcia - 44
-                                        <button class="uk-button uk-button-default uk-button-small uk-align-right">
-                                            <span uk-icon="eye"></span>
-                                        </button>
-                                    </li>
-
-                                </ul>
+                                
+                                <Trips 
+                                    :simulation-settings="simulationSettings"
+                                    :panel-settings="panelSettings" />
 
 
                             </div>
@@ -211,7 +193,12 @@ export default {
         timeSelected: new Date().toTimeString().split(' ')[0],
         datetimeSelected: new Date()
       },
-      trips_in_route: [] as GtfsTripDao[]
+      trips_in_route: [] as GtfsTripDao[],
+
+      panelSettings: {
+        tripSelected: null as GtfsTripDao | null
+      },
+
     };
   },
   watch: {
