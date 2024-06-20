@@ -5,33 +5,34 @@
 </script>
 
 <template>
-    <div class="trips">
+    <div class="stops">
 
-        <div class="card-trip-selected uk-card uk-card-secondary uk-card-body" v-if="panelSettings.tripSelected">
+        <div class="card-trip-selected uk-card uk-card-secondary uk-card-body" v-if="panelSettings.stopSelected">
             <h3 class="uk-card-title">
 
-                {{ panelSettings.tripSelected.route.route_short_name }}
+                {{ panelSettings.stopSelected.stop_name }}
                 
-                <span style="float: right;">
-                    {{ panelSettings.tripSelected.getTripPercent(simulationSettings.datetimeSelected).toFixed(2) }}%
-                </span>
+                
+
 
             </h3>
 
 
-            <div>
+            {{  panelSettings.stopSelected  }}
+
+            <div v-if="panelSettings.stopSelected.stopTimes">
                 <table class="uk-table uk-table-hover uk-table-divider uk-table-small">
                     <thead>
                         <tr>
-                            <th>Parada</th>
+                            <th>Linea</th>
                             <th>Hora</th>
 
                         </tr>
                     </thead>
                     <tbody>
-                        <tr v-for="stopTime in panelSettings.tripSelected.stopTimes.filter(s => s.getArrivalTimeInDate(simulationSettings.datetimeSelected) > simulationSettings.datetimeSelected)">
+                        <tr v-for="stopTime in panelSettings.stopSelected.stopTimes">
                             <td style="font-size: 0.75em;">
-                                {{ stopTime.stop.stop_name }}
+                                {{ stopTime.route.route_short_name }}
                             </td>
                             <td>
                                 {{ stopTime.arrival_time }}
@@ -42,10 +43,12 @@
             </div>
 
 
+
+
         </div>
         <div class="uk-card uk-card-secondary uk-card-body" v-else>
             <p>
-                Selecciona un viaje en el mapa para ver sus detalles aquí.
+                Selecciona una parada en el mapa para ver sus detalles aquí.
             </p>
         </div>
     </div>
@@ -68,15 +71,15 @@ export default defineComponent({
 </script>
 
 <style scoped>
-    .trips .card-trip-selected{
+    .stops .card-trip-selected{
         padding: 15px;
     }
 
-    .trips .uk-card{
+    .stops .uk-card{
         background: #636e72;
     }
 
-    .trips .card-trip-selected table{
+    .stops .card-trip-selected table{
         height: 200px;
     }
 </style>

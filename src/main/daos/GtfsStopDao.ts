@@ -1,3 +1,5 @@
+import { GtfsStopTimeDao } from "./GtfsStopTimeDao";
+
 export class GtfsStopDao {
     id: number;
     gtfs_stop_id: number;
@@ -5,6 +7,8 @@ export class GtfsStopDao {
     stop_lat: number;
     stop_lon: number;
     agency_id: number;
+    
+    stopTimes!: GtfsStopTimeDao[];
 
     constructor(id:number,gtfs_stop_id: number, stop_name: string, stop_lat: number, stop_lon: number, agency_id: number) {
         this.id = id;

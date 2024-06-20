@@ -17,6 +17,7 @@ export default interface ElectronApi {
   onLoadedShapes: (listener:(event: IpcRendererEvent, shapes: GtfsShapeDao[], route_id: Number) => void) =>void
   deleteGtfs: (gtfs_id:Number) => void,
   downloadTripsByServices: (servicesId:String[]) => void
+  downloadStopByServices: (stopId: Number, servicesId:String[]) => void
 
 }
 

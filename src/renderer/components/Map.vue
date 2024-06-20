@@ -50,7 +50,9 @@ import "leaflet/dist/leaflet.css"
                 </l-marker>
 
                 <template v-if="visibleStopsRoutes.includes(trip.route.id)">
-                    <l-marker v-for="stop_trip in trip.stopTimes.flatMap(st => st.stop)" :lat-lng="L.latLng(stop_trip.getLatLng())" />
+                    <l-marker v-for="stop_trip in trip.stopTimes.flatMap(st => st.stop)"
+                            :lat-lng="L.latLng(stop_trip.getLatLng())"
+                            @click="panelSettings.stopSelected=stop_trip" />
                 </template>
 
             </template>
@@ -71,11 +73,6 @@ import "leaflet/dist/leaflet.css"
                     </template>
 
 
-                    <l-marker v-for="stop in gtfs_file.stops" :lat-lng="stop.getLatLng()" v-if="gtfs_file.stopsVisible">
-                        <l-popup>
-                            {{ stop.stop_name }}
-                        </l-popup>
-                    </l-marker>
                 </template>
             </template>
 
@@ -187,18 +184,34 @@ export default defineComponent({
         handleMapClick(event:any) {
             // Obtener la posición del clic
             const clickedLatLng = event.latlng;
-
-            // Obtener la posición del marcador
-            const markerLatLng = this.panelSettings.tripSelected.getCurrentPosition(this.simulation_settings.datetimeSelected);
-
-            // Calcular la distancia entre el clic y el marcador (en metros)
-            const distance = clickedLatLng.distanceTo(markerLatLng);
-
-            // Si la distancia es mayor a cierto umbral, se considera fuera del marcador
             const threshold = 50; // Umbral en metros
-            if (distance > threshold) {
-                this.panelSettings.tripSelected = null;
+
+            if(this.panelSettings.tripSelected){
+                // Obtener la posición del marcador
+                const marketTripSelected = this.panelSettings.tripSelected.getCurrentPosition(this.simulation_settings.datetimeSelected);
+
+                // Calcular la distancia entre el clic y el marcador (en metros)
+                const distanceTripSelected = clickedLatLng.distanceTo(marketTripSelected);
+
+                // Si la distancia es mayor a cierto umbral, se considera fuera del marcador
+                if (distanceTripSelected > threshold) {
+                    this.panelSettings.tripSelected = null;
+                }
             }
+
+            if(this.panelSettings.stopSelected){
+                const marketStopSelected = this.panelSettings.stopSelected.getLatLng();
+
+                const distanceStopSelected = clickedLatLng.distanceTo(marketStopSelected);
+
+                if (distanceStopSelected > threshold) {
+                    this.panelSettings.stopSelected = null;
+                }
+            }
+            
+
+            
+            
         },
 
     },

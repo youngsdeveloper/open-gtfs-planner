@@ -5,7 +5,7 @@ const { buildMenu } = require('./menu');
 const { createMainWindow } = require('./controllers/mainWindowController');
 
 const { selectDirectory } = require('./controllers/gtfsImporterController');
-const { downloadProject, downloadShapesByRoute, deleteGTFS, downloadTripsByServices } = require('./controllers/gtfsController');
+const { downloadProject, downloadShapesByRoute, deleteGTFS, downloadTripsByServices, downloadStopByServices } = require('./controllers/gtfsController');
 
 import sequelize from "./models"
 
@@ -65,6 +65,10 @@ ipcMain.on("deleteGTFS",(event, gtfsId)=>{
 
 ipcMain.on("downloadTripsByServices",(event, servicesId)=>{
   downloadTripsByServices(mainWindow, servicesId)
+})
+
+ipcMain.on("downloadStopByServices",(event, stopId, servicesId)=>{
+  downloadStopByServices(mainWindow, stopId, servicesId)
 })
 
 

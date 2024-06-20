@@ -18,6 +18,7 @@ import { GtfsStopTime } from "../models/gtfsstoptime.model";
 import { GtfsCalendar } from "../models/gtfscalendar.model";
 import { GtfsTripDao } from "../daos/GtfsTripDao";
 import sequelize from "sequelize";
+import { GtfsStopTimeDao } from "../daos/GtfsStopTimeDao";
 
 
 
@@ -163,9 +164,47 @@ async function downloadTripsByServices(window, servicesId){
     window.webContents.send("trips_by_service", GtfsTripDao.fromObjectToArray(trips));
 }
 
+
+async function downloadStopByServices(window, stopId, servicesId){
+
+    const trips = await GtfsTrip.findAll({
+        attributes: ["id"],
+        where: {
+            service_id: {
+                [Op.in]: servicesId
+            }
+        }
+    });
+
+    const tripsId = trips.map(t => t.id);
+
+    const stopTimes = await GtfsStopTime.findAll({
+        where: {
+            trip_id: {
+                [Op.in]: tripsId
+            },
+            stop_id: stopId
+        },
+        include: [
+            {
+                model: GtfsTrip,
+                include: [
+                    GtfsRoute
+                ]
+            },
+            {
+                model: GtfsStop
+            }
+        ]
+    });
+
+    window.webContents.send("stop_times_by_stop", GtfsStopTimeDao.fromObjectToArray(stopTimes));
+}
+
 module.exports = {
     downloadProject,
     downloadShapesByRoute,
     deleteGTFS,
-    downloadTripsByServices
+    downloadTripsByServices,
+    downloadStopByServices
 };

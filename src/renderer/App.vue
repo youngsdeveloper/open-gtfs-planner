@@ -2,6 +2,7 @@
     import Layers from './components/Layers.vue'
     import Map from './components/Map.vue'
     import Trips from './components/Trips.vue'
+    import Stops from './components/Stops.vue'
 
     import SimulatioBar from './components/SimulatioBar.vue'
     import moment from 'moment';
@@ -129,23 +130,15 @@
                             </div>
                         </li>
                         <li class="uk-open">
-                            <a class="uk-accordion-title">Parada</a>
+                            <a class="uk-accordion-title">Paradas</a>
                             <div class="uk-accordion-content">
-                                
 
-                                <button class="uk-button uk-button-primary uk-width-1-1 uk-margin-small-bottom uk-margin-small-top">
-                                    Fusionar paradas
-                                </button>
+                                <Stops 
+                                    :simulation-settings="simulationSettings"
+                                    :panel-settings="panelSettings" />
 
 
-                            </div>
-                        </li>
-                        <li>
-                            <a class="uk-accordion-title">Horarios</a>
-                            <div class="uk-accordion-content">
-                                <button class="uk-button uk-button-primary uk-width-1-1 uk-margin-small-bottom uk-margin-small-top">
-                                    Abrir horarios
-                                </button>
+
                             </div>
                         </li>
                         <li>
@@ -179,6 +172,8 @@ import { GtfsDao } from '../main/daos/GtfsDao';
 import { GtfsShapeDao } from '../main/daos/GtfsShapeDao';
 import { GtfsTripDao } from '../main/daos/GtfsTripDao';
 import {GtfsServiceDao} from '../main/daos/GtfsServiceDao';
+import { GtfsStopDao } from '../main/daos/GtfsStopDao'
+import { GtfsStopTimeDao } from '../main/daos/GtfsStopTimeDao'
 
 export default {
   data() {
@@ -196,7 +191,9 @@ export default {
       trips_in_route: [] as GtfsTripDao[],
 
       panelSettings: {
-        tripSelected: null as GtfsTripDao | null
+        tripSelected: null as GtfsTripDao | null,
+        stopSelected: null as GtfsStopDao | null
+
       },
 
     };
@@ -219,7 +216,12 @@ export default {
 
         const servicesId = newServices.map( s => s.service_id);
         window.electronAPI.downloadTripsByServices(servicesId);
-    }
+    },
+    "panelSettings.stopSelected": function(){
+        const servicesId = this.services.map( s => s.service_id);
+
+        window.electronAPI.downloadStopByServices(this.panelSettings.stopSelected?.id!!, servicesId)
+    },
   },
   mounted(){
 
@@ -258,6 +260,15 @@ export default {
             ctx.loading = false; 
             window.dispatchEvent(new Event('resize'))
         },1000); // 1s loading
+    })
+    
+    window.electronAPI.addListener("stop_times_by_stop", (event, stopTimes: GtfsStopTimeDao[])=>{
+        
+        console.log(stopTimes);
+
+        if(ctx.panelSettings.stopSelected){
+            ctx.panelSettings.stopSelected.stopTimes = GtfsStopTimeDao.fromObjectToArray(stopTimes)
+        }
     })
 
     window.electronAPI.addListener("trips_by_service", (event, trips:GtfsTripDao[])=>{
