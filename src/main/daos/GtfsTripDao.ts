@@ -18,7 +18,7 @@ export class GtfsTripDao {
 
     showPopup:boolean = false
 
-    stopTimes: GtfsStopTimeDao[];
+    stopTimes!: GtfsStopTimeDao[];
 
 
     constructor(
@@ -29,8 +29,7 @@ export class GtfsTripDao {
         direction_id: Number, 
         block_id: string, 
         shape_id: string, 
-        route: GtfsRouteDao, 
-        stopTimes: GtfsStopTimeDao[]
+        route: GtfsRouteDao,
     ) {
         this.id = id
         this.service_id = service_id
@@ -40,8 +39,6 @@ export class GtfsTripDao {
         this.block_id = block_id
         this.shape_id = shape_id
         this.route = route
-        this.stopTimes = stopTimes
-
 
     }
 
@@ -152,10 +149,15 @@ export class GtfsTripDao {
 
 
     static fromObject(obj: any): GtfsTripDao {
-        return new GtfsTripDao(obj.id, obj.service_id, obj.trip_id, obj.trip_headsign, obj.direction_id,
-            obj.block_id, obj.shape_id, GtfsRouteDao.fromObject(obj.route),
-            GtfsStopTimeDao.fromObjectToArray(obj.stopTimes)
+        
+        const tripDAO = new GtfsTripDao(obj.id, obj.service_id, obj.trip_id, obj.trip_headsign, obj.direction_id,
+            obj.block_id, obj.shape_id, GtfsRouteDao.fromObject(obj.route)
         );
+
+        if(obj.stopTimes){
+            tripDAO.stopTimes = GtfsStopTimeDao.fromObjectToArray(obj.stopTimes);
+        }
+        return tripDAO;
     }
 
     static fromObjectToArray(obj: any): GtfsTripDao[] {

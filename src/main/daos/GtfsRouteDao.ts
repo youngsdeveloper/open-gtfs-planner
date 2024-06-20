@@ -38,4 +38,21 @@ export class GtfsRouteDao {
         obj.forEach(s => data.push(this.fromObject(s)));
         return data;
     }
+
+    static unique(routes: GtfsRouteDao[]){
+        const uniques = [] as GtfsRouteDao[];
+
+        const idsSelected = [] as Number[];
+        
+        for(const r of routes){
+
+            
+            if(idsSelected.indexOf(r.id) == -1){
+                idsSelected.push(r.id as number);
+                uniques.push(r)
+            }
+        }
+
+        return uniques;
+    }
 }

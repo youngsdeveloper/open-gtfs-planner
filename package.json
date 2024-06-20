@@ -22,6 +22,7 @@
   "homepage": "https://github.com/youngsdeveloper/open-gtfs-planner#readme",
   "devDependencies": {
     "@types/leaflet": "^1.9.12",
+    "@types/vue-moment": "^4.0.7",
     "@vitejs/plugin-vue": "^4.4.1",
     "@vue-leaflet/vue-leaflet": "^0.10.1",
     "chalk": "^4.1.2",
@@ -42,6 +43,7 @@
     "sequelize-typescript": "^2.1.6",
     "sqlite3": "^5.1.7",
     "uikit": "^3.19.4",
-    "vue": "^3.3.8"
+    "vue": "^3.3.8",
+    "vue-moment": "^4.1.0"
   }
 }

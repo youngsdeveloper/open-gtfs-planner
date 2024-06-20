@@ -185,6 +185,9 @@ async function downloadStopByServices(window, stopId, servicesId){
             },
             stop_id: stopId
         },
+        order: [
+            ["arrival_time","ASC"]
+        ],
         include: [
             {
                 model: GtfsTrip,

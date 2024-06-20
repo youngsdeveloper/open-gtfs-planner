@@ -101,11 +101,11 @@ import "leaflet/dist/leaflet.css"
     }
 
     .marker-route-selected{
-        background: #0062B0;
+        background: #636e72;
     }
 
     .marker-route:hover{
-        background: #00493A;
+        background: #0062B0;
 
     }
 

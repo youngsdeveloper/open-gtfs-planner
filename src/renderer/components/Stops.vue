@@ -1,6 +1,10 @@
 <script lang="ts" setup>
     import { GtfsTripDao } from '../../main/daos/GtfsTripDao'
+    import { PanelSettings } from '../../main/daos/PanelSettings'
+
     import { PropType, defineComponent } from 'vue';
+    import moment from "moment";
+import { GtfsRouteDao } from '../../main/daos/GtfsRouteDao';
 
 </script>
 
@@ -18,28 +22,41 @@
             </h3>
 
 
-            {{  panelSettings.stopSelected  }}
 
             <div v-if="panelSettings.stopSelected.stopTimes">
-                <table class="uk-table uk-table-hover uk-table-divider uk-table-small">
-                    <thead>
-                        <tr>
-                            <th>Linea</th>
-                            <th>Hora</th>
 
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <tr v-for="stopTime in panelSettings.stopSelected.stopTimes">
-                            <td style="font-size: 0.75em;">
-                                {{ stopTime.route.route_short_name }}
-                            </td>
-                            <td>
-                                {{ stopTime.arrival_time }}
-                            </td>
-                        </tr>
-                    </tbody>
-                </table>
+                <div class="route-boxes">
+
+                    <span v-bind:class="{'route-box-selected': routesSelected.indexOf(route.id)!=-1}" v-on:click="toggleRouteSelected(route.id)" class="route-box route-box-min" v-for="route in GtfsRouteDao.unique(panelSettings.stopSelected.stopTimes.map(st => st.trip.route))">
+                        {{ route.route_short_name }}
+                    </span>
+                </div>
+
+                <div style="max-height: 350px;overflow-y: auto;margin-top: 20px;">
+                    <table class="uk-table uk-table-hover uk-table-divider uk-table-small">
+                        <thead>
+                            <tr>
+                                <th>Linea</th>
+                                <th>Hora</th>
+
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr v-for="stopTime in panelSettings.stopSelected.stopTimes.filter(st => simulationSettings.datetimeSelected.getTime() <= st.getArrivalTimeInDate(simulationSettings.dateSelected).getTime()).filter(st => routesSelected.indexOf(st.trip.route.id)!=-1)">
+                                <td style="font-size: 0.85em;">
+                                    <span class="route-box">
+                                        {{ stopTime.trip.route.route_short_name }}
+                                    </span>
+                                </td>
+                                <td style="font-size: 1em; padding-top:15px;">
+                                    {{ stopTime.arrival_time }}
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                
+                
             </div>
 
 
@@ -62,10 +79,33 @@ export default defineComponent({
             required: true
         },
         panelSettings: {
-            type: Object,
+            type: PanelSettings,
             required: true
         }
     },
+
+    data: function(){
+        return {
+            moment: moment,
+            routesSelected: [] as Number[]
+        }
+    },
+
+    methods: {
+        toggleRouteSelected(route:Number){
+            if(this.routesSelected.indexOf(route)!=-1){
+                this.routesSelected = this.routesSelected.filter(r => r != route)
+            }else{
+                this.routesSelected.push(route)
+            }
+        }
+    },
+    watch:{
+        "panelSettings.stopSelected": function(){
+            this.routesSelected = [];
+        },
+
+    }
 
 })
 </script>
@@ -81,5 +121,38 @@ export default defineComponent({
 
     .stops .card-trip-selected table{
         height: 200px;
+    }
+
+
+    .route-boxes{
+        width: 100%;
+        display: flex;
+        flex-wrap: wrap; /* Permite que los spans se ajusten en múltiples líneas si es necesario */
+        gap: 8px; /* Espacio entre los elementos */
+
+    }
+    .route-box{
+        width: 40px;
+        text-align: center;
+        border: 2px solid black;
+        padding: 6px;
+        background: #218c74;
+        color: white;
+        font-weight: bold;
+        font-size: 1.5em;
+    }
+
+    .route-box-min{
+        width: 25px;
+        font-size: 0.9em;
+    }
+
+    .route-box-selected{
+        background: #362ae3;
+    }
+
+    .route-box-min:hover{
+        background: #146e5b;
+        cursor: pointer;
     }
 </style>

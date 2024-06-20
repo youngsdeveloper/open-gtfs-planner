@@ -1,6 +1,7 @@
 <script lang="ts" setup>
     import { GtfsTripDao } from '../../main/daos/GtfsTripDao'
     import { PropType, defineComponent } from 'vue';
+    import { PanelSettings } from '../../main/daos/PanelSettings';
 
 </script>
 
@@ -20,25 +21,47 @@
 
 
             <div>
-                <table class="uk-table uk-table-hover uk-table-divider uk-table-small">
-                    <thead>
-                        <tr>
-                            <th>Parada</th>
-                            <th>Hora</th>
+                <b>ID del viaje: </b>{{ panelSettings.tripSelected.id }}
+            </div>
 
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <tr v-for="stopTime in panelSettings.tripSelected.stopTimes.filter(s => s.getArrivalTimeInDate(simulationSettings.datetimeSelected) > simulationSettings.datetimeSelected)">
-                            <td style="font-size: 0.75em;">
-                                {{ stopTime.stop.stop_name }}
-                            </td>
-                            <td>
-                                {{ stopTime.arrival_time }}
-                            </td>
-                        </tr>
-                    </tbody>
-                </table>
+
+            <div>
+                <b>Dirección: </b>{{ panelSettings.tripSelected.direction_id == 0 ? "Ida" : "Vuelta" }}
+            </div>
+
+
+            <div v-if="panelSettings.tripSelected.trip_headsign">
+                <b>Headsign: </b>{{ panelSettings.tripSelected.trip_headsign }}
+            </div>
+
+
+            <div class="uk-margin-top">
+                <div style="max-height: 350px;overflow-y: auto;margin-top: 20px;" v-if="panelSettings.tripSelected.getTripPercent(simulationSettings.datetimeSelected)<100">
+                    <table class="uk-table uk-table-hover uk-table-divider uk-table-small">
+                        <thead>
+                            <tr>
+                                <th>Parada</th>
+                                <th>Hora</th>
+
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr v-for="stopTime in panelSettings.tripSelected.stopTimes.filter(s => s.getArrivalTimeInDate(simulationSettings.datetimeSelected) > simulationSettings.datetimeSelected)">
+                                <td style="font-size: 0.75em;">
+                                    {{ stopTime.stop.stop_name }}
+                                </td>
+                                <td>
+                                    {{ stopTime.arrival_time }}
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                
+
+                <div v-else class="uk-text-center" uk-alert>
+                    El viaje ha finalizado.
+                </div>
             </div>
 
 
@@ -59,7 +82,7 @@ export default defineComponent({
             required: true
         },
         panelSettings: {
-            type: Object,
+            type: PanelSettings,
             required: true
         }
     },

@@ -38,8 +38,8 @@
 
             <span class="buttons_play">
                 
-                <img src="/play-button.png" v-on:click="playSimulation()" alt="">
-                <img src="/pause-button.png" v-on:click="pauseSimulation()" alt="">
+                <img v-bind:class="{'selected_button': isPlaying}" src="/play-button.png" v-on:click="playSimulation()" alt="">
+                <img v-bind:class="{'selected_button': !isPlaying}" src="/pause-button.png" v-on:click="pauseSimulation()" alt="">
 
             </span>
         </div>
@@ -78,7 +78,8 @@ export default{
         return {
             speedIndex: 0,
             speedPosibilities: [1,2,3,5],
-            intervalSimulation: null as IntervalID | null
+            intervalSimulation: null as IntervalID | null,
+            isPlaying: false
         }
     },
 
@@ -91,11 +92,16 @@ export default{
             return `${year}-${month}-${day}`;
         },
         playSimulation: function(){
+            if(this.isPlaying){
+                return;
+            }
+            this.isPlaying = true;
             this.intervalSimulation = setInterval(this.updateTime, 250);
         },
         pauseSimulation: function(){
             if(this.intervalSimulation!=null){
                 clearInterval(this.intervalSimulation)
+                this.isPlaying = false;
             }
         },
         updateTime: function(){
@@ -159,8 +165,13 @@ export default{
     margin-left: 5px;
 }
 
+
+.simulationBar .buttons_play .selected_button{
+    filter: grayscale(90%);
+}
 .simulationBar .buttons_play img:hover{
     filter: grayscale(30%);
+    cursor: pointer;
 }
 
 .simulationBar .services{
