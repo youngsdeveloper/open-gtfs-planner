@@ -32,7 +32,18 @@ import { GtfsRouteDao } from '../../main/daos/GtfsRouteDao';
                     </span>
                 </div>
 
-                <div style="max-height: 350px;overflow-y: auto;margin-top: 20px;">
+
+                <div style="margin-bottom: 50px;">
+                    <button  style="margin-top: 20px;" class="uk-button uk-button-primary">
+                        Sincronizar horarios
+                    </button>
+                    <button  style="margin-top: 20px;" class="uk-button uk-button-primary">
+                        Revisar transbordos
+                    </button>
+                </div>
+
+
+                <div style="max-height: 350px;overflow-y: auto;">
                     <table class="uk-table uk-table-hover uk-table-divider uk-table-small">
                         <thead>
                             <tr>
