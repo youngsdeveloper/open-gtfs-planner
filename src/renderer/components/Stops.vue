@@ -59,9 +59,21 @@
                             </span>
                         </div>
 
-                        <div class="uk-margin">
-                            <button class="uk-button uk-button-danger" v-on:click="calculateOptimization()">Calcular eficiente</button>
 
+                        <div uk-alert>
+                            Elige las rutas que quieras mantener como fijas (sin cambiar su horario)
+                        </div>
+
+                        <div class="route-boxes">
+                            <template  v-for="route in GtfsRouteDao.unique(panelSettings.stopSelected.stopTimes.map(st => st.trip.route))">
+                                <span v-if="routesSelected.indexOf(route.id)!=-1" v-bind:class="{'route-box-selected': routesFixedSelected.indexOf(route.id)!=-1}" v-on:click="toggleRouteFixedSelected(route.id)" class="route-box route-box-min">
+                                    {{ route.getRouteName() }}
+                                </span>
+                            </template>
+                        </div>
+
+                        <div class="uk-margin">
+                            <button class="uk-button uk-button-danger" v-on:click="calculateOptimization()">Calcular horarios óptimos</button>
                         </div>
             
 
@@ -124,6 +136,8 @@ export default defineComponent({
         return {
             moment: moment,
             routesSelected: [] as Number[],
+            routesFixedSelected: [] as Number[],
+
             optimizationSettings: {
                 solution: null as SyncSoluction|null
             }
@@ -152,13 +166,20 @@ export default defineComponent({
                 this.routesSelected.push(route)
             }
         },
+        toggleRouteFixedSelected(route:Number){
+            if(this.routesFixedSelected.indexOf(route)!=-1){
+                this.routesFixedSelected = this.routesFixedSelected.filter(r => r != route)
+            }else{
+                this.routesFixedSelected.push(route)
+            }
+        },
         calculateOptimization: function(){
 
             if(!this.panelSettings.stopSelected){
                 return;
             }
 
-            const opt = SyncScheduleHelper.syncShedules(this.panelSettings.stopSelected, this.routesSelected)
+            const opt = SyncScheduleHelper.syncShedules(this.panelSettings.stopSelected, this.routesSelected, this.routesFixedSelected)
             const route = GtfsRouteDao.unique(this.panelSettings.stopSelected.stopTimes.map(st => st.trip.route)).filter(r => r.id == opt?.lineMod)[0];
             opt.route = route;
 

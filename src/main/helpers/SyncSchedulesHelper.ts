@@ -23,7 +23,7 @@ class SyncScheduleHelper{
         //Math.abs(avg-this.median(diffs));
     }
     
-    static syncShedules(stop:GtfsStopDao, routesSelected:Number[]):SyncSoluction{
+    static syncShedules(stop:GtfsStopDao, routesSelected:Number[], routesFixed:Number[]):SyncSoluction{
 
         const stoptimes = stop.stopTimes
             .filter(st => routesSelected.indexOf(st.trip.route.id)!=-1)
@@ -37,6 +37,7 @@ class SyncScheduleHelper{
         var minTarget = originalTarget;
         var minSolution = 0;
         var minStopTimes = stoptimes;
+        var minRoute = 0;
 
         var threeshold = 0;
         for(const r of routesSelected){
@@ -49,8 +50,11 @@ class SyncScheduleHelper{
 
         threeshold = threeshold/2; // Lo ponemos a la mitad...
 
+        console.log(routesSelected)
+        console.log(routesFixed)
 
-        for(const r of routesSelected){
+        for(const r of routesSelected.filter(r2 => !routesFixed.includes(r2) )){
+            
             for (let delta = -1*threeshold; delta <= threeshold; delta++) {
             
                 const stopTimesToUpdate = GtfsStopTimeDao.fromObjectToArray(stoptimes);
@@ -74,6 +78,7 @@ class SyncScheduleHelper{
                     minTarget = target;
                     minSolution = delta;
                     minStopTimes = stopTimesToUpdate;
+                    minRoute = r as number;
                 }
     
             }
@@ -83,7 +88,7 @@ class SyncScheduleHelper{
 
 
         return {
-            lineMod: routesSelected[0],
+            lineMod: minRoute,
             delta: minSolution,
             avgFrec: avg,
             route: null,
