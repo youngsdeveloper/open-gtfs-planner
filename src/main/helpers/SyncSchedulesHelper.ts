@@ -15,6 +15,13 @@ class SyncScheduleHelper{
         return array[middle];
 
     }
+
+    static target(diffs:number[], avg){
+        var target = 0;
+        diffs.forEach(d => target += Math.abs(d-avg));
+        return target;
+        //Math.abs(avg-this.median(diffs));
+    }
     
     static syncShedules(stop:GtfsStopDao, routesSelected:Number[]):SyncSoluction{
 
@@ -25,7 +32,7 @@ class SyncScheduleHelper{
        
         const diffs = GtfsStopTimeDao.getIntervalsArray(stoptimes);
         const avg = diffs.reduce((sum,diff) => sum+diff, 0)/diffs.length;
-        const originalTarget = Math.abs(avg-this.median(diffs));
+        const originalTarget = this.target(diffs, avg);
 
         var minTarget = originalTarget;
         var minSolution = 0;
@@ -33,10 +40,8 @@ class SyncScheduleHelper{
 
         var threeshold = 0;
         for(const r of routesSelected){
-            console.log(stop)
-            console.log(r); 
             const frec = stop.getFrecMedianByRoute(r);
-            console.log(frec);
+
             if(frec>threeshold){
                 threeshold = frec;
             }
@@ -45,31 +50,35 @@ class SyncScheduleHelper{
         threeshold = threeshold/2; // Lo ponemos a la mitad...
 
 
-        for (let delta = -1*threeshold; delta <= threeshold; delta++) {
+        for(const r of routesSelected){
+            for (let delta = -1*threeshold; delta <= threeshold; delta++) {
             
-            const stopTimesToUpdate = GtfsStopTimeDao.fromObjectToArray(stoptimes);
-
-            stopTimesToUpdate.forEach((st,index) => {
-
-                if(st.trip.route.id == routesSelected[0]){
-                    const newTime = moment(st.getArrivalTimeInDate(new Date())).add(delta,"minutes");
-                    st.arrival_time = newTime.format("HH:mm:ss")
-                    st.departure_time = newTime.format("HH:mm:ss");
-                    stopTimesToUpdate[index] = st;
+                const stopTimesToUpdate = GtfsStopTimeDao.fromObjectToArray(stoptimes);
+    
+                stopTimesToUpdate.forEach((st,index) => {
+    
+                    if(st.trip.route.id == r){
+                        const newTime = moment(st.getArrivalTimeInDate(new Date())).add(delta,"minutes");
+                        st.arrival_time = newTime.format("HH:mm:ss")
+                        st.departure_time = newTime.format("HH:mm:ss");
+                        stopTimesToUpdate[index] = st;
+                    }
+                })
+    
+    
+                let diffsMod = GtfsStopTimeDao.getIntervalsArray(stopTimesToUpdate);
+                //let target = Math.abs(avg-this.median(diffsMod));
+                let target = this.target(diffsMod, avg);
+    
+                if(target<minTarget){
+                    minTarget = target;
+                    minSolution = delta;
+                    minStopTimes = stopTimesToUpdate;
                 }
-            })
-
-
-            let diffsMod = GtfsStopTimeDao.getIntervalsArray(stopTimesToUpdate);
-            let target = Math.abs(avg-this.median(diffsMod));
-
-            if(target<minTarget){
-                minTarget = target;
-                minSolution = delta;
-                minStopTimes = stopTimesToUpdate;
+    
             }
-
         }
+        
 
 
 
