@@ -4,8 +4,12 @@
 
     import { PropType, defineComponent } from 'vue';
     import moment from "moment";
-import { GtfsRouteDao } from '../../main/daos/GtfsRouteDao';
+    import { GtfsRouteDao } from '../../main/daos/GtfsRouteDao';
+    import { GtfsStopTimeDao } from '../../main/daos/GtfsStopTimeDao';
 
+    import {SyncScheduleHelper, SyncSoluction} from "../../main/helpers/SyncSchedulesHelper"
+    import { GtfsDao } from '../../main/daos/GtfsDao';
+    import TableStopTimes from "./TableStopTimes.vue";
 </script>
 
 <template>
@@ -13,12 +17,7 @@ import { GtfsRouteDao } from '../../main/daos/GtfsRouteDao';
 
         <div class="card-trip-selected uk-card uk-card-secondary uk-card-body" v-if="panelSettings.stopSelected">
             <h3 class="uk-card-title">
-
                 {{ panelSettings.stopSelected.stop_name }}
-                
-                
-
-
             </h3>
 
 
@@ -28,44 +27,70 @@ import { GtfsRouteDao } from '../../main/daos/GtfsRouteDao';
                 <div class="route-boxes">
 
                     <span v-bind:class="{'route-box-selected': routesSelected.indexOf(route.id)!=-1}" v-on:click="toggleRouteSelected(route.id)" class="route-box route-box-min" v-for="route in GtfsRouteDao.unique(panelSettings.stopSelected.stopTimes.map(st => st.trip.route))">
-                        {{ route.route_short_name }}
+                        {{ route.getRouteName() }}
                     </span>
                 </div>
 
 
                 <div style="margin-bottom: 50px;">
-                    <button  style="margin-top: 20px;" class="uk-button uk-button-primary">
+                    <a uk-toggle style="margin-top: 20px;" :href="'#modal-sync-schedules-'+panelSettings.stopSelected.id"  class="uk-button uk-button-primary">
                         Sincronizar horarios
-                    </button>
+                    </a>
                     <button  style="margin-top: 20px;" class="uk-button uk-button-primary">
                         Revisar transbordos
                     </button>
                 </div>
 
+                <div v-bind:id="'modal-sync-schedules-' + panelSettings.stopSelected.id" class="uk-flex-top" uk-modal>
+                    <div class="uk-modal-dialog uk-modal-body uk-margin-auto-vertical">
 
-                <div style="max-height: 350px;overflow-y: auto;">
-                    <table class="uk-table uk-table-hover uk-table-divider uk-table-small">
-                        <thead>
-                            <tr>
-                                <th>Linea</th>
-                                <th>Hora</th>
+                        <button class="uk-modal-close-default" type="button" uk-close></button>
 
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <tr v-for="stopTime in panelSettings.stopSelected.stopTimes.filter(st => simulationSettings.datetimeSelected.getTime() <= st.getArrivalTimeInDate(simulationSettings.dateSelected).getTime()).filter(st => routesSelected.indexOf(st.trip.route.id)!=-1)">
-                                <td style="font-size: 0.85em;">
-                                    <span class="route-box">
-                                        {{ stopTime.trip.route.route_short_name }}
-                                    </span>
-                                </td>
-                                <td style="font-size: 1em; padding-top:15px;">
-                                    {{ stopTime.arrival_time }}
-                                </td>
-                            </tr>
-                        </tbody>
-                    </table>
+
+
+                        <div uk-alert>
+                            Selecciona las rutas que sincronizarán sus horarios.<br>
+                            La primera ruta que selecciones será la que se modificará para ajustarse al resto.
+                        </div>
+                        <div class="route-boxes">
+
+                            <span v-bind:class="{'route-box-selected': routesSelected.indexOf(route.id)!=-1}" v-on:click="toggleRouteSelected(route.id)" class="route-box route-box-min" v-for="route in GtfsRouteDao.unique(panelSettings.stopSelected.stopTimes.map(st => st.trip.route))">
+                                {{ route.getRouteName() }}
+                            </span>
+                        </div>
+
+                        <div class="uk-margin">
+                            <button class="uk-button uk-button-danger" v-on:click="calculateOptimization()">Calcular eficiente</button>
+
+                        </div>
+            
+
+
+
+                        <div v-if="optimizationSettings.solution">
+                            <div class="uk-alert-primary" uk-alert>
+                                Modifica la linea {{ optimizationSettings.solution.route?.getRouteName() }}, "{{ optimizationSettings.solution.delta }}" minutos para
+                                optimizar los horarios de esta linea.
+                            </div>
+
+                            
+                            <TableStopTimes :stop-times="optimizationSettings.solution.stopTimes" />
+
+
+                        </div>
+
+                    </div>
                 </div>
+
+
+
+                <TableStopTimes v-if="routesSelected.length>0" :stop-times="stopTimesByStop" />
+                <div v-else>
+                    <div uk-alert>
+                        Selecciona rutas para poder visualizar sus horarios.
+                    </div>
+                </div>
+
                 
                 
             </div>
@@ -92,16 +117,33 @@ export default defineComponent({
         panelSettings: {
             type: PanelSettings,
             required: true
-        }
+        },
     },
 
     data: function(){
         return {
             moment: moment,
-            routesSelected: [] as Number[]
+            routesSelected: [] as Number[],
+            optimizationSettings: {
+                solution: null as SyncSoluction|null
+            }
         }
     },
 
+    computed: {
+        stopTimesByStop: function(){
+
+            if(this.panelSettings.stopSelected==null){
+                return [];
+            }
+
+            return this.panelSettings.stopSelected.stopTimes
+                                .filter(st => this.simulationSettings.datetimeSelected.getTime() <= st.getArrivalTimeInDate(this.simulationSettings.datetimeSelected).getTime())
+                                .filter(st => this.routesSelected.indexOf(st.trip.route.id)!=-1)
+                                .sort(GtfsStopTimeDao.sort)
+
+        }
+    },
     methods: {
         toggleRouteSelected(route:Number){
             if(this.routesSelected.indexOf(route)!=-1){
@@ -109,12 +151,26 @@ export default defineComponent({
             }else{
                 this.routesSelected.push(route)
             }
+        },
+        calculateOptimization: function(){
+
+            if(!this.panelSettings.stopSelected){
+                return;
+            }
+
+            const opt = SyncScheduleHelper.syncShedules(this.panelSettings.stopSelected, this.routesSelected)
+            const route = GtfsRouteDao.unique(this.panelSettings.stopSelected.stopTimes.map(st => st.trip.route)).filter(r => r.id == opt?.lineMod)[0];
+            opt.route = route;
+
+            this.optimizationSettings.solution = opt;
         }
     },
     watch:{
         "panelSettings.stopSelected": function(){
             this.routesSelected = [];
+            this.optimizationSettings.solution = null;
         },
+
 
     }
 
@@ -128,10 +184,6 @@ export default defineComponent({
 
     .stops .uk-card{
         background: #636e72;
-    }
-
-    .stops .card-trip-selected table{
-        height: 200px;
     }
 
 

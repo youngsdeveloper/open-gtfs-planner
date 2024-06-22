@@ -52,7 +52,7 @@
                                             <li v-for="route in agency.routes">
                                                 <li>
                                                     <label>
-                                                        <input @change="downloadShape(route)" class="uk-checkbox" v-model="route.visible" type="checkbox"> {{ route.route_short_name }}
+                                                        <input @change="downloadShape(route)" class="uk-checkbox" v-model="route.visible" type="checkbox"> {{ route.getRouteName() }}
                                                     </label>
                                                     <ul style="margin-top: 0; margin-bottom: 0;">
                                                         <li>

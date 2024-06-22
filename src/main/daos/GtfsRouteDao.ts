@@ -29,6 +29,14 @@ export class GtfsRouteDao {
         this.agency_id = agency_id
     }
     
+
+    getRouteName(){
+        if(this.route_short_name){
+            return this.route_short_name;
+        }
+
+        return this.route_id;
+    }
     static fromObject(obj: any): GtfsRouteDao {
         return new GtfsRouteDao(obj.id, obj.route_short_name, obj.route_long_name, obj.route_id, obj.agency_id);
     }

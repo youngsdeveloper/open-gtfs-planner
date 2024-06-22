@@ -75,7 +75,7 @@
                                     <tbody>
                                         <tr v-for="trip in trips_in_route.filter(t => visibleSimulationRoutes.includes(t.route.id)).sort(t => parseInt(t.route.route_id))">
                                             <td>
-                                                {{ trip.route.route_short_name }}
+                                                {{ trip.route.getRouteName() }}
                                             </td>
                                             <td>
                                                 {{  trip.getStartHour() }}
@@ -100,7 +100,8 @@
 
                     
                     <Map    v-show="!loading_widgets"
-                            :gtfs_files="gtfs_files" :trips_in_route="trips_in_route"
+                            :gtfs_files="gtfs_files"
+                            :trips_in_route="trips_in_route"
                             :simulation_settings="simulationSettings"
                             :visible-simulation-routes="visibleSimulationRoutes"
                             :panel-settings="panelSettings"></Map>
@@ -123,6 +124,7 @@
                             <div class="uk-accordion-content">
                                 
                                 <Trips 
+                                    :gtfs_files="gtfs_files"
                                     :simulation-settings="simulationSettings"
                                     :panel-settings="panelSettings" />
 
@@ -133,7 +135,7 @@
                             <a class="uk-accordion-title">Paradas</a>
                             <div class="uk-accordion-content">
 
-                                <Stops 
+                                <Stops
                                     :simulation-settings="simulationSettings"
                                     :panel-settings="panelSettings" />
 
@@ -212,6 +214,9 @@ export default {
     },
     services: function(newServices: GtfsServiceDao[], old){
         this.loading_widgets = true;
+
+        this.panelSettings.stopSelected = null;
+        this.panelSettings.tripSelected = null;
 
 
         const servicesId = newServices.map( s => s.service_id);

@@ -65,6 +65,28 @@ export class GtfsStopTimeDao {
         return stopTimeArrival;
     }
 
+    static getIntervalsArray(stopTimes:GtfsStopTimeDao[]){
+
+
+        const stopTimesSorted = stopTimes.sort(GtfsStopTimeDao.sort);
+        const diffs = [] as number[];
+
+        for (let i = 1; i < stopTimesSorted.length; i++) {
+            const diff = stopTimesSorted[i].getArrivalTimeInDate(new Date()).getTime() - stopTimesSorted[i - 1].getArrivalTimeInDate(new Date()).getTime();
+            diffs.push(diff/1000/60);
+        }
+
+        return diffs; // Intervalos en minutos
+    }
+
+    static calculateIntervalInMinutes(s1:GtfsStopTimeDao, s2:GtfsStopTimeDao){
+        return Math.round((s1.getArrivalTimeInDate(new Date()).getTime() - s2.getArrivalTimeInDate(new Date()).getTime())/1000/60)
+    }
+
+
+    static sort(a:GtfsStopTimeDao,b:GtfsStopTimeDao){
+        return a.getArrivalTimeInDate(new Date()).getTime()-b.getArrivalTimeInDate(new Date()).getTime();
+    }
 
     
 }

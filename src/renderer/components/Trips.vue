@@ -11,7 +11,7 @@
         <div class="card-trip-selected uk-card uk-card-secondary uk-card-body" v-if="panelSettings.tripSelected">
             <h3 class="uk-card-title">
 
-                {{ panelSettings.tripSelected.route.route_short_name }}
+                {{ panelSettings.tripSelected.route.getRouteName() }}
                 
                 <span style="float: right;">
                     {{ panelSettings.tripSelected.getTripPercent(simulationSettings.datetimeSelected).toFixed(2) }}%

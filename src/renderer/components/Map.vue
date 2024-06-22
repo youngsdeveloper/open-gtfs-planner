@@ -43,7 +43,7 @@ import "leaflet/dist/leaflet.css"
                                 :icon-size="routeIcon.iconSize"
                                 :class-name="getClassNameMarker(trip)">
                                     <span class="marker-route-title">
-                                        {{ trip.route.route_short_name }}
+                                        {{ trip.route.getRouteName() }}
                                     </span>
                             </l-icon>
 
@@ -52,7 +52,8 @@ import "leaflet/dist/leaflet.css"
                 <template v-if="visibleStopsRoutes.includes(trip.route.id)">
                     <l-marker v-for="stop_trip in trip.stopTimes.flatMap(st => st.stop)"
                             :lat-lng="L.latLng(stop_trip.getLatLng())"
-                            @click="panelSettings.stopSelected=stop_trip" />
+                            @click="panelSettings.stopSelected=stop_trip"
+                            :key="stop_trip.id" />
                 </template>
 
             </template>

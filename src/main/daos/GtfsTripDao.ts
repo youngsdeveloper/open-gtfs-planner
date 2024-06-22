@@ -1,4 +1,4 @@
-import { InterpolationHelper } from "../geo/InterpolationHelper";
+import { InterpolationHelper } from "../helpers/InterpolationHelper";
 import { GtfsRouteDao } from "./GtfsRouteDao";
 import { GtfsStopTimeDao } from "./GtfsStopTimeDao";
 
