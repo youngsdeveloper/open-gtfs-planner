@@ -65,6 +65,11 @@ export class GtfsStopTimeDao {
         return stopTimeArrival;
     }
 
+    getArrivalTimeInHoursMins(){
+        const stopTimeArrivalHours = this.arrival_time.split(":")
+        return `${stopTimeArrivalHours[0]}:${stopTimeArrivalHours[1]}`;
+    }
+
     static getIntervalsArray(stopTimes:GtfsStopTimeDao[]){
 
 
@@ -83,6 +88,25 @@ export class GtfsStopTimeDao {
         return Math.round((s1.getArrivalTimeInDate(new Date()).getTime() - s2.getArrivalTimeInDate(new Date()).getTime())/1000/60)
     }
 
+
+    static getStopTimesByHour(stopTimes: GtfsStopTimeDao[]){
+
+        const stopTimesByHour = {};
+
+        stopTimes.forEach(st => {
+            const stopTimeArrivalHours =st.arrival_time.split(":")
+
+            const hour = parseInt(stopTimeArrivalHours[0])
+
+            if(hour in stopTimesByHour){
+                stopTimesByHour[hour] = stopTimesByHour[hour] + 1
+            }else{
+                stopTimesByHour[hour] = 1
+            }
+        })
+
+        return stopTimesByHour;
+    }
 
     static sort(a:GtfsStopTimeDao,b:GtfsStopTimeDao){
         return a.getArrivalTimeInDate(new Date()).getTime()-b.getArrivalTimeInDate(new Date()).getTime();

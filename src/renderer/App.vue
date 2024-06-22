@@ -268,11 +268,11 @@ export default {
     })
     
     window.electronAPI.addListener("stop_times_by_stop", (event, stopTimes: GtfsStopTimeDao[])=>{
-        console.log("recv---")
-        console.log(stopTimes);
-
+        
         if(ctx.panelSettings.stopSelected){
-            ctx.panelSettings.stopSelected.stopTimes = GtfsStopTimeDao.fromObjectToArray(stopTimes)
+            var stopTimesStop = GtfsStopTimeDao.fromObjectToArray(stopTimes)
+            stopTimesStop = stopTimesStop.sort(GtfsStopTimeDao.sort)
+            ctx.panelSettings.stopSelected.stopTimes = stopTimesStop
         }
     })
 

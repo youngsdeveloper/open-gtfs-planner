@@ -49,10 +49,7 @@ class SyncScheduleHelper{
         }
 
         threeshold = threeshold/2; // Lo ponemos a la mitad...
-
-        console.log(routesSelected)
-        console.log(routesFixed)
-
+        
         for(const r of routesSelected.filter(r2 => !routesFixed.includes(r2) )){
             
             for (let delta = -1*threeshold; delta <= threeshold; delta++) {

@@ -10,6 +10,9 @@
     import {SyncScheduleHelper, SyncSoluction} from "../../main/helpers/SyncSchedulesHelper"
     import { GtfsDao } from '../../main/daos/GtfsDao';
     import TableStopTimes from "./TableStopTimes.vue";
+
+    import { Bar } from 'vue-chartjs'
+
 </script>
 
 <template>
@@ -30,6 +33,56 @@
                         {{ route.getRouteName() }}
                     </span>
                 </div>
+
+                <p>
+                    <div>
+                        <b>Número de expediciones: </b>{{ panelSettings.stopSelected.stopTimes.length }}
+                    </div>
+
+                    <div>
+                        <b>Amplitud del servicio: </b>{{ panelSettings.stopSelected.stopTimes[0].getArrivalTimeInHoursMins() }} - {{ panelSettings.stopSelected.stopTimes.at(-1)!!.getArrivalTimeInHoursMins() }}
+                    </div>
+
+                    <div>
+                        {{   }}
+                    </div>
+
+
+                    <div>
+                        <Bar
+                            id="my-chart-id"
+                            :data="{
+                                labels: Object.keys(GtfsStopTimeDao.getStopTimesByHour(panelSettings.stopSelected.stopTimes)),
+                                datasets: [
+                                    {
+                                        data: Object.values(GtfsStopTimeDao.getStopTimesByHour(panelSettings.stopSelected.stopTimes)) as number[],
+                                        label: 'Nº autobuses por hora'
+                                    }
+                                ]
+                            }"
+
+                            :options="{
+                                responsive: true,
+                                backgroundColor: '#f87979',
+                                color: '#f87979',
+                                borderColor: 'f87979',
+                                scales: {
+                                    y: {
+                                        ticks: {
+                                            color: 'white'
+                                        }
+                                    },
+                                    x: {
+                                        ticks: {
+                                            color: 'white'
+                                        }
+                                    }
+                                }
+                            }"
+                        />
+                    </div>
+                </p>
+                
 
 
                 <div style="margin-bottom: 50px;">
@@ -120,6 +173,11 @@
 </template>
 
 <script lang="ts">
+
+import { Chart as ChartJS, Title, Tooltip, Legend, BarElement, CategoryScale, LinearScale } from 'chart.js'
+
+ChartJS.register(Title, Tooltip, Legend, BarElement, CategoryScale, LinearScale)
+
 export default defineComponent({
     props:{
         simulationSettings: {
@@ -140,7 +198,12 @@ export default defineComponent({
 
             optimizationSettings: {
                 solution: null as SyncSoluction|null
-            }
+            },
+            chartData: {
+                labels: [ 'January', 'February', 'March' ],
+                datasets: [ { data: [40, 20, 12] } ]
+            },
+
         }
     },
 
@@ -189,6 +252,7 @@ export default defineComponent({
     watch:{
         "panelSettings.stopSelected": function(){
             this.routesSelected = [];
+            this.routesFixedSelected = [];
             this.optimizationSettings.solution = null;
         },
 
