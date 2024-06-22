@@ -7,7 +7,7 @@
             <li class="uk-open">
                 <a class="uk-accordion-title">Capas</a>
                 <div class="uk-accordion-content" >
-                    <div class="uk-panel uk-panel-scrollable" style="min-height: 500px">
+                    <div class="uk-panel uk-panel-scrollable" style="min-height: 700px">
                         <ul class="uk-list" v-for="gtfs in gtfs_files">
                             <li>
                                 <label>

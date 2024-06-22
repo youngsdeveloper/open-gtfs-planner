@@ -85,9 +85,9 @@
                     <a uk-toggle style="margin-top: 20px;" :href="'#modal-sync-schedules-'+panelSettings.stopSelected.id"  class="uk-button uk-button-primary">
                         Sincronizar horarios
                     </a>
-                    <button  style="margin-top: 20px;" class="uk-button uk-button-primary">
-                        Revisar trans                   bordos
-                    </button>
+                    <a uk-toggle  :href="'#modal-review-transfers-'+panelSettings.stopSelected.id" style="margin-top: 20px;" class="uk-button uk-button-primary">
+                        Revisar transbordos
+                    </a>
                 </div>
 
                 <div v-bind:id="'modal-sync-schedules-' + panelSettings.stopSelected.id" class="uk-flex-top" uk-modal>
@@ -123,6 +123,57 @@
 
                         <div class="uk-margin">
                             <button class="uk-button uk-button-danger" v-on:click="calculateOptimization()">Calcular horarios óptimos</button>
+                        </div>
+            
+
+
+
+                        <div v-if="optimizationSettings.solution">
+                            <div class="uk-alert-primary" uk-alert>
+                                Modifica la linea {{ optimizationSettings.solution.route?.getRouteName() }}, "{{ optimizationSettings.solution.delta }}" minutos para
+                                optimizar los horarios de esta linea.
+                            </div>
+
+
+                            
+                            <TableStopTimes :stop-times="optimizationSettings.solution.stopTimes" />
+
+
+                        </div>
+
+                    </div>
+                </div>
+
+                <div v-bind:id="'modal-review-transfers-' + panelSettings.stopSelected.id" class="uk-flex-top" uk-modal>
+                    <div class="uk-modal-dialog uk-modal-body uk-margin-auto-vertical">
+
+                        <button class="uk-modal-close-default" type="button" uk-close></button>
+
+
+
+                        <div uk-alert>
+                            Ruta de origen
+                        </div>
+                        <div class="route-boxes">
+
+                            <span v-bind:class="{'route-box-selected': reviewTransfer.from==route.id}" v-on:click="reviewTransfer.from=route.id" class="route-box route-box-min" v-for="route in GtfsRouteDao.unique(panelSettings.stopSelected.stopTimes.map(st => st.trip.route))">
+                                {{ route.getRouteName() }}
+                            </span>
+                        </div>
+
+
+                        <div uk-alert>
+                            Ruta de destino
+                        </div>
+
+                        <div class="route-boxes">
+                            <span v-bind:class="{'route-box-selected': reviewTransfer.to==route.id}" v-on:click="reviewTransfer.to=route.id" class="route-box route-box-min" v-for="route in GtfsRouteDao.unique(panelSettings.stopSelected.stopTimes.map(st => st.trip.route))">
+                                {{ route.getRouteName() }}
+                            </span>
+                        </div>
+
+                        <div class="uk-margin">
+                            <button class="uk-button uk-button-danger" v-on:click="calculateOptimization()">Calcular transbordos</button>
                         </div>
             
 
@@ -212,7 +263,12 @@ export default defineComponent({
                 datasets: [ { data: [40, 20, 12] } ]
             },
 
-            showAllStopTimes: false
+            showAllStopTimes: false,
+
+            reviewTransfer: {
+                from: null as Number|null,
+                to: null as Number|null
+            }
 
         }
     },
