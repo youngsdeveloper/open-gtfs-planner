@@ -86,7 +86,7 @@
                         Sincronizar horarios
                     </a>
                     <button  style="margin-top: 20px;" class="uk-button uk-button-primary">
-                        Revisar transbordos
+                        Revisar trans                   bordos
                     </button>
                 </div>
 
@@ -134,6 +134,7 @@
                                 optimizar los horarios de esta linea.
                             </div>
 
+
                             
                             <TableStopTimes :stop-times="optimizationSettings.solution.stopTimes" />
 
@@ -145,7 +146,18 @@
 
 
 
-                <TableStopTimes v-if="routesSelected.length>0" :stop-times="stopTimesByStop" />
+
+                <div v-if="routesSelected.length>0" >
+                    <button v-on:click="showAllStopTimes=!showAllStopTimes" class="uk-button uk-width-1-1 uk-button-primary" style="margin-bottom: 20px;">
+                        <template v-if="showAllStopTimes">
+                            Ocultar previos
+                        </template>
+                        <template v-else>
+                            Ver todos
+                        </template>
+                    </button>
+                    <TableStopTimes :stop-times="stopTimesByStop" />
+                </div>
                 <div v-else>
                     <div uk-alert>
                         Selecciona rutas para poder visualizar sus horarios.
@@ -199,6 +211,8 @@ export default defineComponent({
                 labels: [ 'January', 'February', 'March' ],
                 datasets: [ { data: [40, 20, 12] } ]
             },
+
+            showAllStopTimes: false
 
         }
     },
@@ -267,10 +281,15 @@ export default defineComponent({
                 return [];
             }
 
-            return this.panelSettings.stopSelected.stopTimes
-                                .filter(st => this.simulationSettings.datetimeSelected.getTime() <= st.getArrivalTimeInDate(this.simulationSettings.datetimeSelected).getTime())
-                                .filter(st => this.routesSelected.indexOf(st.trip.route.id)!=-1)
-                                .sort(GtfsStopTimeDao.sort)
+            var stopTimesByStop = this.panelSettings.stopSelected.stopTimes
+                                .filter(st => this.routesSelected.indexOf(st.trip.route.id)!=-1);
+
+            if(!this.showAllStopTimes){
+                stopTimesByStop = stopTimesByStop.filter(st => this.simulationSettings.datetimeSelected.getTime() <= st.getArrivalTimeInDate(this.simulationSettings.datetimeSelected).getTime());
+
+            }
+            
+            return stopTimesByStop.sort(GtfsStopTimeDao.sort)
 
         }
     },
