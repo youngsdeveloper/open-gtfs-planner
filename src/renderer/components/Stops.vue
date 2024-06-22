@@ -36,15 +36,11 @@
 
                 <p>
                     <div>
-                        <b>Número de expediciones: </b>{{ panelSettings.stopSelected.stopTimes.length }}
+                        <b>Número de expediciones: </b>{{ numExps }}
                     </div>
 
                     <div>
-                        <b>Amplitud del servicio: </b>{{ panelSettings.stopSelected.stopTimes[0].getArrivalTimeInHoursMins() }} - {{ panelSettings.stopSelected.stopTimes.at(-1)!!.getArrivalTimeInHoursMins() }}
-                    </div>
-
-                    <div>
-                        {{   }}
+                        <b>Amplitud del servicio: </b>{{ serviceCoverage }}
                     </div>
 
 
@@ -52,10 +48,10 @@
                         <Bar
                             id="my-chart-id"
                             :data="{
-                                labels: Object.keys(GtfsStopTimeDao.getStopTimesByHour(panelSettings.stopSelected.stopTimes)),
+                                labels: Object.keys(stopTimesByHour!!),
                                 datasets: [
                                     {
-                                        data: Object.values(GtfsStopTimeDao.getStopTimesByHour(panelSettings.stopSelected.stopTimes)) as number[],
+                                        data: Object.values(stopTimesByHour!!) as number[],
                                         label: 'Nº autobuses por hora'
                                     }
                                 ]
@@ -208,6 +204,63 @@ export default defineComponent({
     },
 
     computed: {
+
+
+        stopTimesByHour: function(){
+
+
+            if(!this.panelSettings.stopSelected){
+                return null;
+            }
+
+            var stimes = this.panelSettings.stopSelected.stopTimes;
+            
+            if(this.routesSelected.length>0){
+                stimes =    stimes
+                                .filter(st => this.routesSelected.indexOf(st.trip.route.id)!=-1);
+            }
+            
+
+            return GtfsStopTimeDao.getStopTimesByHour(stimes);
+        },
+        serviceCoverage: function(){
+            if(!this.panelSettings.stopSelected){
+                return "-";
+            }
+
+            if(this.routesSelected.length==0){
+
+                const A = this.panelSettings.stopSelected.stopTimes[0].getArrivalTimeInHoursMins()
+                const B = this.panelSettings.stopSelected.stopTimes.at(-1)!!.getArrivalTimeInHoursMins()
+
+                return  `${A} - ${B}`;
+            }else{
+                const stimes =  this.panelSettings.stopSelected.stopTimes
+                                .filter(st => this.routesSelected.indexOf(st.trip.route.id)!=-1);
+
+                const A = stimes[0].getArrivalTimeInHoursMins()
+                const B = stimes.at(-1)!!.getArrivalTimeInHoursMins()
+                
+                return  `${A} - ${B}`;
+
+            }
+        },
+        numExps: function(){
+            if(!this.panelSettings.stopSelected){
+                return 0;
+            }
+
+            if(this.routesSelected.length==0){
+                return this.panelSettings.stopSelected.stopTimes.length ;
+            }else{
+                return this.panelSettings.stopSelected.stopTimes
+                                .filter(st => this.routesSelected.indexOf(st.trip.route.id)!=-1)
+                                .length;
+            }
+        },
+
+        
+
         stopTimesByStop: function(){
 
             if(this.panelSettings.stopSelected==null){
