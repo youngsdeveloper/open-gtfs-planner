@@ -176,6 +176,7 @@ import { GtfsStopDao } from '../main/daos/GtfsStopDao'
 import { GtfsStopTimeDao } from '../main/daos/GtfsStopTimeDao'
 import { ProjectDao } from '../main/daos/ProjectDao'
 import { SimulationOptionDao } from '../main/daos/SimulationOptionDao'
+import { PanelSettings } from '../main/daos/PanelSettings'
 
 export default {
   data() {
@@ -197,7 +198,7 @@ export default {
         tripSelected: null as GtfsTripDao | null,
         stopSelected: null as GtfsStopDao | null
 
-      },
+      } as PanelSettings,
 
       simulationOptions: [] as SimulationOptionDao[]
 

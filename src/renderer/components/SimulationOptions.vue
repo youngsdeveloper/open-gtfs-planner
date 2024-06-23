@@ -8,9 +8,6 @@ import { PropType, defineComponent } from 'vue';
 
         <div class="uk-card uk-card-secondary uk-card-body">
         
-            <div>
-                <label><input class="uk-checkbox" type="checkbox" checked> Retraso +2min en 44 - Ida</label>
-            </div>
             <div v-for="simOption in simulationOptions">
                 <label><input class="uk-checkbox" type="checkbox" checked>
                     Modificado {{ simOption.route.getRouteName() }} en {{ simOption.delta }} minutos.
