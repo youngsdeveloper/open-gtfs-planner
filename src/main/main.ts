@@ -7,6 +7,9 @@ const { createMainWindow } = require('./controllers/mainWindowController');
 const { selectDirectory } = require('./controllers/gtfsImporterController');
 const { downloadProject, downloadShapesByRoute, deleteGTFS, downloadTripsByServices, downloadStopByServices } = require('./controllers/gtfsController');
 
+
+const { saveSimulationOption } = require('./controllers/simulationOptionsController');
+
 import sequelize from "./models"
 
 let mainWindow;
@@ -69,6 +72,11 @@ ipcMain.on("downloadTripsByServices",(event, servicesId)=>{
 
 ipcMain.on("downloadStopByServices",(event, stopId, servicesId)=>{
   downloadStopByServices(mainWindow, stopId, servicesId)
+})
+
+
+ipcMain.on("saveSimulationOption",(event, projectId, routeId, delta)=>{
+  saveSimulationOption(projectId, routeId, delta)
 })
 
 

@@ -3,6 +3,7 @@
     import Map from './components/Map.vue'
     import Trips from './components/Trips.vue'
     import Stops from './components/Stops.vue'
+    import SimulationOptions from './components/SimulationOptions.vue'
 
     import SimulatioBar from './components/SimulatioBar.vue'
     import moment from 'moment';
@@ -143,19 +144,16 @@
 
                             </div>
                         </li>
-                        <li>
+                        <li class="uk-open">
                             <a class="uk-accordion-title">Opciones de simulación</a>
                             <div class="uk-accordion-content">
-                                <div>
-                                    <label><input class="uk-checkbox" type="checkbox" checked>Retraso +2min en 44 - Ida</label>
-                                </div>
-                                <div>
-                                    <label><input class="uk-checkbox" type="checkbox" checked>Retraso +6min en 26 - Ida</label>
-                                </div>
 
-                                <button class="uk-button uk-button-primary uk-width-1-1 uk-margin-small-bottom uk-margin-small-top">
-                                    Nuevo
-                                </button>
+
+                                <SimulationOptions
+                                    :simulation-options="simulationOptions"
+                                    :gtfs-files="gtfs_files"
+                                    :project-id="project_id"/>
+                                
                             </div>
                         </li>
                     </ul>
@@ -176,10 +174,13 @@ import { GtfsTripDao } from '../main/daos/GtfsTripDao';
 import {GtfsServiceDao} from '../main/daos/GtfsServiceDao';
 import { GtfsStopDao } from '../main/daos/GtfsStopDao'
 import { GtfsStopTimeDao } from '../main/daos/GtfsStopTimeDao'
+import { ProjectDao } from '../main/daos/ProjectDao'
+import { SimulationOptionDao } from '../main/daos/SimulationOptionDao'
 
 export default {
   data() {
     return {
+      project_id: 0 as number,
       gtfs_files: [] as GtfsDao[],
       shapes: [] as GtfsShapeDao[],
       loading: false,
@@ -197,6 +198,8 @@ export default {
         stopSelected: null as GtfsStopDao | null
 
       },
+
+      simulationOptions: [] as SimulationOptionDao[]
 
     };
   },
@@ -234,9 +237,19 @@ export default {
     window.electronAPI.downloadCurrentProject();
 
     let ctx = this;
+    window.electronAPI.onLoadedProject((event, project:ProjectDao) => {
+        const project_ = ProjectDao.fromObject(project);
+
+        ctx.gtfs_files = project_.gtfsFiles
+        ctx.simulationOptions = project_.simulationOptions
+        ctx.project_id = project_.id as number;
+    })
+
+
     window.electronAPI.onLoadedGtfs((event, gtfs:GtfsDao) => {
 
-        ctx.gtfs_files.push(GtfsDao.fromObject(gtfs));
+        const gtfs_ = GtfsDao.fromObject(gtfs);
+        ctx.gtfs_files.push(gtfs_)
     })
 
 

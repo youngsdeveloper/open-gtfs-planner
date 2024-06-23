@@ -12,6 +12,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.Project = void 0;
 const sequelize_typescript_1 = require("sequelize-typescript");
 const gtfsfile_model_1 = require("./gtfsfile.model");
+const simulationoptions_model_1 = require("./simulationoptions.model");
 let Project = class Project extends sequelize_typescript_1.Model {
 };
 exports.Project = Project;
@@ -23,6 +24,10 @@ __decorate([
     (0, sequelize_typescript_1.HasMany)(() => gtfsfile_model_1.GtfsFile),
     __metadata("design:type", Array)
 ], Project.prototype, "gtfsFiles", void 0);
+__decorate([
+    (0, sequelize_typescript_1.HasMany)(() => simulationoptions_model_1.SimulationOptions),
+    __metadata("design:type", Array)
+], Project.prototype, "simulationOptions", void 0);
 exports.Project = Project = __decorate([
     sequelize_typescript_1.Table
 ], Project);

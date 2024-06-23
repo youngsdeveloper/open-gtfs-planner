@@ -49,7 +49,13 @@ async function selectDirectory(window) {
         window.webContents.send('update-loading-gtfs', 10);
 
 
-        const gtfsDB = await uploadGTFS(gtfsData, path, window);
+        const [project,created] = await Project.findOrCreate({
+          where: {
+            name: "Initial Project"
+          }
+        });
+
+        const gtfsDB = await uploadGTFS(project, gtfsData, path, window);
 
         const routesDAO:GtfsRouteDao[] = [] as GtfsRouteDao[];
         gtfsDB.routes.forEach(route => {
@@ -86,6 +92,8 @@ async function selectDirectory(window) {
         
         const gtfsDAO = new GtfsDao(gtfsDB.file.id, gtfsDB.file.filename, agenciesDAO, stospDao, calendarDatesDao, calendarsDao);
 
+
+        
         window.webContents.send('loaded-gtfs', gtfsDAO);
         window.webContents.send('end-loading-gtfs', gtfsDAO);
 
@@ -125,14 +133,9 @@ function parseFile(path, file){
 }
 
 
-async function uploadGTFS(gtfsData, path, window){
+async function uploadGTFS(project, gtfsData, path, window){
 
   
-  const [project,created] = await Project.findOrCreate({
-    where: {
-      name: "Initial Project"
-    }
-  });
 
   var filename = path.split("/").at(-1);
   

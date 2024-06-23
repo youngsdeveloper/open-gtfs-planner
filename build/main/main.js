@@ -8,6 +8,7 @@ const { buildMenu } = require('./menu');
 const { createMainWindow } = require('./controllers/mainWindowController');
 const { selectDirectory } = require('./controllers/gtfsImporterController');
 const { downloadProject, downloadShapesByRoute, deleteGTFS, downloadTripsByServices, downloadStopByServices } = require('./controllers/gtfsController');
+const { saveSimulationOption } = require('./controllers/simulationOptionsController');
 const models_1 = __importDefault(require("./models"));
 let mainWindow;
 electron_1.app.whenReady().then(() => {
@@ -52,5 +53,8 @@ electron_1.ipcMain.on("downloadTripsByServices", (event, servicesId) => {
 });
 electron_1.ipcMain.on("downloadStopByServices", (event, stopId, servicesId) => {
     downloadStopByServices(mainWindow, stopId, servicesId);
+});
+electron_1.ipcMain.on("saveSimulationOption", (event, projectId, routeId, delta) => {
+    saveSimulationOption(projectId, routeId, delta);
 });
 electron_1.Menu.setApplicationMenu(buildMenu(mainWindow));

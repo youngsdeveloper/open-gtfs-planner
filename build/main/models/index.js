@@ -11,6 +11,7 @@ const gtfstrip_model_1 = require("./gtfstrip.model");
 const gtfsshape_model_1 = require("./gtfsshape.model");
 const gtfsstoptime_model_1 = require("./gtfsstoptime.model");
 const gtfscalendar_model_1 = require("./gtfscalendar.model");
+const simulationoptions_model_1 = require("./simulationoptions.model");
 const config = require('../config/config.js');
 const sequelize = new sequelize_typescript_1.Sequelize({
     database: config.database,
@@ -21,7 +22,7 @@ const sequelize = new sequelize_typescript_1.Sequelize({
 });
 sequelize.addModels([project_model_1.Project, gtfsfile_model_1.GtfsFile, gtfsagency_model_1.GtfsAgency, gtfsstop_model_1.GtfsStop, gtfsroute_model_1.GtfsRoute,
     gtfscalendardates_model_1.GtfsCalendarDates, gtfstrip_model_1.GtfsTrip, gtfsshape_model_1.GtfsShape, gtfsstoptime_model_1.GtfsStopTime,
-    gtfscalendar_model_1.GtfsCalendar]);
+    gtfscalendar_model_1.GtfsCalendar, simulationoptions_model_1.SimulationOptions]);
 // Habilitar claves foráneas
 sequelize.query("PRAGMA foreign_keys = ON;").then(() => {
     console.log("Foreign Key support is enabled.");

@@ -9,7 +9,6 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-const GtfsDao_1 = require("../daos/GtfsDao");
 const project_model_1 = require("../models/project.model");
 const gtfsagency_model_1 = require("../models/gtfsagency.model");
 const gtfsstop_model_1 = require("../models/gtfsstop.model");
@@ -24,48 +23,50 @@ const gtfsstoptime_model_1 = require("../models/gtfsstoptime.model");
 const gtfscalendar_model_1 = require("../models/gtfscalendar.model");
 const GtfsTripDao_1 = require("../daos/GtfsTripDao");
 const GtfsStopTimeDao_1 = require("../daos/GtfsStopTimeDao");
+const simulationoptions_model_1 = require("../models/simulationoptions.model");
+const ProjectDao_1 = require("../daos/ProjectDao");
 function downloadProject(window, idProject) {
     return __awaiter(this, void 0, void 0, function* () {
         const [project, created] = yield project_model_1.Project.findOrCreate({
             where: { id: idProject, name: "Initial Project" },
-            include: {
-                model: gtfsfile_model_1.GtfsFile,
-                include: [
-                    {
-                        model: gtfsagency_model_1.GtfsAgency,
-                        include: [
-                            gtfsroute_model_1.GtfsRoute
-                        ]
-                    },
-                    {
-                        model: gtfsstop_model_1.GtfsStop,
-                        separate: true
-                    },
-                    {
-                        model: gtfscalendardates_model_1.GtfsCalendarDates,
-                        separate: true
-                    },
-                    {
-                        model: gtfscalendar_model_1.GtfsCalendar,
-                        separate: true
-                    }
-                ]
-            }
+            include: [
+                {
+                    model: gtfsfile_model_1.GtfsFile,
+                    include: [
+                        {
+                            model: gtfsagency_model_1.GtfsAgency,
+                            include: [
+                                gtfsroute_model_1.GtfsRoute
+                            ],
+                        },
+                        {
+                            model: gtfsstop_model_1.GtfsStop,
+                            separate: true
+                        },
+                        {
+                            model: gtfscalendardates_model_1.GtfsCalendarDates,
+                            separate: true
+                        },
+                        {
+                            model: gtfscalendar_model_1.GtfsCalendar,
+                            separate: true
+                        }
+                    ]
+                },
+                {
+                    model: simulationoptions_model_1.SimulationOptions,
+                    separate: true,
+                    include: [
+                        {
+                            model: gtfsroute_model_1.GtfsRoute,
+                        }
+                    ]
+                }
+            ]
         });
         console.log("GTFS Cargado...");
-        if (project === null || project === void 0 ? void 0 : project.gtfsFiles) {
-            for (const gtfsFile of project === null || project === void 0 ? void 0 : project.gtfsFiles) {
-                const DAO = GtfsDao_1.GtfsDao.fromObject(gtfsFile);
-                window.webContents.send('loaded-gtfs', DAO);
-            }
-            if ((project === null || project === void 0 ? void 0 : project.gtfsFiles.length) == 0) {
-                console.log("END");
-                window.webContents.send('end-loading');
-            }
-        }
-        else {
-            window.webContents.send('end-loading');
-        }
+        window.webContents.send("loaded-project", ProjectDao_1.ProjectDao.fromObject(project));
+        window.webContents.send('end-loading');
     });
 }
 function downloadShapesByRoute(window, idRoute) {
@@ -127,7 +128,7 @@ function downloadTripsByServices(window, servicesId) {
             },
             include: [
                 {
-                    model: gtfsroute_model_1.GtfsRoute
+                    model: gtfsroute_model_1.GtfsRoute,
                 },
                 {
                     model: gtfsstoptime_model_1.GtfsStopTime,

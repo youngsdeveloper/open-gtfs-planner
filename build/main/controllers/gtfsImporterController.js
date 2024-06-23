@@ -50,7 +50,12 @@ function selectDirectory(window) {
             const path = result.filePaths[0];
             const gtfsData = parseGTFS(path);
             window.webContents.send('update-loading-gtfs', 10);
-            const gtfsDB = yield uploadGTFS(gtfsData, path, window);
+            const [project, created] = yield project_model_1.Project.findOrCreate({
+                where: {
+                    name: "Initial Project"
+                }
+            });
+            const gtfsDB = yield uploadGTFS(project, gtfsData, path, window);
             const routesDAO = [];
             gtfsDB.routes.forEach(route => {
                 routesDAO.push(GtfsRouteDao_1.GtfsRouteDao.fromObject(route));
@@ -106,13 +111,8 @@ function parseFile(path, file) {
         return [];
     }
 }
-function uploadGTFS(gtfsData, path, window) {
+function uploadGTFS(project, gtfsData, path, window) {
     return __awaiter(this, void 0, void 0, function* () {
-        const [project, created] = yield project_model_1.Project.findOrCreate({
-            where: {
-                name: "Initial Project"
-            }
-        });
         var filename = path.split("/").at(-1);
         const gtfsFile = yield gtfsfile_model_1.GtfsFile.create({ project_id: project.id, filename: filename });
         window.webContents.send('update-loading-gtfs', 15);

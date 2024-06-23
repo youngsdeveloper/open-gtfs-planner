@@ -19,6 +19,8 @@ import { GtfsCalendar } from "../models/gtfscalendar.model";
 import { GtfsTripDao } from "../daos/GtfsTripDao";
 import sequelize from "sequelize";
 import { GtfsStopTimeDao } from "../daos/GtfsStopTimeDao";
+import { SimulationOptions } from "../models/simulationoptions.model";
+import { ProjectDao } from "../daos/ProjectDao";
 
 
 
@@ -27,50 +29,48 @@ async function downloadProject(window, idProject) {
 
     const [project, created] = await Project.findOrCreate({
         where: { id: idProject, name: "Initial Project"},
-        include: {
-            model: GtfsFile,
-            include: [
-                {
-                    model: GtfsAgency,
-                    include: [
-                        GtfsRoute
-                    ]
-                },
-                {
-                    model: GtfsStop,
-                    separate: true
-                },
-                {
-                    model: GtfsCalendarDates,
-                    separate: true
+        include: [
+            {
+                model: GtfsFile,
+                include: [
+                    {
+                        model: GtfsAgency,
+                        include: [
+                            GtfsRoute
+                        ],
 
-                },
-                {
-                    model: GtfsCalendar,
-                    separate: true
-                }
-            ]
-        }
+                    },
+                    {
+                        model: GtfsStop,
+                        separate: true
+                    },
+                    {
+                        model: GtfsCalendarDates,
+                        separate: true
+    
+                    },
+                    {
+                        model: GtfsCalendar,
+                        separate: true
+                    }
+                ]
+            },
+            {
+                model: SimulationOptions,
+                separate: true,
+                include: [
+                    {
+                        model: GtfsRoute,
+                    }
+                ]
+            }
+        ]
     });
 
     console.log("GTFS Cargado...");
 
-
-    if(project?.gtfsFiles){
-        for(const gtfsFile of project?.gtfsFiles!!){
-            const DAO = GtfsDao.fromObject(gtfsFile);
-            window.webContents.send('loaded-gtfs', DAO);
-        }
-
-
-        if(project?.gtfsFiles.length==0){
-            console.log("END");
-            window.webContents.send('end-loading');
-
-        }
-    }else{
-        window.webContents.send('end-loading');
-    }
+    window.webContents.send("loaded-project", ProjectDao.fromObject(project))
+    window.webContents.send('end-loading');
 
 
 }
@@ -147,7 +147,7 @@ async function downloadTripsByServices(window, servicesId){
         },
         include: [
             {
-                model: GtfsRoute
+                model: GtfsRoute,
             },
             {
                 model: GtfsStopTime,

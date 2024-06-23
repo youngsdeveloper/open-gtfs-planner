@@ -1,5 +1,6 @@
 import { Column, Model, Table, HasMany} from 'sequelize-typescript';
 import { GtfsFile } from './gtfsfile.model';
+import { SimulationOptions } from './simulationoptions.model';
 
 @Table
 export class Project extends Model{
@@ -9,6 +10,9 @@ export class Project extends Model{
 
   @HasMany(() => GtfsFile)
   gtfsFiles!: GtfsFile[];
+
+  @HasMany(() => SimulationOptions)
+  simulationOptions!: SimulationOptions[];
 
 }
 

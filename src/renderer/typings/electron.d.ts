@@ -1,6 +1,7 @@
 import {IpcRendererEvent} from 'electron';
 import { GtfsDao } from '../../main/daos/GtfsDao';
 import { GtfsShapeDao } from '../../main/daos/GtfsShapeDao';
+import { ProjectDao } from '../../main/daos/ProjectDao';
 
 
 /**
@@ -11,6 +12,8 @@ export default interface ElectronApi {
   importGTFS: ()=>void,
   addListener: (channel:string, listener:(event: IpcRendererEvent, ...args: any[]) => void)=>void,
   onLoadedGtfs: (listener:(event: IpcRendererEvent, gtfs: GtfsDao) => void) =>void
+  onLoadedProject: (listener:(event: IpcRendererEvent, project: ProjectDao) => void) =>void
+
   downloadCurrentProject: ()=>void,
 
   downloadShapesByRoute: (route_id:Number) => void
@@ -18,6 +21,7 @@ export default interface ElectronApi {
   deleteGtfs: (gtfs_id:Number) => void,
   downloadTripsByServices: (servicesId:String[]) => void
   downloadStopByServices: (stopId: Number, servicesId:String[]) => void
+  saveSimulationOption: (projectId: Number,routeId: Number, delta: Number) => void
 
 }
 

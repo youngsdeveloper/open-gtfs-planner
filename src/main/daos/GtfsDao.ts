@@ -40,4 +40,12 @@ export class GtfsDao {
             GtfsCalendarDao.fromObjectToArray(obj.calendar)
         );
     }
+
+    static fromObjectToArray(obj: any): GtfsDao[] {
+        const data:GtfsDao[] = [];
+        if(obj){
+            obj.forEach(s => data.push(this.fromObject(s)));
+        }
+        return data;
+    }
 }

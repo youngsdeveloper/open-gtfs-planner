@@ -20,5 +20,12 @@ class GtfsDao {
     static fromObject(obj) {
         return new GtfsDao(obj.id, obj.filename, GtfsAgencyDao_1.GtfsAgencyDao.fromObjectToArray(obj.agencies), GtfsStopDao_1.GtfsStopDao.fromObjectToArray(obj.stops), GtfsCalendarDatesDao_1.GtfsCalendarDatesDao.fromObjectToArray(obj.calendarDates), GtfsCalendarDao_1.GtfsCalendarDao.fromObjectToArray(obj.calendar));
     }
+    static fromObjectToArray(obj) {
+        const data = [];
+        if (obj) {
+            obj.forEach(s => data.push(this.fromObject(s)));
+        }
+        return data;
+    }
 }
 exports.GtfsDao = GtfsDao;
