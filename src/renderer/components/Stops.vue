@@ -8,6 +8,8 @@
     import { GtfsStopTimeDao } from '../../main/daos/GtfsStopTimeDao';
 
     import {SyncScheduleHelper, SyncSoluction} from "../../main/helpers/SyncSchedulesHelper"
+    import { ReviewTransfersHelper, ReviewTransfersSoluction } from "../../main/helpers/ReviewTransfersHelper"
+
     import { GtfsDao } from '../../main/daos/GtfsDao';
     import TableStopTimes from "./TableStopTimes.vue";
 
@@ -173,22 +175,55 @@
                         </div>
 
                         <div class="uk-margin">
-                            <button class="uk-button uk-button-danger" v-on:click="calculateOptimization()">Calcular transbordos</button>
+                            <button class="uk-button uk-button-danger" v-on:click="calculateTransfers()">Calcular transbordos</button>
                         </div>
             
 
 
 
-                        <div v-if="optimizationSettings.solution">
-                            <div class="uk-alert-primary" uk-alert>
-                                Modifica la linea {{ optimizationSettings.solution.route?.getRouteName() }}, "{{ optimizationSettings.solution.delta }}" minutos para
-                                optimizar los horarios de esta linea.
-                            </div>
+                        <div v-if="reviewTransfer.solution">
 
 
-                            
-                            <TableStopTimes :stop-times="optimizationSettings.solution.stopTimes" />
+                            <table class="uk-table uk-table-hover uk-table-divider uk-table-small">
+                                <thead>
+                                    <tr>
+                                        <th>Llegada</th>
+                                        <th>Salida</th>
 
+                                        <th>Intervalo</th>
+
+                                    </tr>
+                                </thead>
+                                <tbody>
+
+                                    <template v-for="sol in reviewTransfer.solution.filter(sol => sol.previewStopTimes.length>0)">
+                                        <tr v-for="st in sol.previewStopTimes">
+                                            <td style="font-size: 1em; padding-top:15px;">
+                                                <span class="route-box">
+                                                    {{ st.trip.route.getRouteName() }}
+                                                </span>
+
+                                                <span style="margin-left: 20px;">
+                                                    {{ st.getArrivalTimeInHoursMins() }}
+                                                </span>
+                                            </td>
+                                            <td style="font-size: 1em; padding-top:15px;">
+                                                <span class="route-box">
+                                                    {{ sol.st.trip.route.getRouteName() }}
+                                                </span>
+
+                                                <span style="margin-left: 20px;">
+                                                    {{ sol.st.getArrivalTimeInHoursMins() }}
+                                                </span>
+                                            </td>
+                                            <td style="font-size: 1em; padding-top:20px;">
+                                                {{ Math.abs(GtfsStopTimeDao.calculateIntervalInMinutes(st, sol.st)) }}'
+                                            </td>
+                                        </tr>
+                                    </template>
+                                    
+                                </tbody>
+                            </table>
 
                         </div>
 
@@ -267,7 +302,8 @@ export default defineComponent({
 
             reviewTransfer: {
                 from: null as Number|null,
-                to: null as Number|null
+                to: null as Number|null,
+                solution: null as ReviewTransfersSoluction[]|null
             }
 
         }
@@ -375,6 +411,16 @@ export default defineComponent({
             opt.route = route;
 
             this.optimizationSettings.solution = opt;
+        },
+        calculateTransfers: function(){
+
+
+            if(!this.panelSettings.stopSelected || !this.reviewTransfer.from || !this.reviewTransfer.to){
+                return;
+            }
+
+            
+            this.reviewTransfer.solution = ReviewTransfersHelper.reviewTransfers(this.panelSettings.stopSelected, this.reviewTransfer.from, this.reviewTransfer.to)
         }
     },
     watch:{
