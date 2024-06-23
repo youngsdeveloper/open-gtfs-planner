@@ -12,6 +12,8 @@
 
     import { GtfsDao } from '../../main/daos/GtfsDao';
     import TableStopTimes from "./TableStopTimes.vue";
+    import TableTransfers from "./TableTransfers.vue";
+    import DoubleRange from "./DoubleRange.vue";
 
     import { Bar } from 'vue-chartjs'
 
@@ -100,8 +102,7 @@
 
 
                         <div uk-alert>
-                            Selecciona las rutas que sincronizarán sus horarios.<br>
-                            La primera ruta que selecciones será la que se modificará para ajustarse al resto.
+                            Selecciona las rutas que sincronizarán sus horarios.
                         </div>
                         <div class="route-boxes">
 
@@ -136,7 +137,9 @@
                                 optimizar los horarios de esta linea.
                             </div>
 
-
+                            <h4>
+                                Horarios optimizados
+                            </h4>
                             
                             <TableStopTimes :stop-times="optimizationSettings.solution.stopTimes" />
 
@@ -175,55 +178,49 @@
                         </div>
 
                         <div class="uk-margin">
+                            <label for="">
+                                Tiempo de espera
+                            </label>
+
+                            <DoubleRange
+                                :reviewTransfer="reviewTransfer"/>
+
+
+                            <div>
+
+                                {{  Math.min(reviewTransfer.minWaitTime,reviewTransfer.maxWaitTime) }} min. -
+                                {{  Math.max(reviewTransfer.minWaitTime,reviewTransfer.maxWaitTime) }} min.
+                            </div>
+                        </div>
+
+
+                        <div class="uk-margin">
                             <button class="uk-button uk-button-danger" v-on:click="calculateTransfers()">Calcular transbordos</button>
                         </div>
             
 
 
 
+
                         <div v-if="reviewTransfer.solution">
 
+                            <div>
+                                <b>Número de transbordos: </b>{{ reviewTransfer.solution.filter(sol => sol.previewStopTimes.length>0).length }}
+                            </div>
+                            <div>
+                                <b>Tiempo de espera medio: </b>
+                                {{ ReviewTransfersHelper.getAvgReviewTransfers(reviewTransfer.solution).toFixed(2) }}
+                            </div>
+                            <div>
+                                <b>Número de expediciones sin transbordo posible: </b>{{ reviewTransfer.solution.filter(sol => sol.previewStopTimes.length==0).length }}
+                            </div>
 
-                            <table class="uk-table uk-table-hover uk-table-divider uk-table-small">
-                                <thead>
-                                    <tr>
-                                        <th>Llegada</th>
-                                        <th>Salida</th>
 
-                                        <th>Intervalo</th>
 
-                                    </tr>
-                                </thead>
-                                <tbody>
 
-                                    <template v-for="sol in reviewTransfer.solution.filter(sol => sol.previewStopTimes.length>0)">
-                                        <tr v-for="st in sol.previewStopTimes">
-                                            <td style="font-size: 1em; padding-top:15px;">
-                                                <span class="route-box">
-                                                    {{ st.trip.route.getRouteName() }}
-                                                </span>
-
-                                                <span style="margin-left: 20px;">
-                                                    {{ st.getArrivalTimeInHoursMins() }}
-                                                </span>
-                                            </td>
-                                            <td style="font-size: 1em; padding-top:15px;">
-                                                <span class="route-box">
-                                                    {{ sol.st.trip.route.getRouteName() }}
-                                                </span>
-
-                                                <span style="margin-left: 20px;">
-                                                    {{ sol.st.getArrivalTimeInHoursMins() }}
-                                                </span>
-                                            </td>
-                                            <td style="font-size: 1em; padding-top:20px;">
-                                                {{ Math.abs(GtfsStopTimeDao.calculateIntervalInMinutes(st, sol.st)) }}'
-                                            </td>
-                                        </tr>
-                                    </template>
-                                    
-                                </tbody>
-                            </table>
+                            <div class="uk-margin">
+                                <TableTransfers :transfers="reviewTransfer.solution"/>
+                            </div>
 
                         </div>
 
@@ -303,7 +300,9 @@ export default defineComponent({
             reviewTransfer: {
                 from: null as Number|null,
                 to: null as Number|null,
-                solution: null as ReviewTransfersSoluction[]|null
+                solution: null as ReviewTransfersSoluction[]|null,
+                minWaitTime: 5,
+                maxWaitTime: 15
             }
 
         }
@@ -419,8 +418,16 @@ export default defineComponent({
                 return;
             }
 
-            
-            this.reviewTransfer.solution = ReviewTransfersHelper.reviewTransfers(this.panelSettings.stopSelected, this.reviewTransfer.from, this.reviewTransfer.to)
+
+            const minWaitTime = Math.min(this.reviewTransfer.minWaitTime,this.reviewTransfer.maxWaitTime);
+            const maxWaitTime = Math.max(this.reviewTransfer.minWaitTime,this.reviewTransfer.maxWaitTime);
+
+            this.reviewTransfer.solution = ReviewTransfersHelper.reviewTransfers(this.panelSettings.stopSelected,
+                                                            this.reviewTransfer.from,
+                                                            this.reviewTransfer.to,
+                                                            minWaitTime,
+                                                            maxWaitTime
+                                                        )
         }
     },
     watch:{
@@ -428,6 +435,10 @@ export default defineComponent({
             this.routesSelected = [];
             this.routesFixedSelected = [];
             this.optimizationSettings.solution = null;
+            this.reviewTransfer.from = null;
+            this.reviewTransfer.to = null;
+            this.reviewTransfer.solution = null;
+
         },
 
 
@@ -477,4 +488,5 @@ export default defineComponent({
         background: #146e5b;
         cursor: pointer;
     }
+
 </style>
