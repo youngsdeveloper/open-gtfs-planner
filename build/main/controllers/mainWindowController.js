@@ -10,7 +10,8 @@ function createMainWindow() {
             preload: (0, path_1.join)(__dirname, '../preload.js'),
             nodeIntegration: false,
             contextIsolation: true,
-        }
+        },
+        icon: 'icon.png',
     });
     mainWindow.maximize();
     if (process.env.NODE_ENV === 'development') {

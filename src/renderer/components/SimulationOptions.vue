@@ -9,7 +9,7 @@ import { PropType, defineComponent } from 'vue';
         <div class="uk-card uk-card-secondary uk-card-body">
         
             <div v-for="simOption in simulationOptions">
-                <label><input class="uk-checkbox" type="checkbox" checked>
+                <label><input class="uk-checkbox" type="checkbox" v-model="simOption.active">
                     Modificado {{ simOption.route.getRouteName() }} en {{ simOption.delta }} minutos.
                 </label>
             </div>
@@ -18,7 +18,7 @@ import { PropType, defineComponent } from 'vue';
                 Nuevo
             </a>
 
-            <div id="modal-new-option" class="uk-flex-top" uk-modal>
+            <div id="modal-new-option" class="uk-flex-top" uk-modal ref="modal_save_option">
                 <div class="uk-modal-dialog uk-modal-body uk-margin-auto-vertical">
 
                     <button class="uk-modal-close-default" type="button" uk-close></button>
@@ -108,9 +108,13 @@ export default defineComponent({
 
     methods: {
         saveSimulationOpton: function(){
-            this.simulationOptions.push(new SimulationOptionDao(1,1,GtfsRouteDao.fromObject(this.route_selected),this.delta))
-
             window.electronAPI.saveSimulationOption(this.projectId, this.route_selected?.id as number, this.delta)
+            UIkit.modal(this.$refs.modal_save_option).hide();
+            this.gtfs_file_selected = this.gtfsFiles[0];
+            this.agency_selected = null;
+            this.route_selected = null;
+            this.delta = 0;
+
         }
     }
 })

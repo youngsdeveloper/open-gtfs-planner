@@ -94,7 +94,7 @@
                     </a>
                 </div>
 
-                <div v-bind:id="'modal-sync-schedules-' + panelSettings.stopSelected.id" class="uk-flex-top" uk-modal>
+                <div v-bind:id="'modal-sync-schedules-' + panelSettings.stopSelected.id" class="uk-flex-top" uk-modal ref="modal_sync_schedules">
                     <div class="uk-modal-dialog uk-modal-body uk-margin-auto-vertical">
 
                         <button class="uk-modal-close-default" type="button" uk-close></button>
@@ -136,6 +136,10 @@
                                 Modifica la linea {{ optimizationSettings.solution.route?.getRouteName() }}, "{{ optimizationSettings.solution.delta }}" minutos para
                                 optimizar los horarios de esta linea.
                             </div>
+
+                            <button class="uk-button" v-on:click="storeOptimizationAsSimulationOption()">
+                                Añadir modificación a Opciones de Simulación
+                            </button>
 
                             <h4>
                                 Horarios optimizados
@@ -279,6 +283,11 @@ export default defineComponent({
             type: PanelSettings,
             required: true
         },
+        projectId: {
+            type: Number,
+            required: true
+        }
+
     },
 
     data: function(){
@@ -428,6 +437,11 @@ export default defineComponent({
                                                             minWaitTime,
                                                             maxWaitTime
                                                         )
+        },
+        storeOptimizationAsSimulationOption: function(){
+            window.electronAPI.saveSimulationOption(this.projectId, this.optimizationSettings.solution?.lineMod!!, this.optimizationSettings.solution?.delta!!)
+            UIkit.modal(this.$refs.modal_sync_schedules).hide();
+
         }
     },
     watch:{

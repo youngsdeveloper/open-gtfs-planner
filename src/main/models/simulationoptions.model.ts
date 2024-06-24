@@ -15,7 +15,7 @@ export class SimulationOptions extends Model{
 
     @ForeignKey(() => GtfsRoute)
     @Column
-    route_id!: string
+    route_id!: Number
   
     @BelongsTo(() => GtfsRoute)
     route!: GtfsRoute;

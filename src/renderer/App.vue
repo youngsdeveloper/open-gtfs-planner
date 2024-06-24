@@ -7,6 +7,7 @@
 
     import SimulatioBar from './components/SimulatioBar.vue'
     import moment from 'moment';
+    import {SimulationOptionsHelper} from '../main/helpers/SimulationOptionsHelper'
 
 </script>
 
@@ -186,6 +187,7 @@ export default {
       shapes: [] as GtfsShapeDao[],
       loading: false,
       loading_widgets: false,
+      original_trips: [] as GtfsTripDao[],
       active_trips: [] as GtfsTripDao[],
       simulationSettings: {
         dateSelected: this.getDate(new Date().toLocaleDateString()),
@@ -231,6 +233,34 @@ export default {
 
         window.electronAPI.downloadStopByServices(this.panelSettings.stopSelected?.id!!, servicesId)
     },
+
+    simulationOptions: {
+        deep: true,
+        handler(){
+
+            if(this.simulationOptions.length>0){
+                const newTrips = GtfsTripDao.fromObjectToArray(this.original_trips)
+                SimulationOptionsHelper.middleware(this.simulationOptions, newTrips)
+                newTrips.forEach( t => t.generateDatetimes(new Date(this.simulationSettings.dateSelected))) // Generamos Datetipes
+                
+                this.active_trips = newTrips;
+                this.recalculateSimulation();
+
+
+                if(this.panelSettings.tripSelected){
+                    this.panelSettings.tripSelected = newTrips.filter(t => t.id == this.panelSettings.tripSelected?.id)[0]
+                }
+
+                if(this.panelSettings.stopSelected){
+                    const newST = GtfsStopTimeDao.fromObjectToArray(this.panelSettings.stopSelected.originalStopTimes);
+                    SimulationOptionsHelper.middlewareST(this.simulationOptions, newST)
+                    this.panelSettings.stopSelected.stopTimes = newST;
+                }
+            }
+            
+
+        }
+    }
   },
   mounted(){
 
@@ -245,6 +275,11 @@ export default {
         ctx.simulationOptions = project_.simulationOptions
         ctx.project_id = project_.id as number;
     })
+
+    window.electronAPI.addListener("new_simulation_option", (event, simOpt:SimulationOptionDao)=>{
+
+        ctx.simulationOptions.push(SimulationOptionDao.fromObject(simOpt))
+    });
 
 
     window.electronAPI.onLoadedGtfs((event, gtfs:GtfsDao) => {
@@ -285,6 +320,11 @@ export default {
         
         if(ctx.panelSettings.stopSelected){
             var stopTimesStop = GtfsStopTimeDao.fromObjectToArray(stopTimes)
+
+            ctx.panelSettings.stopSelected.originalStopTimes = GtfsStopTimeDao.fromObjectToArray(stopTimesStop)
+
+            SimulationOptionsHelper.middlewareST(this.simulationOptions, stopTimesStop)
+
             stopTimesStop = stopTimesStop.sort(GtfsStopTimeDao.sort)
             ctx.panelSettings.stopSelected.stopTimes = stopTimesStop
         }
@@ -294,6 +334,13 @@ export default {
         
         
         const tripsDao = GtfsTripDao.fromObjectToArray(trips);
+
+        this.original_trips = GtfsTripDao.fromObjectToArray(trips);
+
+        // Middleware Opciones de Simulacion
+        SimulationOptionsHelper.middleware(this.simulationOptions, tripsDao)
+
+
         tripsDao.forEach( t => t.generateDatetimes(new Date(ctx.simulationSettings.dateSelected))) // Generamos Datetipes
 
         ctx.active_trips = tripsDao;

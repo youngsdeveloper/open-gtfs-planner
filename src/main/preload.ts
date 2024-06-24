@@ -2,6 +2,7 @@ import {contextBridge, ipcRenderer, IpcRendererEvent} from 'electron';
 import { GtfsDao } from './daos/GtfsDao';
 import { GtfsShapeDao } from './daos/GtfsShapeDao';
 import { ProjectDao } from './daos/ProjectDao';
+import { SimulationOptionDao } from './daos/SimulationOptionDao';
 
 contextBridge.exposeInMainWorld('electronAPI', {
   sendMessage: (message: string) => ipcRenderer.send('message', message),
@@ -17,6 +18,7 @@ contextBridge.exposeInMainWorld('electronAPI', {
   downloadTripsByServices: (servicesId:String[]) => ipcRenderer.send("downloadTripsByServices",servicesId),
   downloadStopByServices: (stopId:number, servicesId:String[]) => ipcRenderer.send("downloadStopByServices",stopId, servicesId),
 
-  saveSimulationOption: (projectId:Number, routeId: Number, delta: Number) => ipcRenderer.send("saveSimulationOption", projectId, routeId, delta)
+  saveSimulationOption: (projectId:Number, routeId: Number, delta: Number) => ipcRenderer.send("saveSimulationOption", projectId, routeId, delta),
+  updateSimulationOption: (simulationOptions: SimulationOptionDao[]) => ipcRenderer.send("updateSimulationOption",simulationOptions)
 
 })

@@ -11,7 +11,9 @@ function createMainWindow () {
       preload: join(__dirname, '../preload.js'),
       nodeIntegration: false,
       contextIsolation: true,
-    }
+    },
+    icon: 'icon.png',
+
   });
 
   mainWindow.maximize();

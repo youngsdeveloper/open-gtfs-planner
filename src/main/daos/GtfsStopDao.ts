@@ -10,6 +10,8 @@ export class GtfsStopDao {
     
     stopTimes!: GtfsStopTimeDao[];
 
+    originalStopTimes!: GtfsStopTimeDao[];
+
     constructor(id:number,gtfs_stop_id: number, stop_name: string, stop_lat: number, stop_lon: number, agency_id: number) {
         this.id = id;
         this.gtfs_stop_id = gtfs_stop_id;

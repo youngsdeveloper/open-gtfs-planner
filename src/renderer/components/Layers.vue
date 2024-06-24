@@ -171,7 +171,6 @@ export default{
     methods: {
         importarCapa: function(){
             window.electronAPI.importGTFS();
-            console.log("Hola!");
         },
         downloadShape: function(route){
             if(route.visible && route.shapes.length==0){

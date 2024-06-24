@@ -2,6 +2,7 @@ import {IpcRendererEvent} from 'electron';
 import { GtfsDao } from '../../main/daos/GtfsDao';
 import { GtfsShapeDao } from '../../main/daos/GtfsShapeDao';
 import { ProjectDao } from '../../main/daos/ProjectDao';
+import { SimulationOptionDao } from '../../main/daos/SimulationOptionDao';
 
 
 /**
@@ -22,6 +23,7 @@ export default interface ElectronApi {
   downloadTripsByServices: (servicesId:String[]) => void
   downloadStopByServices: (stopId: Number, servicesId:String[]) => void
   saveSimulationOption: (projectId: Number,routeId: Number, delta: Number) => void
+  updateSimulationOption: (simulationOptions: SimulationOptionDao[]) => void
 
 }
 

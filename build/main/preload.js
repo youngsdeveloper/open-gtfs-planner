@@ -13,5 +13,6 @@ electron_1.contextBridge.exposeInMainWorld('electronAPI', {
     deleteGtfs: (gtfs_id) => electron_1.ipcRenderer.send("deleteGTFS", gtfs_id),
     downloadTripsByServices: (servicesId) => electron_1.ipcRenderer.send("downloadTripsByServices", servicesId),
     downloadStopByServices: (stopId, servicesId) => electron_1.ipcRenderer.send("downloadStopByServices", stopId, servicesId),
-    saveSimulationOption: (projectId, routeId, delta) => electron_1.ipcRenderer.send("saveSimulationOption", projectId, routeId, delta)
+    saveSimulationOption: (projectId, routeId, delta) => electron_1.ipcRenderer.send("saveSimulationOption", projectId, routeId, delta),
+    updateSimulationOption: (simulationOptions) => electron_1.ipcRenderer.send("updateSimulationOption", simulationOptions)
 });
