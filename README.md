@@ -1,7 +1,8 @@
 # 🚍 Open GTFS Planner - Simulación de GTFS
 
-Open GTFS Planner es una herramienta de código abierto que facilita la planificación del transporte público mediante la visualización y simulación de datos GTFS. Permite analizar y optimizar los servicios de transporte a través de un simulador en tiempo real y herramientas de optimización de horarios. Con Open GTFS Planner, es posible visualizar la posición teórica de los vehículos, ajustar los horarios para mejorar la eficiencia y crear escenarios hipotéticos para evaluar posibles cambios.
+Open GTFS Planner es una herramienta de código abierto que facilita la planificación del transporte público mediante la visualización y simulación de datos GTFS. Permite analizar y optimizar los servicios de transporte a través de un simulador en tiempo real y herramientas de optimización de horarios.
 
+Con Open GTFS Planner, es posible visualizar la posición teórica de los vehículos, ajustar los horarios para mejorar la eficiencia y crear escenarios hipotéticos para evaluar posibles cambios.
 
 ![Simulación del Tranvía de Murcia](docs/readme/sim_tram_murcia_l1.gif "Simulación del Tranvía de Murcia")
 
