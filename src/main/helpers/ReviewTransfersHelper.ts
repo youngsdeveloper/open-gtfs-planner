@@ -40,7 +40,6 @@ class ReviewTransfersHelper{
                 //Si es destino, se puede transbordar con todos los de atras....
 
 
-                const diffInMinutes = 
                 transferStopTimes.push({
                     st: st,
                     previewStopTimes: stopTimes
