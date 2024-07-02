@@ -1,6 +1,11 @@
 # 🚍 Open GTFS Planner - Simulación de GTFS
 
 ![Alpha](https://img.shields.io/badge/status-alpha-red)
+[![version](https://img.shields.io/badge/version-0.0.1-yellow.svg)]([https://semver.org](https://github.com/youngsdeveloper/open-gtfs-planner/releases))
+
+<!-- BEGIN LATEST DOWNLOAD BUTTON -->
+[![Download zip](https://custom-icon-badges.demolab.com/badge/-Download-blue?style=for-the-badge&logo=download&logoColor=white "Download zip")](https://github.com/youngsdeveloper/open-gtfs-planner/releases/download/0.0.1/win-unpacked.zip)
+<!-- END LATEST DOWNLOAD BUTTON -->
 
 
 Open GTFS Planner es una herramienta de código abierto que facilita la planificación del transporte público mediante la visualización y simulación de datos GTFS. Permite analizar y optimizar los servicios de transporte a través de un simulador en tiempo real y herramientas de optimización de horarios.
