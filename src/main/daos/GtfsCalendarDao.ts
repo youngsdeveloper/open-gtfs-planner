@@ -65,14 +65,17 @@ export class GtfsCalendarDao {
 
     isDay(dayOfWeek){
 
+        console.log(dayOfWeek);
+
         switch(dayOfWeek){
-            case 0: return this.sunday==1;
             case 1: return this.monday == 1;
             case 2: return this.tuesday == 1;
             case 3: return this.wednesday == 1;
             case 4: return this.thursday == 1;
             case 5: return this.friday == 1;
             case 6: return this.saturday == 1;
+            case 7: return this.sunday == 1;
+
             default: false;
         }
 
