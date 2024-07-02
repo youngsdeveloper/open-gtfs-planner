@@ -32,6 +32,45 @@ const GtfsCalendarDao_1 = require("../daos/GtfsCalendarDao");
 const gtfscalendar_model_1 = require("../models/gtfscalendar.model");
 const { DataTypes } = require("sequelize");
 const fs = require('fs');
+function importGTFS(window, path) {
+    return __awaiter(this, void 0, void 0, function* () {
+        window.webContents.send('start-loading-gtfs');
+        const gtfsData = parseGTFS(path);
+        window.webContents.send('update-loading-gtfs', 10);
+        const [project, created] = yield project_model_1.Project.findOrCreate({
+            where: {
+                name: "Initial Project"
+            }
+        });
+        const gtfsDB = yield uploadGTFS(project, gtfsData, path, window);
+        const routesDAO = [];
+        gtfsDB.routes.forEach(route => {
+            routesDAO.push(GtfsRouteDao_1.GtfsRouteDao.fromObject(route));
+        });
+        const agenciesDAO = [];
+        gtfsDB.agencies.forEach(a => {
+            const routes_by_agency = routesDAO.filter(r => r.agency_id == a.id);
+            agenciesDAO.push(new GtfsAgencyDao_1.GtfsAgencyDao(a.name, a.id, routes_by_agency));
+        });
+        window.webContents.send('update-loading-gtfs', 95);
+        const stospDao = [];
+        gtfsDB.stops.forEach(stop => {
+            stospDao.push(GtfsStopDao_1.GtfsStopDao.fromObject(stop));
+        });
+        const calendarDatesDao = [];
+        gtfsDB.calendarDates.forEach(calendarDate => {
+            calendarDatesDao.push(GtfsCalendarDatesDao_1.GtfsCalendarDatesDao.fromObject(calendarDate));
+        });
+        const calendarsDao = [];
+        gtfsDB.calendars.forEach(calendar => {
+            calendarsDao.push(GtfsCalendarDao_1.GtfsCalendarDao.fromObject(calendar));
+        });
+        window.webContents.send('update-loading-gtfs', 100);
+        const gtfsDAO = new GtfsDao_1.GtfsDao(gtfsDB.file.id, gtfsDB.file.filename, agenciesDAO, stospDao, calendarDatesDao, calendarsDao);
+        window.webContents.send('loaded-gtfs', gtfsDAO);
+        window.webContents.send('end-loading-gtfs', gtfsDAO);
+    });
+}
 function selectDirectory(window) {
     return __awaiter(this, void 0, void 0, function* () {
         let result;
@@ -46,42 +85,8 @@ function selectDirectory(window) {
             electron_1.dialog.showErrorBox("Error al importar GTFS", "Ha ocurrido un error al seleccionar la ruta. Error: " + err);
         }
         if (!result.canceled && result.filePaths.length > 0) {
-            window.webContents.send('start-loading-gtfs');
             const path = result.filePaths[0];
-            const gtfsData = parseGTFS(path);
-            window.webContents.send('update-loading-gtfs', 10);
-            const [project, created] = yield project_model_1.Project.findOrCreate({
-                where: {
-                    name: "Initial Project"
-                }
-            });
-            const gtfsDB = yield uploadGTFS(project, gtfsData, path, window);
-            const routesDAO = [];
-            gtfsDB.routes.forEach(route => {
-                routesDAO.push(GtfsRouteDao_1.GtfsRouteDao.fromObject(route));
-            });
-            const agenciesDAO = [];
-            gtfsDB.agencies.forEach(a => {
-                const routes_by_agency = routesDAO.filter(r => r.agency_id == a.id);
-                agenciesDAO.push(new GtfsAgencyDao_1.GtfsAgencyDao(a.name, a.id, routes_by_agency));
-            });
-            window.webContents.send('update-loading-gtfs', 95);
-            const stospDao = [];
-            gtfsDB.stops.forEach(stop => {
-                stospDao.push(GtfsStopDao_1.GtfsStopDao.fromObject(stop));
-            });
-            const calendarDatesDao = [];
-            gtfsDB.calendarDates.forEach(calendarDate => {
-                calendarDatesDao.push(GtfsCalendarDatesDao_1.GtfsCalendarDatesDao.fromObject(calendarDate));
-            });
-            const calendarsDao = [];
-            gtfsDB.calendars.forEach(calendar => {
-                calendarsDao.push(GtfsCalendarDao_1.GtfsCalendarDao.fromObject(calendar));
-            });
-            window.webContents.send('update-loading-gtfs', 100);
-            const gtfsDAO = new GtfsDao_1.GtfsDao(gtfsDB.file.id, gtfsDB.file.filename, agenciesDAO, stospDao, calendarDatesDao, calendarsDao);
-            window.webContents.send('loaded-gtfs', gtfsDAO);
-            window.webContents.send('end-loading-gtfs', gtfsDAO);
+            importGTFS(window, path);
         }
     });
 }
@@ -224,5 +229,6 @@ function uploadGTFS(project, gtfsData, path, window) {
     });
 }
 module.exports = {
-    selectDirectory
+    selectDirectory,
+    importGTFS
 };

@@ -226,7 +226,8 @@ export default {
 
 
         const servicesId = newServices.map( s => s.service_id);
-        window.electronAPI.downloadTripsByServices(servicesId);
+
+        this.downloadTripsByServices(servicesId)
     },
     "panelSettings.stopSelected": function(){
         const servicesId = this.services.map( s => s.service_id);
@@ -263,9 +264,10 @@ export default {
     }
   },
   mounted(){
+    
+    this.downloadCurrentProject();
 
     this.loading = true;
-    window.electronAPI.downloadCurrentProject();
 
     let ctx = this;
     window.electronAPI.onLoadedProject((event, project:ProjectDao) => {
@@ -358,6 +360,15 @@ export default {
   },
 
   methods: {
+
+        downloadTripsByServices: async function(servicesId){
+            window.electronAPI.downloadTripsByServices(servicesId);
+        },
+
+
+        downloadCurrentProject: async function(){
+            window.electronAPI.downloadCurrentProject();
+        },
         getDate: function(date:String){
             let year = date.split("/")[2];
             let month = date.split("/")[1].padStart(2,"0");

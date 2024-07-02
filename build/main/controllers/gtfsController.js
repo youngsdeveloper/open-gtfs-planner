@@ -101,6 +101,7 @@ function deleteGTFS(window, idGtfs) {
                     hooks: false,
                     individualHooks: false
                 });
+                console.log("Horarios eliminados");
                 yield gtfstrip_model_1.GtfsTrip.destroy({
                     where: {
                         gtfs_file_id: gtfsFile.id,
@@ -108,6 +109,7 @@ function deleteGTFS(window, idGtfs) {
                     hooks: false,
                     individualHooks: false
                 });
+                console.log("Viajes eliminados");
                 yield gtfsFile.destroy();
                 console.log("GTFS FILE eliminado");
                 window.webContents.send('deleted-gtfs', idGtfs);

@@ -111,8 +111,9 @@ async function deleteGTFS(window, idGtfs) {
                 },
                 hooks: false,
                 individualHooks: false
-
             });
+
+            console.log("Horarios eliminados");
 
             await GtfsTrip.destroy({
                 where: {
@@ -123,6 +124,9 @@ async function deleteGTFS(window, idGtfs) {
                 individualHooks: false
 
             });
+
+            console.log("Viajes eliminados");
+
             
             await gtfsFile.destroy();
 

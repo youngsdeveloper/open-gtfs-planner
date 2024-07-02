@@ -23,6 +23,64 @@ const {DataTypes} = require("sequelize")
 
 const fs = require('fs');
 
+async function importGTFS(window,path){
+        
+    window.webContents.send('start-loading-gtfs');
+
+    const gtfsData = parseGTFS(path);
+
+    window.webContents.send('update-loading-gtfs', 10);
+
+
+    const [project,created] = await Project.findOrCreate({
+      where: {
+        name: "Initial Project"
+      }
+    });
+
+    const gtfsDB = await uploadGTFS(project, gtfsData, path, window);
+
+    const routesDAO:GtfsRouteDao[] = [] as GtfsRouteDao[];
+    gtfsDB.routes.forEach(route => {
+      routesDAO.push(GtfsRouteDao.fromObject(route));
+    });
+
+
+    const agenciesDAO:GtfsAgencyDao[] = [] as GtfsAgencyDao[];
+    gtfsDB.agencies.forEach(a => {
+        const routes_by_agency = routesDAO.filter(r => r.agency_id == a.id);
+        agenciesDAO.push(new GtfsAgencyDao(a.name,a.id, routes_by_agency));
+    });
+
+    window.webContents.send('update-loading-gtfs', 95);
+
+
+    const stospDao:GtfsStopDao[] = [] as GtfsStopDao[];
+    gtfsDB.stops.forEach(stop => {
+      stospDao.push(GtfsStopDao.fromObject(stop));
+    });
+
+    const calendarDatesDao:GtfsCalendarDatesDao[] = [] as GtfsCalendarDatesDao[];
+    gtfsDB.calendarDates.forEach(calendarDate => {
+      calendarDatesDao.push(GtfsCalendarDatesDao.fromObject(calendarDate));
+    });
+
+    const calendarsDao:GtfsCalendarDao[] = [] as GtfsCalendarDao[];
+    gtfsDB.calendars.forEach(calendar => {
+      calendarsDao.push(GtfsCalendarDao.fromObject(calendar));
+    });
+
+    window.webContents.send('update-loading-gtfs', 100);
+
+    
+    const gtfsDAO = new GtfsDao(gtfsDB.file.id, gtfsDB.file.filename, agenciesDAO, stospDao, calendarDatesDao, calendarsDao);
+
+
+    
+    window.webContents.send('loaded-gtfs', gtfsDAO);
+    window.webContents.send('end-loading-gtfs', gtfsDAO);
+}
+
 async function selectDirectory(window) {
 
       let result;
@@ -39,64 +97,11 @@ async function selectDirectory(window) {
 
       if (!result.canceled && result.filePaths.length > 0) {
 
-        window.webContents.send('start-loading-gtfs');
 
 
         const path = result.filePaths[0];
-        
-        const gtfsData = parseGTFS(path);
 
-        window.webContents.send('update-loading-gtfs', 10);
-
-
-        const [project,created] = await Project.findOrCreate({
-          where: {
-            name: "Initial Project"
-          }
-        });
-
-        const gtfsDB = await uploadGTFS(project, gtfsData, path, window);
-
-        const routesDAO:GtfsRouteDao[] = [] as GtfsRouteDao[];
-        gtfsDB.routes.forEach(route => {
-          routesDAO.push(GtfsRouteDao.fromObject(route));
-        });
-
-
-        const agenciesDAO:GtfsAgencyDao[] = [] as GtfsAgencyDao[];
-        gtfsDB.agencies.forEach(a => {
-            const routes_by_agency = routesDAO.filter(r => r.agency_id == a.id);
-            agenciesDAO.push(new GtfsAgencyDao(a.name,a.id, routes_by_agency));
-        });
-
-        window.webContents.send('update-loading-gtfs', 95);
-
-
-        const stospDao:GtfsStopDao[] = [] as GtfsStopDao[];
-        gtfsDB.stops.forEach(stop => {
-          stospDao.push(GtfsStopDao.fromObject(stop));
-        });
-
-        const calendarDatesDao:GtfsCalendarDatesDao[] = [] as GtfsCalendarDatesDao[];
-        gtfsDB.calendarDates.forEach(calendarDate => {
-          calendarDatesDao.push(GtfsCalendarDatesDao.fromObject(calendarDate));
-        });
-
-        const calendarsDao:GtfsCalendarDao[] = [] as GtfsCalendarDao[];
-        gtfsDB.calendars.forEach(calendar => {
-          calendarsDao.push(GtfsCalendarDao.fromObject(calendar));
-        });
-
-        window.webContents.send('update-loading-gtfs', 100);
-
-        
-        const gtfsDAO = new GtfsDao(gtfsDB.file.id, gtfsDB.file.filename, agenciesDAO, stospDao, calendarDatesDao, calendarsDao);
-
-
-        
-        window.webContents.send('loaded-gtfs', gtfsDAO);
-        window.webContents.send('end-loading-gtfs', gtfsDAO);
-
+        importGTFS(window, path);
       }
 }
 
@@ -301,5 +306,6 @@ async function uploadGTFS(project, gtfsData, path, window){
 
 
 module.exports = {
-    selectDirectory
+    selectDirectory,
+    importGTFS
 };

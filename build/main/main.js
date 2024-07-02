@@ -9,9 +9,12 @@ const { createMainWindow } = require('./controllers/mainWindowController');
 const { selectDirectory } = require('./controllers/gtfsImporterController');
 const { downloadProject, downloadShapesByRoute, deleteGTFS, downloadTripsByServices, downloadStopByServices } = require('./controllers/gtfsController');
 const { saveSimulationOption, updateSimulationOption } = require('./controllers/simulationOptionsController');
+const { listGtfsFromNap, downloadGtfsFromNap } = require('./controllers/napController');
+require("dotenv/config");
 const models_1 = __importDefault(require("./models"));
 let mainWindow;
 electron_1.app.whenReady().then(() => {
+    require('dotenv').config();
     mainWindow = createMainWindow();
     models_1.default.sync().then(() => {
         console.log("DB Synced");
@@ -59,5 +62,11 @@ electron_1.ipcMain.on("saveSimulationOption", (event, projectId, routeId, delta)
 });
 electron_1.ipcMain.on("updateSimulationOption", (event, simulationOptions) => {
     updateSimulationOption(mainWindow, simulationOptions);
+});
+electron_1.ipcMain.on("downloadGTFSListNap", (event) => {
+    listGtfsFromNap(mainWindow);
+});
+electron_1.ipcMain.on("downloadGTFSNap", (event, name, fileId) => {
+    downloadGtfsFromNap(mainWindow, name, fileId);
 });
 electron_1.Menu.setApplicationMenu(buildMenu(mainWindow));

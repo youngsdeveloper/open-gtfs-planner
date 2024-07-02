@@ -19,6 +19,10 @@ contextBridge.exposeInMainWorld('electronAPI', {
   downloadStopByServices: (stopId:number, servicesId:String[]) => ipcRenderer.send("downloadStopByServices",stopId, servicesId),
 
   saveSimulationOption: (projectId:Number, routeId: Number, delta: Number) => ipcRenderer.send("saveSimulationOption", projectId, routeId, delta),
-  updateSimulationOption: (simulationOptions: SimulationOptionDao[]) => ipcRenderer.send("updateSimulationOption",simulationOptions)
+  updateSimulationOption: (simulationOptions: SimulationOptionDao[]) => ipcRenderer.send("updateSimulationOption",simulationOptions),
+
+
+  downloadGTFSListNap: () => ipcRenderer.send("downloadGTFSListNap"),
+  downloadGTFSNap: (name:String, fileId:Number) => ipcRenderer.send("downloadGTFSNap",name, fileId)
 
 })

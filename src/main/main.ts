@@ -10,12 +10,20 @@ const { downloadProject, downloadShapesByRoute, deleteGTFS, downloadTripsByServi
 
 const { saveSimulationOption, updateSimulationOption } = require('./controllers/simulationOptionsController');
 
+const { listGtfsFromNap, downloadGtfsFromNap } = require('./controllers/napController');
+
+import 'dotenv/config'
+
 import sequelize from "./models"
 
 let mainWindow;
 
 
 app.whenReady().then(() => {
+
+
+  require('dotenv').config()
+
   mainWindow = createMainWindow();
   
   
@@ -81,6 +89,16 @@ ipcMain.on("saveSimulationOption",(event, projectId, routeId, delta)=>{
 
 ipcMain.on("updateSimulationOption",(event, simulationOptions)=>{
   updateSimulationOption(mainWindow, simulationOptions)
+})
+
+
+ipcMain.on("downloadGTFSListNap",(event)=>{
+  listGtfsFromNap(mainWindow);
+})
+
+
+ipcMain.on("downloadGTFSNap",(event, name,fileId)=>{
+  downloadGtfsFromNap(mainWindow,name,fileId);
 })
 
 

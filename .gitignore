@@ -3,3 +3,4 @@ dist
 build
 gtfs_planner_data.db
 gtfs
+.env

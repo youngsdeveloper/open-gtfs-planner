@@ -25,6 +25,8 @@ export default interface ElectronApi {
   saveSimulationOption: (projectId: Number,routeId: Number, delta: Number) => void
   updateSimulationOption: (simulationOptions: SimulationOptionDao[]) => void
 
+  downloadGTFSListNap: () => void
+  downloadGTFSNap: (name:String, fileId:Number) => void
 }
 
 declare global {
