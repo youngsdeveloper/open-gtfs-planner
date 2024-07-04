@@ -25,6 +25,9 @@ export class SimulationOptions extends Model{
     delta!: Number
 
     @Column
+    direction_id!: Number
+
+    @Column
     active!: Boolean
   
   

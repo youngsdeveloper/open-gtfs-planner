@@ -3,13 +3,14 @@ import { SimulationOptionDao } from "../daos/SimulationOptionDao";
 import { GtfsRoute } from "../models/gtfsroute.model";
 import { SimulationOptions } from "../models/simulationoptions.model"
 
-async function saveSimulationOption(window, projectId, routeId, delta){
+async function saveSimulationOption(window, projectId, routeId, delta, direction_id){
 
     const simOption = await SimulationOptions.create({
         project_id: projectId,
         route_id: routeId,
         delta: delta,
-        active: true
+        active: true,
+        direction_id: direction_id
     });
 
     const simInDb = await SimulationOptions.findByPk(simOption.id,{

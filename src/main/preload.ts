@@ -18,7 +18,7 @@ contextBridge.exposeInMainWorld('electronAPI', {
   downloadTripsByServices: (servicesId:String[]) => ipcRenderer.send("downloadTripsByServices",servicesId),
   downloadStopByServices: (stopId:number, servicesId:String[]) => ipcRenderer.send("downloadStopByServices",stopId, servicesId),
 
-  saveSimulationOption: (projectId:Number, routeId: Number, delta: Number) => ipcRenderer.send("saveSimulationOption", projectId, routeId, delta),
+  saveSimulationOption: (projectId:Number, routeId: Number, delta: Number, direction_id: Number) => ipcRenderer.send("saveSimulationOption", projectId, routeId, delta, direction_id),
   updateSimulationOption: (simulationOptions: SimulationOptionDao[]) => ipcRenderer.send("updateSimulationOption",simulationOptions),
 
 

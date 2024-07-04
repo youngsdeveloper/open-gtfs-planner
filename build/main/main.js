@@ -57,8 +57,8 @@ electron_1.ipcMain.on("downloadTripsByServices", (event, servicesId) => {
 electron_1.ipcMain.on("downloadStopByServices", (event, stopId, servicesId) => {
     downloadStopByServices(mainWindow, stopId, servicesId);
 });
-electron_1.ipcMain.on("saveSimulationOption", (event, projectId, routeId, delta) => {
-    saveSimulationOption(mainWindow, projectId, routeId, delta);
+electron_1.ipcMain.on("saveSimulationOption", (event, projectId, routeId, delta, direction_id) => {
+    saveSimulationOption(mainWindow, projectId, routeId, delta, direction_id);
 });
 electron_1.ipcMain.on("updateSimulationOption", (event, simulationOptions) => {
     updateSimulationOption(mainWindow, simulationOptions);

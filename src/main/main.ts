@@ -83,8 +83,8 @@ ipcMain.on("downloadStopByServices",(event, stopId, servicesId)=>{
 })
 
 
-ipcMain.on("saveSimulationOption",(event, projectId, routeId, delta)=>{
-  saveSimulationOption(mainWindow, projectId, routeId, delta)
+ipcMain.on("saveSimulationOption",(event, projectId, routeId, delta, direction_id)=>{
+  saveSimulationOption(mainWindow, projectId, routeId, delta, direction_id)
 })
 
 ipcMain.on("updateSimulationOption",(event, simulationOptions)=>{

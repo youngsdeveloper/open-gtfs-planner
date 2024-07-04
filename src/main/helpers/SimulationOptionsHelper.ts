@@ -11,7 +11,7 @@ class SimulationOptionsHelper{
     static middleware(simulationOptions:SimulationOptionDao[],trips: GtfsTripDao[]){
         for(const opt of simulationOptions.filter(opt => opt.active)){
 
-            const tripsAffected = trips.filter( t => t.route.id == opt.route_id);
+            const tripsAffected = trips.filter( t => t.route.id == opt.route_id).filter(t => t.direction_id == opt.direction_id);
 
             for(var j=0;j<tripsAffected.length;j++){
                 for(var k=0;k<tripsAffected[j].stopTimes.length;k++){
@@ -37,7 +37,7 @@ class SimulationOptionsHelper{
 
         for(const opt of simulationOptions.filter(opt => opt.active)){
 
-            const stopTimesAffected = stopTimes.filter(st => st.trip.route.id == opt.route_id)
+            const stopTimesAffected = stopTimes.filter(st => st.trip.route.id == opt.route_id).filter(st => st.trip.direction_id == opt.direction_id)
 
             for(var k=0;k<stopTimesAffected.length;k++){
 
