@@ -13,6 +13,7 @@ import { GtfsShape } from "./gtfsshape.model";
 import { GtfsStopTime } from "./gtfsstoptime.model";
 import { GtfsCalendar } from "./gtfscalendar.model";
 import { SimulationOptions } from "./simulationoptions.model";
+import { FusedStop } from "./fusedstop.model";
 
 const config = require('../config/config.js');
 
@@ -29,7 +30,7 @@ const sequelize = new Sequelize({
 
 sequelize.addModels([Project, GtfsFile, GtfsAgency,GtfsStop, GtfsRoute,
                      GtfsCalendarDates, GtfsTrip, GtfsShape, GtfsStopTime,
-                     GtfsCalendar, SimulationOptions]);
+                     GtfsCalendar, SimulationOptions,FusedStop]);
 
 
 // Habilitar claves foráneas

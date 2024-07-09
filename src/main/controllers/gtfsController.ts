@@ -21,6 +21,7 @@ import sequelize from "sequelize";
 import { GtfsStopTimeDao } from "../daos/GtfsStopTimeDao";
 import { SimulationOptions } from "../models/simulationoptions.model";
 import { ProjectDao } from "../daos/ProjectDao";
+import { FusedStop } from "../models/fusedstop.model";
 
 
 
@@ -63,6 +64,11 @@ async function downloadProject(window, idProject) {
                         model: GtfsRoute,
                     }
                 ]
+            },
+            
+            {
+                model: FusedStop,
+                separate: true
             }
         ]
     });

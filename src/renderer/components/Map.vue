@@ -10,6 +10,7 @@ import { PropType, defineComponent } from 'vue';
 
 
 import "leaflet/dist/leaflet.css"
+import { FusedStopDao } from '../../main/daos/FusedStopDao';
 </script>
 
 <template>
@@ -25,7 +26,6 @@ import "leaflet/dist/leaflet.css"
                 name="OpenStreetMap"
                 attribution="Creado con OpenStreetMap"
             ></l-tile-layer>
-
 
 
 
@@ -75,6 +75,27 @@ import "leaflet/dist/leaflet.css"
 
 
                 </template>
+            </template>
+
+
+
+            <!-- Fuxed Stops -->
+            <template v-for="stop in fusedStops" :key="stop.id" >
+
+            <l-marker
+                    :lat-lng="L.latLng(stop.getLatLng())"
+                    @click="panelSettings.stopSelected=stop_trip"
+                    >
+                    
+                <l-icon
+                        :icon-anchor="[12.5,20.5]"
+                        :icon-size="[25,41]"
+                        :icon-url="'/marker-icon-red.png'">
+                    </l-icon>
+
+            </l-marker>
+
+
             </template>
 
         </l-map>
@@ -144,6 +165,10 @@ export default defineComponent({
         },
         panelSettings: {
             type: Object,
+            required: true
+        },
+        fusedStops: {
+            type: Array as PropType<FusedStopDao[]>,
             required: true
         }
     },

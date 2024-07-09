@@ -273,7 +273,9 @@
                                             {{ stop.distance.toFixed(2) }} km
                                         </td>
                                         <td>
-                                            <button class="uk-button uk-button-danger uk-button-small">Fusionar</button>
+                                            <button class="uk-button uk-button-danger uk-button-small" v-on:click="saveFusedStop(panelSettings.stopSelected.id, stop.stop_id)">
+                                                Fusionar
+                                            </button>
 
                                         </td>
                                     </tr>
@@ -509,6 +511,10 @@ export default defineComponent({
                 UIkit.modal(this.$refs.modal_merge_stops).show();
 
             }
+        },
+        
+        saveFusedStop: function(stop1:Number,stop2:Number){
+            window.electronAPI.saveFusedStop(this.projectId, stop1,stop2)
         }
     },
     watch:{
@@ -528,6 +534,12 @@ export default defineComponent({
     mounted(){
         window.electronAPI.addListener("stops_near", (event, stops_near)=>{
             this.stops_near = stops_near;
+        })
+
+        window.electronAPI.addListener("end_creating_fused_stop", ()=>{
+            UIkit.modal(this.$refs.modal_merge_stops).hide();
+            UIkit.modal.alert("Paradas fusionadas correctamente.")
+
         })
     }
 

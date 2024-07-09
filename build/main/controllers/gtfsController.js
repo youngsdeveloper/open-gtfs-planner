@@ -25,6 +25,7 @@ const GtfsTripDao_1 = require("../daos/GtfsTripDao");
 const GtfsStopTimeDao_1 = require("../daos/GtfsStopTimeDao");
 const simulationoptions_model_1 = require("../models/simulationoptions.model");
 const ProjectDao_1 = require("../daos/ProjectDao");
+const fusedstop_model_1 = require("../models/fusedstop.model");
 function downloadProject(window, idProject) {
     return __awaiter(this, void 0, void 0, function* () {
         const [project, created] = yield project_model_1.Project.findOrCreate({
@@ -61,6 +62,10 @@ function downloadProject(window, idProject) {
                             model: gtfsroute_model_1.GtfsRoute,
                         }
                     ]
+                },
+                {
+                    model: fusedstop_model_1.FusedStop,
+                    separate: true
                 }
             ]
         });
