@@ -12,6 +12,9 @@ const { saveSimulationOption, updateSimulationOption } = require('./controllers/
 
 const { listGtfsFromNap, downloadGtfsFromNap } = require('./controllers/napController');
 
+const { getNearStops } = require('./controllers/stopController');
+
+
 import 'dotenv/config'
 
 import sequelize from "./models"
@@ -99,6 +102,11 @@ ipcMain.on("downloadGTFSListNap",(event)=>{
 
 ipcMain.on("downloadGTFSNap",(event, name,fileId)=>{
   downloadGtfsFromNap(mainWindow,name,fileId);
+})
+
+
+ipcMain.on("downloadGTFSNearStops",(event, lat, lng)=>{
+  getNearStops(mainWindow, {latitude: lat, longitude: lng})
 })
 
 

@@ -92,6 +92,10 @@
                     <a uk-toggle  :href="'#modal-review-transfers-'+panelSettings.stopSelected.id" style="margin-top: 20px;" class="uk-button uk-button-primary">
                         Revisar transbordos
                     </a>
+
+                    <a v-on:click="downloadNearStops()" class="uk-button uk-button-primary" style="margin-top:20px">
+                        Fusionar paradas
+                    </a>
                 </div>
 
                 <div v-bind:id="'modal-sync-schedules-' + panelSettings.stopSelected.id" class="uk-flex-top" uk-modal ref="modal_sync_schedules">
@@ -231,6 +235,59 @@
                     </div>
                 </div>
 
+                <div ref="modal_merge_stops" v-bind:id="'modal-merge-stops-' + panelSettings.stopSelected.id" class="uk-flex-top" uk-modal>
+                    <div class="uk-modal-dialog uk-modal-body uk-margin-auto-vertical">
+
+                        <button class="uk-modal-close-default" type="button" uk-close></button>
+
+
+
+                        <div v-if="stops_near">
+
+                            <div uk-alert>
+                                Elige una parada para realizar la fusión de paradas.
+                                <br/><br/>
+                                Una vez fusiones la parada, se incluirán las lineas y horarios de las dos paradas.
+                            </div>
+
+
+                            <table class="uk-table uk-table-hover uk-table-divider uk-table-small">
+                                <thead>
+                                    <tr>
+                                        <th>Parada</th>
+                                        <th>GTFS File</th>
+                                        <th>Distancia</th>
+                                        <th>Acciones</th>
+
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr v-for="stop in stops_near.filter(s => s.stop_id != panelSettings.stopSelected.id)">
+                                        <td>
+                                            {{ stop.stop_name }}
+                                        </td>
+                                        <td>
+                                            {{ stop.filename }}
+                                        </td>
+                                        <td>
+                                            {{ stop.distance.toFixed(2) }} km
+                                        </td>
+                                        <td>
+                                            <button class="uk-button uk-button-danger uk-button-small">Fusionar</button>
+
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                        <div v-else>
+                            <span uk-spinner="ratio: 3.5"></span>
+
+                        </div>
+
+                    </div>
+                </div>
+
 
 
 
@@ -312,7 +369,9 @@ export default defineComponent({
                 solution: null as ReviewTransfersSoluction[]|null,
                 minWaitTime: 5,
                 maxWaitTime: 15
-            }
+            },
+
+            stops_near: null
 
         }
     },
@@ -440,8 +499,16 @@ export default defineComponent({
         },
         storeOptimizationAsSimulationOption: function(){
             window.electronAPI.saveSimulationOption(this.projectId, this.optimizationSettings.solution?.lineMod!!, this.optimizationSettings.solution?.delta!!)
-            UIkit.modal(this.$refs.modal_sync_schedules).hide();
 
+        },
+
+        downloadNearStops: function(){
+            if(this.panelSettings.stopSelected){
+                window.electronAPI.downloadGTFSNearStops(this.panelSettings.stopSelected?.stop_lat, this.panelSettings.stopSelected?.stop_lon);
+
+                UIkit.modal(this.$refs.modal_merge_stops).show();
+
+            }
         }
     },
     watch:{
@@ -456,6 +523,12 @@ export default defineComponent({
         },
 
 
+    },
+
+    mounted(){
+        window.electronAPI.addListener("stops_near", (event, stops_near)=>{
+            this.stops_near = stops_near;
+        })
     }
 
 })

@@ -16,5 +16,6 @@ electron_1.contextBridge.exposeInMainWorld('electronAPI', {
     saveSimulationOption: (projectId, routeId, delta, direction_id) => electron_1.ipcRenderer.send("saveSimulationOption", projectId, routeId, delta, direction_id),
     updateSimulationOption: (simulationOptions) => electron_1.ipcRenderer.send("updateSimulationOption", simulationOptions),
     downloadGTFSListNap: () => electron_1.ipcRenderer.send("downloadGTFSListNap"),
-    downloadGTFSNap: (name, fileId) => electron_1.ipcRenderer.send("downloadGTFSNap", name, fileId)
+    downloadGTFSNap: (name, fileId) => electron_1.ipcRenderer.send("downloadGTFSNap", name, fileId),
+    downloadGTFSNearStops: (lat, lng) => electron_1.ipcRenderer.send("downloadGTFSNearStops", lat, lng)
 });

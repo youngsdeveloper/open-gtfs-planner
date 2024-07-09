@@ -137,6 +137,8 @@
                             <a class="uk-accordion-title">Paradas</a>
                             <div class="uk-accordion-content">
 
+
+
                                 <Stops
                                     :simulation-settings="simulationSettings"
                                     :panel-settings="panelSettings" />

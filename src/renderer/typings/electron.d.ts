@@ -27,6 +27,9 @@ export default interface ElectronApi {
 
   downloadGTFSListNap: () => void
   downloadGTFSNap: (name:String, fileId:Number) => void
+
+  downloadGTFSNearStops: (lat:Number, lng:Number) => void
+
 }
 
 declare global {

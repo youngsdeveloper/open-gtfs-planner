@@ -10,6 +10,7 @@ const { selectDirectory } = require('./controllers/gtfsImporterController');
 const { downloadProject, downloadShapesByRoute, deleteGTFS, downloadTripsByServices, downloadStopByServices } = require('./controllers/gtfsController');
 const { saveSimulationOption, updateSimulationOption } = require('./controllers/simulationOptionsController');
 const { listGtfsFromNap, downloadGtfsFromNap } = require('./controllers/napController');
+const { getNearStops } = require('./controllers/stopController');
 require("dotenv/config");
 const models_1 = __importDefault(require("./models"));
 let mainWindow;
@@ -68,5 +69,8 @@ electron_1.ipcMain.on("downloadGTFSListNap", (event) => {
 });
 electron_1.ipcMain.on("downloadGTFSNap", (event, name, fileId) => {
     downloadGtfsFromNap(mainWindow, name, fileId);
+});
+electron_1.ipcMain.on("downloadGTFSNearStops", (event, lat, lng) => {
+    getNearStops(mainWindow, { latitude: lat, longitude: lng });
 });
 electron_1.Menu.setApplicationMenu(buildMenu(mainWindow));
