@@ -18,11 +18,17 @@ contextBridge.exposeInMainWorld('electronAPI', {
   downloadTripsByServices: (servicesId:String[]) => ipcRenderer.send("downloadTripsByServices",servicesId),
   downloadStopByServices: (stopId:number, servicesId:String[]) => ipcRenderer.send("downloadStopByServices",stopId, servicesId),
 
-  saveSimulationOption: (projectId:Number, routeId: Number, delta: Number) => ipcRenderer.send("saveSimulationOption", projectId, routeId, delta),
+  saveSimulationOption: (projectId:Number, routeId: Number, delta: Number, direction_id: Number) => ipcRenderer.send("saveSimulationOption", projectId, routeId, delta, direction_id),
   updateSimulationOption: (simulationOptions: SimulationOptionDao[]) => ipcRenderer.send("updateSimulationOption",simulationOptions),
 
 
   downloadGTFSListNap: () => ipcRenderer.send("downloadGTFSListNap"),
-  downloadGTFSNap: (name:String, fileId:Number) => ipcRenderer.send("downloadGTFSNap",name, fileId)
+  downloadGTFSNap: (name:String, fileId:Number) => ipcRenderer.send("downloadGTFSNap",name, fileId),
+
+  downloadGTFSNearStops: (lat:Number, lng:Number) => ipcRenderer.send("downloadGTFSNearStops",lat, lng),
+
+
+  saveFusedStop: (projectId:Number, stop_1_id:Number, stop_2_id:Number) => ipcRenderer.send("saveFusedStop",projectId, stop_1_id, stop_2_id),
+  downloadStopFusedByServices: (stoFusedpId: Number, servicesId:String[]) => ipcRenderer.send("downloadStopFusedByServices",stoFusedpId, servicesId)
 
 })

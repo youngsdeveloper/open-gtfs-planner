@@ -8,9 +8,9 @@ import { PropType, defineComponent } from 'vue';
 
         <div class="uk-card uk-card-secondary uk-card-body">
         
-            <div v-for="simOption in simulationOptions">
+            <div v-for="simOption in simulationOptions" style="margin-top: 20px;">
                 <label><input class="uk-checkbox" type="checkbox" v-model="simOption.active">
-                    Modificado {{ simOption.route.getRouteName() }} en {{ simOption.delta }} minutos.
+                    Modificado {{ simOption.route.getRouteName() }} en sentido {{ simOption.getDirectionName() }} un total de {{ simOption.delta }} minutos.
                 </label>
             </div>
 
@@ -51,6 +51,16 @@ import { PropType, defineComponent } from 'vue';
                                 </select>
                             </div>
 
+
+                            <div class="uk-margin" v-if="route_selected">
+                                <label class="uk-form-label" for="form-stacked-select">Sentido</label>
+                                <div class="uk-form-controls">
+                                    <select class="uk-select" id="form-stacked-select" v-model="direction_id">
+                                        <option value="0">Ida</option>
+                                        <option value="1">Vuelta</option>
+                                    </select>
+                                </div>
+                            </div>
                             <div class="uk-margin" v-if="route_selected">
                                 <label class="uk-form-label" for="form-stacked-text">Modificación (minutos)</label>
                                 <div class="uk-form-controls">
@@ -102,13 +112,14 @@ export default defineComponent({
             gtfs_file_selected: this.gtfsFiles[0],
             agency_selected: null as GtfsAgencyDao|null,
             route_selected: null as GtfsRouteDao|null,
-            delta: 0
+            delta: 0,
+            direction_id: 0
         }
     },
 
     methods: {
         saveSimulationOpton: function(){
-            window.electronAPI.saveSimulationOption(this.projectId, this.route_selected?.id as number, this.delta)
+            window.electronAPI.saveSimulationOption(this.projectId, this.route_selected?.id as number, this.delta, this.direction_id)
             UIkit.modal(this.$refs.modal_save_option).hide();
             this.gtfs_file_selected = this.gtfsFiles[0];
             this.agency_selected = null;

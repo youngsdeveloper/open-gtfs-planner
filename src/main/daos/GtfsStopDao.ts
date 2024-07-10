@@ -1,3 +1,4 @@
+import { FusedStopDao } from "./FusedStopDao";
 import { GtfsStopTimeDao } from "./GtfsStopTimeDao";
 
 export class GtfsStopDao {
@@ -11,6 +12,8 @@ export class GtfsStopDao {
     stopTimes!: GtfsStopTimeDao[];
 
     originalStopTimes!: GtfsStopTimeDao[];
+
+    fusedStopDao: FusedStopDao|null = null;
 
     constructor(id:number,gtfs_stop_id: number, stop_name: string, stop_lat: number, stop_lon: number, agency_id: number) {
         this.id = id;
@@ -65,12 +68,12 @@ export class GtfsStopDao {
     }
     
     
-    getFrecMedianByRoute(route_id){
+    getFrecMedianByRoute(route_name){
         if(!this.stopTimes){
             return null;
         }
 
-        const stopTimesRoutes = this.stopTimes.filter(st => st.trip.route.id == route_id);
+        const stopTimesRoutes = this.stopTimes.filter(st => st.trip.route.getRouteName() == route_name);
 
         const diffs = GtfsStopTimeDao.getIntervalsArray(stopTimesRoutes);
 
@@ -94,6 +97,10 @@ export class GtfsStopDao {
         const data:GtfsStopDao[] = [];
         obj.forEach(s => data.push(this.fromObject(s)));
         return data;
+    }
+
+    static sort(a,b){
+        return parseInt(a.getRouteName()) - parseInt(b.getRouteName())
     }
 
 

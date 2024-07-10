@@ -50,15 +50,15 @@ export class GtfsRouteDao {
     static unique(routes: GtfsRouteDao[]){
         const uniques = [] as GtfsRouteDao[];
 
-        const idsSelected = [] as Number[];
+        const routesSelected = [] as String[];
         
         for(const r of routes){
 
-            
-            if(idsSelected.indexOf(r.id) == -1){
-                idsSelected.push(r.id as number);
+            if(!routesSelected.includes(r.getRouteName())){
+                routesSelected.push(r.getRouteName())
                 uniques.push(r)
             }
+            
         }
 
         return uniques;

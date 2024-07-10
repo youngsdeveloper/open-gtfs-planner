@@ -5,12 +5,15 @@ const { buildMenu } = require('./menu');
 const { createMainWindow } = require('./controllers/mainWindowController');
 
 const { selectDirectory } = require('./controllers/gtfsImporterController');
-const { downloadProject, downloadShapesByRoute, deleteGTFS, downloadTripsByServices, downloadStopByServices } = require('./controllers/gtfsController');
+const { downloadProject, downloadShapesByRoute, deleteGTFS, downloadTripsByServices, downloadStopByServices, downloadFusedStopByServices } = require('./controllers/gtfsController');
 
 
 const { saveSimulationOption, updateSimulationOption } = require('./controllers/simulationOptionsController');
 
 const { listGtfsFromNap, downloadGtfsFromNap } = require('./controllers/napController');
+
+const { getNearStops, saveFusedStop } = require('./controllers/stopController');
+
 
 import 'dotenv/config'
 
@@ -83,8 +86,8 @@ ipcMain.on("downloadStopByServices",(event, stopId, servicesId)=>{
 })
 
 
-ipcMain.on("saveSimulationOption",(event, projectId, routeId, delta)=>{
-  saveSimulationOption(mainWindow, projectId, routeId, delta)
+ipcMain.on("saveSimulationOption",(event, projectId, routeId, delta, direction_id)=>{
+  saveSimulationOption(mainWindow, projectId, routeId, delta, direction_id)
 })
 
 ipcMain.on("updateSimulationOption",(event, simulationOptions)=>{
@@ -99,6 +102,21 @@ ipcMain.on("downloadGTFSListNap",(event)=>{
 
 ipcMain.on("downloadGTFSNap",(event, name,fileId)=>{
   downloadGtfsFromNap(mainWindow,name,fileId);
+})
+
+
+ipcMain.on("downloadGTFSNearStops",(event, lat, lng)=>{
+  getNearStops(mainWindow, {latitude: lat, longitude: lng})
+})
+
+
+ipcMain.on("saveFusedStop",(event,projectId,stop1,stop2) => {
+  saveFusedStop(mainWindow, projectId,stop1, stop2)
+})
+
+
+ipcMain.on("downloadStopFusedByServices",(event,stopId, servicesId) => {
+  downloadFusedStopByServices(mainWindow, stopId, servicesId)
 })
 
 

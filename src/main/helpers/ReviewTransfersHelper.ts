@@ -23,10 +23,10 @@ class ReviewTransfersHelper{
         return sumIntervals/intervals.length;
 
     }
-    static reviewTransfers(stop:GtfsStopDao, from:Number,to:Number,min:Number, max:Number):ReviewTransfersSoluction[]{
+    static reviewTransfers(stop:GtfsStopDao, from:String,to:String,min:Number, max:Number):ReviewTransfersSoluction[]{
 
         const stopTimes = stop.stopTimes
-            .filter(st => [from,to].includes(st.trip.route.id))
+            .filter(st => [from,to].includes(st.trip.route.getRouteName()))
             .sort(GtfsStopTimeDao.sort)
 
 
@@ -36,7 +36,7 @@ class ReviewTransfersHelper{
 
         stopTimes.forEach( (st, index) => {
 
-            if(st.trip.route.id == to){
+            if(st.trip.route.getRouteName() == to){
                 //Si es destino, se puede transbordar con todos los de atras....
 
 
@@ -44,7 +44,7 @@ class ReviewTransfersHelper{
                     st: st,
                     previewStopTimes: stopTimes
                                                 .slice(lastAddedIndex,index)
-                                                .filter(st => st.trip.route.id == from)
+                                                .filter(st => st.trip.route.getRouteName() == from)
                                                 .filter(st2 => Math.abs(GtfsStopTimeDao.calculateIntervalInMinutes(st,st2)) >= (min as number))
                                                 .filter(st2 => Math.abs(GtfsStopTimeDao.calculateIntervalInMinutes(st,st2)) <= (max as number))
 

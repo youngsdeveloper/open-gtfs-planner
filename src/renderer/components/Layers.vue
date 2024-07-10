@@ -49,7 +49,7 @@
                                     <li v-for="agency in gtfs.agencies">
                                         <label><input class="uk-checkbox" type="checkbox"> {{ agency.name }}</label>
                                         <ul>
-                                            <li v-for="route in agency.routes">
+                                            <li v-for="route in agency.routes.sort( (a,b) => parseInt(a.getRouteName())-parseInt(b.getRouteName()) )">
                                                 <li>
                                                     <label>
                                                         <input @change="downloadShape(route)" class="uk-checkbox" v-model="route.visible" type="checkbox"> {{ route.getRouteName() }}

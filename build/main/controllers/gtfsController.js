@@ -25,6 +25,7 @@ const GtfsTripDao_1 = require("../daos/GtfsTripDao");
 const GtfsStopTimeDao_1 = require("../daos/GtfsStopTimeDao");
 const simulationoptions_model_1 = require("../models/simulationoptions.model");
 const ProjectDao_1 = require("../daos/ProjectDao");
+const fusedstop_model_1 = require("../models/fusedstop.model");
 function downloadProject(window, idProject) {
     return __awaiter(this, void 0, void 0, function* () {
         const [project, created] = yield project_model_1.Project.findOrCreate({
@@ -61,6 +62,10 @@ function downloadProject(window, idProject) {
                             model: gtfsroute_model_1.GtfsRoute,
                         }
                     ]
+                },
+                {
+                    model: fusedstop_model_1.FusedStop,
+                    separate: true
                 }
             ]
         });
@@ -180,10 +185,55 @@ function downloadStopByServices(window, stopId, servicesId) {
         window.webContents.send("stop_times_by_stop", GtfsStopTimeDao_1.GtfsStopTimeDao.fromObjectToArray(stopTimes));
     });
 }
+function downloadFusedStopByServices(window, fusedStopId, servicesId) {
+    return __awaiter(this, void 0, void 0, function* () {
+        const fusedStop = yield fusedstop_model_1.FusedStop.findByPk(fusedStopId);
+        if (!fusedStop) {
+            return;
+        }
+        const trips = yield gtfstrip_model_1.GtfsTrip.findAll({
+            attributes: ["id"],
+            where: {
+                service_id: {
+                    [sequelize_1.Op.in]: servicesId
+                }
+            }
+        });
+        const tripsId = trips.map(t => t.id);
+        const stopTimes = yield gtfsstoptime_model_1.GtfsStopTime.findAll({
+            where: {
+                trip_id: {
+                    [sequelize_1.Op.in]: tripsId
+                },
+                stop_id: {
+                    [sequelize_1.Op.in]: [fusedStop.stop_1_id, fusedStop.stop_2_id]
+                }
+            },
+            order: [
+                ["arrival_time", "ASC"]
+            ],
+            include: [
+                {
+                    model: gtfstrip_model_1.GtfsTrip,
+                    include: [
+                        gtfsroute_model_1.GtfsRoute
+                    ]
+                },
+                {
+                    model: gtfsstop_model_1.GtfsStop
+                }
+            ]
+        });
+        stopTimes.filter(st => st.stop_id == fusedStop.stop_1_id).forEach(st => st.trip.route.route_short_name = "1_" + st.trip.route.route_short_name);
+        stopTimes.filter(st => st.stop_id == fusedStop.stop_2_id).forEach(st => st.trip.route.route_short_name = "2_" + st.trip.route.route_short_name);
+        window.webContents.send("stop_times_by_stop", GtfsStopTimeDao_1.GtfsStopTimeDao.fromObjectToArray(stopTimes));
+    });
+}
 module.exports = {
     downloadProject,
     downloadShapesByRoute,
     deleteGTFS,
     downloadTripsByServices,
-    downloadStopByServices
+    downloadStopByServices,
+    downloadFusedStopByServices
 };

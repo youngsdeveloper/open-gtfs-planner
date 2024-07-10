@@ -33,7 +33,7 @@
 
                 <div class="route-boxes">
 
-                    <span v-bind:class="{'route-box-selected': routesSelected.indexOf(route.id)!=-1}" v-on:click="toggleRouteSelected(route.id)" class="route-box route-box-min" v-for="route in GtfsRouteDao.unique(panelSettings.stopSelected.stopTimes.map(st => st.trip.route))">
+                    <span v-bind:class="{'route-box-selected': routesSelected.indexOf(route.getRouteName())!=-1}" v-on:click="toggleRouteSelected(route.getRouteName())" class="route-box route-box-min" v-for="route in GtfsRouteDao.unique(panelSettings.stopSelected.stopTimes.map(st => st.trip.route)).sort(GtfsStopDao.sort)">
                         {{ route.getRouteName() }}
                     </span>
                 </div>
@@ -92,6 +92,10 @@
                     <a uk-toggle  :href="'#modal-review-transfers-'+panelSettings.stopSelected.id" style="margin-top: 20px;" class="uk-button uk-button-primary">
                         Revisar transbordos
                     </a>
+
+                    <a v-on:click="downloadNearStops()" class="uk-button uk-button-primary" style="margin-top:20px" v-if="panelSettings.stopSelected.fusedStopDao==null">
+                        Fusionar paradas
+                    </a>
                 </div>
 
                 <div v-bind:id="'modal-sync-schedules-' + panelSettings.stopSelected.id" class="uk-flex-top" uk-modal ref="modal_sync_schedules">
@@ -106,7 +110,7 @@
                         </div>
                         <div class="route-boxes">
 
-                            <span v-bind:class="{'route-box-selected': routesSelected.indexOf(route.id)!=-1}" v-on:click="toggleRouteSelected(route.id)" class="route-box route-box-min" v-for="route in GtfsRouteDao.unique(panelSettings.stopSelected.stopTimes.map(st => st.trip.route))">
+                            <span v-bind:class="{'route-box-selected': routesSelected.includes(route.getRouteName())}" v-on:click="toggleRouteSelected(route.getRouteName())" class="route-box route-box-min" v-for="route in GtfsRouteDao.unique(panelSettings.stopSelected.stopTimes.map(st => st.trip.route)).sort(GtfsStopDao.sort)">
                                 {{ route.getRouteName() }}
                             </span>
                         </div>
@@ -117,8 +121,8 @@
                         </div>
 
                         <div class="route-boxes">
-                            <template  v-for="route in GtfsRouteDao.unique(panelSettings.stopSelected.stopTimes.map(st => st.trip.route))">
-                                <span v-if="routesSelected.indexOf(route.id)!=-1" v-bind:class="{'route-box-selected': routesFixedSelected.indexOf(route.id)!=-1}" v-on:click="toggleRouteFixedSelected(route.id)" class="route-box route-box-min">
+                            <template  v-for="route in GtfsRouteDao.unique(panelSettings.stopSelected.stopTimes.map(st => st.trip.route)).sort(GtfsStopDao.sort)">
+                                <span v-if="routesSelected.includes(route.getRouteName())" v-bind:class="{'route-box-selected': routesFixedSelected.includes(route.getRouteName())}" v-on:click="toggleRouteFixedSelected(route.getRouteName())" class="route-box route-box-min">
                                     {{ route.getRouteName() }}
                                 </span>
                             </template>
@@ -165,7 +169,7 @@
                         </div>
                         <div class="route-boxes">
 
-                            <span v-bind:class="{'route-box-selected': reviewTransfer.from==route.id}" v-on:click="reviewTransfer.from=route.id" class="route-box route-box-min" v-for="route in GtfsRouteDao.unique(panelSettings.stopSelected.stopTimes.map(st => st.trip.route))">
+                            <span v-bind:class="{'route-box-selected': reviewTransfer.from==route.getRouteName()}" v-on:click="reviewTransfer.from=route.getRouteName()" class="route-box route-box-min" v-for="route in GtfsRouteDao.unique(panelSettings.stopSelected.stopTimes.map(st => st.trip.route)).sort(GtfsStopDao.sort)">
                                 {{ route.getRouteName() }}
                             </span>
                         </div>
@@ -176,7 +180,7 @@
                         </div>
 
                         <div class="route-boxes">
-                            <span v-bind:class="{'route-box-selected': reviewTransfer.to==route.id}" v-on:click="reviewTransfer.to=route.id" class="route-box route-box-min" v-for="route in GtfsRouteDao.unique(panelSettings.stopSelected.stopTimes.map(st => st.trip.route))">
+                            <span v-bind:class="{'route-box-selected': reviewTransfer.to==route.getRouteName()}" v-on:click="reviewTransfer.to=route.getRouteName()" class="route-box route-box-min" v-for="route in GtfsRouteDao.unique(panelSettings.stopSelected.stopTimes.map(st => st.trip.route)).sort(GtfsStopDao.sort)">
                                 {{ route.getRouteName() }}
                             </span>
                         </div>
@@ -231,6 +235,61 @@
                     </div>
                 </div>
 
+                <div ref="modal_merge_stops" v-bind:id="'modal-merge-stops-' + panelSettings.stopSelected.id" class="uk-flex-top" uk-modal>
+                    <div class="uk-modal-dialog uk-modal-body uk-margin-auto-vertical">
+
+                        <button class="uk-modal-close-default" type="button" uk-close></button>
+
+
+
+                        <div v-if="stops_near">
+
+                            <div uk-alert>
+                                Elige una parada para realizar la fusión de paradas.
+                                <br/><br/>
+                                Una vez fusiones la parada, se incluirán las lineas y horarios de las dos paradas.
+                            </div>
+
+
+                            <table class="uk-table uk-table-hover uk-table-divider uk-table-small">
+                                <thead>
+                                    <tr>
+                                        <th>Parada</th>
+                                        <th>GTFS File</th>
+                                        <th>Distancia</th>
+                                        <th>Acciones</th>
+
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr v-for="stop in stops_near.filter(s => s.stop_id != panelSettings.stopSelected.id)">
+                                        <td>
+                                            {{ stop.stop_name }}
+                                        </td>
+                                        <td>
+                                            {{ stop.filename }}
+                                        </td>
+                                        <td>
+                                            {{ stop.distance.toFixed(2) }} km
+                                        </td>
+                                        <td>
+                                            <button class="uk-button uk-button-danger uk-button-small" v-on:click="saveFusedStop(panelSettings.stopSelected.id, stop.stop_id)">
+                                                Fusionar
+                                            </button>
+
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                        <div v-else>
+                            <span uk-spinner="ratio: 3.5"></span>
+
+                        </div>
+
+                    </div>
+                </div>
+
 
 
 
@@ -270,6 +329,7 @@
 <script lang="ts">
 
 import { Chart as ChartJS, Title, Tooltip, Legend, BarElement, CategoryScale, LinearScale } from 'chart.js'
+import { GtfsStopDao } from '../../main/daos/GtfsStopDao';
 
 ChartJS.register(Title, Tooltip, Legend, BarElement, CategoryScale, LinearScale)
 
@@ -293,8 +353,8 @@ export default defineComponent({
     data: function(){
         return {
             moment: moment,
-            routesSelected: [] as Number[],
-            routesFixedSelected: [] as Number[],
+            routesSelected: [] as String[],
+            routesFixedSelected: [] as String[],
 
             optimizationSettings: {
                 solution: null as SyncSoluction|null
@@ -307,12 +367,14 @@ export default defineComponent({
             showAllStopTimes: false,
 
             reviewTransfer: {
-                from: null as Number|null,
-                to: null as Number|null,
+                from: null as String|null,
+                to: null as String|null,
                 solution: null as ReviewTransfersSoluction[]|null,
                 minWaitTime: 5,
                 maxWaitTime: 15
-            }
+            },
+
+            stops_near: null
 
         }
     },
@@ -331,7 +393,7 @@ export default defineComponent({
             
             if(this.routesSelected.length>0){
                 stimes =    stimes
-                                .filter(st => this.routesSelected.indexOf(st.trip.route.id)!=-1);
+                                .filter(st => this.routesSelected.includes(st.trip.route.getRouteName()));
             }
             
 
@@ -339,6 +401,10 @@ export default defineComponent({
         },
         serviceCoverage: function(){
             if(!this.panelSettings.stopSelected){
+                return "-";
+            }
+
+            if(this.panelSettings.stopSelected.stopTimes.length==0){
                 return "-";
             }
 
@@ -350,7 +416,7 @@ export default defineComponent({
                 return  `${A} - ${B}`;
             }else{
                 const stimes =  this.panelSettings.stopSelected.stopTimes
-                                .filter(st => this.routesSelected.indexOf(st.trip.route.id)!=-1);
+                                    .filter(st => this.routesSelected.includes(st.trip.route.getRouteName()));
 
                 const A = stimes[0].getArrivalTimeInHoursMins()
                 const B = stimes.at(-1)!!.getArrivalTimeInHoursMins()
@@ -368,7 +434,7 @@ export default defineComponent({
                 return this.panelSettings.stopSelected.stopTimes.length ;
             }else{
                 return this.panelSettings.stopSelected.stopTimes
-                                .filter(st => this.routesSelected.indexOf(st.trip.route.id)!=-1)
+                                .filter(st => this.routesSelected.includes(st.trip.route.getRouteName()))
                                 .length;
             }
         },
@@ -382,7 +448,7 @@ export default defineComponent({
             }
 
             var stopTimesByStop = this.panelSettings.stopSelected.stopTimes
-                                .filter(st => this.routesSelected.indexOf(st.trip.route.id)!=-1);
+                                .filter(st => this.routesSelected.includes(st.trip.route.getRouteName()));
 
             if(!this.showAllStopTimes){
                 stopTimesByStop = stopTimesByStop.filter(st => this.simulationSettings.datetimeSelected.getTime() <= st.getArrivalTimeInDate(this.simulationSettings.datetimeSelected).getTime());
@@ -394,16 +460,18 @@ export default defineComponent({
         }
     },
     methods: {
-        toggleRouteSelected(route:Number){
-            if(this.routesSelected.indexOf(route)!=-1){
+        toggleRouteSelected(route:String){
+
+            if(this.routesSelected.includes(route)){
                 this.routesSelected = this.routesSelected.filter(r => r != route)
             }else{
                 this.routesSelected.push(route)
             }
+
         },
-        toggleRouteFixedSelected(route:Number){
-            if(this.routesFixedSelected.indexOf(route)!=-1){
-                this.routesFixedSelected = this.routesFixedSelected.filter(r => r != route)
+        toggleRouteFixedSelected(route:String){
+            if(this.routesFixedSelected.includes(route)){
+                this.routesFixedSelected = this.routesSelected.filter(r => r != route)
             }else{
                 this.routesFixedSelected.push(route)
             }
@@ -415,8 +483,9 @@ export default defineComponent({
             }
 
             const opt = SyncScheduleHelper.syncShedules(this.panelSettings.stopSelected, this.routesSelected, this.routesFixedSelected)
-            const route = GtfsRouteDao.unique(this.panelSettings.stopSelected.stopTimes.map(st => st.trip.route)).filter(r => r.id == opt?.lineMod)[0];
+            const route = GtfsRouteDao.unique(this.panelSettings.stopSelected.stopTimes.map(st => st.trip.route)).filter(r => r.getRouteName() == opt?.lineMod)[0];
             opt.route = route;
+            console.log(opt)
 
             this.optimizationSettings.solution = opt;
         },
@@ -439,9 +508,21 @@ export default defineComponent({
                                                         )
         },
         storeOptimizationAsSimulationOption: function(){
-            window.electronAPI.saveSimulationOption(this.projectId, this.optimizationSettings.solution?.lineMod!!, this.optimizationSettings.solution?.delta!!)
-            UIkit.modal(this.$refs.modal_sync_schedules).hide();
+            //window.electronAPI.saveSimulationOption(this.projectId, this.optimizationSettings.solution?.lineMod!!, this.optimizationSettings.solution?.delta!!, 0)
 
+        },
+
+        downloadNearStops: function(){
+            if(this.panelSettings.stopSelected){
+                window.electronAPI.downloadGTFSNearStops(this.panelSettings.stopSelected?.stop_lat, this.panelSettings.stopSelected?.stop_lon);
+
+                UIkit.modal(this.$refs.modal_merge_stops).show();
+
+            }
+        },
+        
+        saveFusedStop: function(stop1:Number,stop2:Number){
+            window.electronAPI.saveFusedStop(this.projectId, stop1,stop2)
         }
     },
     watch:{
@@ -456,6 +537,18 @@ export default defineComponent({
         },
 
 
+    },
+
+    mounted(){
+        window.electronAPI.addListener("stops_near", (event, stops_near)=>{
+            this.stops_near = stops_near;
+        })
+
+        window.electronAPI.addListener("end_creating_fused_stop", ()=>{
+            UIkit.modal(this.$refs.modal_merge_stops).hide();
+            UIkit.modal.alert("Paradas fusionadas correctamente.")
+
+        })
     }
 
 })
@@ -490,7 +583,7 @@ export default defineComponent({
     }
 
     .route-box-min{
-        width: 25px;
+        width: 40px;
         font-size: 0.9em;
     }
 

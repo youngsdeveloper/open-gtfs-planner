@@ -22,11 +22,19 @@ export default interface ElectronApi {
   deleteGtfs: (gtfs_id:Number) => void,
   downloadTripsByServices: (servicesId:String[]) => void
   downloadStopByServices: (stopId: Number, servicesId:String[]) => void
-  saveSimulationOption: (projectId: Number,routeId: Number, delta: Number) => void
+  saveSimulationOption: (projectId: Number,routeId: Number, delta: Number, direction_id: Number) => void
   updateSimulationOption: (simulationOptions: SimulationOptionDao[]) => void
 
   downloadGTFSListNap: () => void
   downloadGTFSNap: (name:String, fileId:Number) => void
+
+  downloadGTFSNearStops: (lat:Number, lng:Number) => void
+
+  saveFusedStop: (projectId:Number, stop_1_id:Number, stop_2_id:Number) => void
+
+
+  downloadStopFusedByServices: (stoFusedpId: Number, servicesId:String[]) => void
+
 }
 
 declare global {

@@ -106,7 +106,8 @@
                             :trips_in_route="trips_in_route"
                             :simulation_settings="simulationSettings"
                             :visible-simulation-routes="visibleSimulationRoutes"
-                            :panel-settings="panelSettings"></Map>
+                            :panel-settings="panelSettings"
+                            :fusedStops="fusedStops"></Map>
                 </div>
                 
 
@@ -137,9 +138,12 @@
                             <a class="uk-accordion-title">Paradas</a>
                             <div class="uk-accordion-content">
 
+
+
                                 <Stops
                                     :simulation-settings="simulationSettings"
-                                    :panel-settings="panelSettings" />
+                                    :panel-settings="panelSettings"
+                                    :project-id="project_id" />
 
 
 
@@ -178,6 +182,7 @@ import { GtfsStopTimeDao } from '../main/daos/GtfsStopTimeDao'
 import { ProjectDao } from '../main/daos/ProjectDao'
 import { SimulationOptionDao } from '../main/daos/SimulationOptionDao'
 import { PanelSettings } from '../main/daos/PanelSettings'
+import { FusedStopDao } from '../main/daos/FusedStopDao'
 
 export default {
   data() {
@@ -202,7 +207,9 @@ export default {
 
       } as PanelSettings,
 
-      simulationOptions: [] as SimulationOptionDao[]
+      simulationOptions: [] as SimulationOptionDao[],
+      fusedStops: [] as FusedStopDao[]
+
 
     };
   },
@@ -232,7 +239,16 @@ export default {
     "panelSettings.stopSelected": function(){
         const servicesId = this.services.map( s => s.service_id);
 
-        window.electronAPI.downloadStopByServices(this.panelSettings.stopSelected?.id!!, servicesId)
+        if(this.panelSettings.stopSelected){
+            if(!this.panelSettings.stopSelected.fusedStopDao){
+                // Es una parada normal
+                window.electronAPI.downloadStopByServices(this.panelSettings.stopSelected.id, servicesId)
+            }
+            else{
+                // Es una Fused Stop
+                window.electronAPI.downloadStopFusedByServices(this.panelSettings.stopSelected.fusedStopDao.id, servicesId)
+            }
+        }
     },
 
     simulationOptions: {
@@ -276,12 +292,19 @@ export default {
         ctx.gtfs_files = project_.gtfsFiles
         ctx.simulationOptions = project_.simulationOptions
         ctx.project_id = project_.id as number;
+        ctx.simulationOptions = project_.simulationOptions
+        ctx.fusedStops = project_.fusedStops
+
     })
 
     window.electronAPI.addListener("new_simulation_option", (event, simOpt:SimulationOptionDao)=>{
 
         ctx.simulationOptions.push(SimulationOptionDao.fromObject(simOpt))
     });
+
+    window.electronAPI.addListener("new_fused_stop", (event, fusedStop: FusedStopDao)=>{
+        ctx.fusedStops.push(FusedStopDao.fromObject(fusedStop))
+    })
 
 
     window.electronAPI.onLoadedGtfs((event, gtfs:GtfsDao) => {
@@ -331,6 +354,8 @@ export default {
             ctx.panelSettings.stopSelected.stopTimes = stopTimesStop
         }
     })
+
+    
 
     window.electronAPI.addListener("trips_by_service", (event, trips:GtfsTripDao[])=>{
         

@@ -149,6 +149,12 @@ export class GtfsTripDao {
 
 
     static fromObject(obj: any): GtfsTripDao {
+
+        var r = GtfsRouteDao.fromObject(obj.route);
+
+        if(r==null){
+            console.log("NULL el TRIP: " + obj.id)
+        }
         
         const tripDAO = new GtfsTripDao(obj.id, obj.service_id, obj.trip_id, obj.trip_headsign, obj.direction_id,
             obj.block_id, obj.shape_id, GtfsRouteDao.fromObject(obj.route)
@@ -162,6 +168,7 @@ export class GtfsTripDao {
 
     static fromObjectToArray(obj: any): GtfsTripDao[] {
         const data:GtfsTripDao[] = [];
+        
         obj.forEach(s => data.push(this.fromObject(s)));
         return data;
     }
