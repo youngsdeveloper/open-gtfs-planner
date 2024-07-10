@@ -4,6 +4,7 @@ exports.GtfsStopDao = void 0;
 const GtfsStopTimeDao_1 = require("./GtfsStopTimeDao");
 class GtfsStopDao {
     constructor(id, gtfs_stop_id, stop_name, stop_lat, stop_lon, agency_id) {
+        this.fusedStopDao = null;
         this.id = id;
         this.gtfs_stop_id = gtfs_stop_id;
         this.stop_name = stop_name;
@@ -42,11 +43,11 @@ class GtfsStopDao {
             return array[middle];
         }
     }
-    getFrecMedianByRoute(route_id) {
+    getFrecMedianByRoute(route_name) {
         if (!this.stopTimes) {
             return null;
         }
-        const stopTimesRoutes = this.stopTimes.filter(st => st.trip.route.id == route_id);
+        const stopTimesRoutes = this.stopTimes.filter(st => st.trip.route.getRouteName() == route_name);
         const diffs = GtfsStopTimeDao_1.GtfsStopTimeDao.getIntervalsArray(stopTimesRoutes);
         return this.median(diffs);
     }
@@ -66,6 +67,9 @@ class GtfsStopDao {
         const data = [];
         obj.forEach(s => data.push(this.fromObject(s)));
         return data;
+    }
+    static sort(a, b) {
+        return parseInt(a.getRouteName()) - parseInt(b.getRouteName());
     }
 }
 exports.GtfsStopDao = GtfsStopDao;

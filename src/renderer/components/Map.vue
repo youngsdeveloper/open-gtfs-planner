@@ -84,7 +84,7 @@ import { FusedStopDao } from '../../main/daos/FusedStopDao';
 
             <l-marker
                     :lat-lng="L.latLng(stop.getLatLng())"
-                    @click="panelSettings.stopSelected=stop_trip"
+                    @click="panelSettings.stopSelected=stop.toGtfsStop()"
                     >
                     
                 <l-icon

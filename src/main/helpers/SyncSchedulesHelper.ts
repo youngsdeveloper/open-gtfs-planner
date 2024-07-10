@@ -23,10 +23,10 @@ class SyncScheduleHelper{
         //Math.abs(avg-this.median(diffs));
     }
     
-    static syncShedules(stop:GtfsStopDao, routesSelected:Number[], routesFixed:Number[]):SyncSoluction{
+    static syncShedules(stop:GtfsStopDao, routesSelected:String[], routesFixed:String[]):SyncSoluction{
 
         const stoptimes = stop.stopTimes
-            .filter(st => routesSelected.indexOf(st.trip.route.id)!=-1)
+            .filter(st => routesSelected.includes(st.trip.route.getRouteName()))
             .sort( st => st.getArrivalTimeInDate(new Date()).getTime())
             
        
@@ -37,7 +37,7 @@ class SyncScheduleHelper{
         var minTarget = originalTarget;
         var minSolution = 0;
         var minStopTimes = stoptimes;
-        var minRoute = 0;
+        var minRoute = "" as String;
 
         var threeshold = 0;
         for(const r of routesSelected){
@@ -52,13 +52,16 @@ class SyncScheduleHelper{
         
         for(const r of routesSelected.filter(r2 => !routesFixed.includes(r2) )){
             
+            console.log(r);
+
             for (let delta = -1*threeshold; delta <= threeshold; delta++) {
             
+                console.log(delta);
                 const stopTimesToUpdate = GtfsStopTimeDao.fromObjectToArray(stoptimes);
     
                 stopTimesToUpdate.forEach((st,index) => {
     
-                    if(st.trip.route.id == r){
+                    if(st.trip.route.getRouteName() == r){
                         const newTime = moment(st.getArrivalTimeInDate(new Date())).add(delta,"minutes");
                         st.arrival_time = newTime.format("HH:mm:ss")
                         st.departure_time = newTime.format("HH:mm:ss");
@@ -75,7 +78,7 @@ class SyncScheduleHelper{
                     minTarget = target;
                     minSolution = delta;
                     minStopTimes = stopTimesToUpdate;
-                    minRoute = r as number;
+                    minRoute = r;
                 }
     
             }
@@ -95,7 +98,7 @@ class SyncScheduleHelper{
 }
 
 class SyncSoluction{
-    lineMod!: Number;
+    lineMod!: String;
     delta!: Number;
     avgFrec!: Number;
     route!: GtfsRouteDao|null;

@@ -7,7 +7,7 @@ const electron_1 = require("electron");
 const { buildMenu } = require('./menu');
 const { createMainWindow } = require('./controllers/mainWindowController');
 const { selectDirectory } = require('./controllers/gtfsImporterController');
-const { downloadProject, downloadShapesByRoute, deleteGTFS, downloadTripsByServices, downloadStopByServices } = require('./controllers/gtfsController');
+const { downloadProject, downloadShapesByRoute, deleteGTFS, downloadTripsByServices, downloadStopByServices, downloadFusedStopByServices } = require('./controllers/gtfsController');
 const { saveSimulationOption, updateSimulationOption } = require('./controllers/simulationOptionsController');
 const { listGtfsFromNap, downloadGtfsFromNap } = require('./controllers/napController');
 const { getNearStops, saveFusedStop } = require('./controllers/stopController');
@@ -75,5 +75,8 @@ electron_1.ipcMain.on("downloadGTFSNearStops", (event, lat, lng) => {
 });
 electron_1.ipcMain.on("saveFusedStop", (event, projectId, stop1, stop2) => {
     saveFusedStop(mainWindow, projectId, stop1, stop2);
+});
+electron_1.ipcMain.on("downloadStopFusedByServices", (event, stopId, servicesId) => {
+    downloadFusedStopByServices(mainWindow, stopId, servicesId);
 });
 electron_1.Menu.setApplicationMenu(buildMenu(mainWindow));

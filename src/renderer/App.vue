@@ -239,7 +239,16 @@ export default {
     "panelSettings.stopSelected": function(){
         const servicesId = this.services.map( s => s.service_id);
 
-        window.electronAPI.downloadStopByServices(this.panelSettings.stopSelected?.id!!, servicesId)
+        if(this.panelSettings.stopSelected){
+            if(!this.panelSettings.stopSelected.fusedStopDao){
+                // Es una parada normal
+                window.electronAPI.downloadStopByServices(this.panelSettings.stopSelected.id, servicesId)
+            }
+            else{
+                // Es una Fused Stop
+                window.electronAPI.downloadStopFusedByServices(this.panelSettings.stopSelected.fusedStopDao.id, servicesId)
+            }
+        }
     },
 
     simulationOptions: {
@@ -345,6 +354,8 @@ export default {
             ctx.panelSettings.stopSelected.stopTimes = stopTimesStop
         }
     })
+
+    
 
     window.electronAPI.addListener("trips_by_service", (event, trips:GtfsTripDao[])=>{
         

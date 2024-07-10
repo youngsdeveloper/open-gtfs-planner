@@ -5,7 +5,7 @@ const { buildMenu } = require('./menu');
 const { createMainWindow } = require('./controllers/mainWindowController');
 
 const { selectDirectory } = require('./controllers/gtfsImporterController');
-const { downloadProject, downloadShapesByRoute, deleteGTFS, downloadTripsByServices, downloadStopByServices } = require('./controllers/gtfsController');
+const { downloadProject, downloadShapesByRoute, deleteGTFS, downloadTripsByServices, downloadStopByServices, downloadFusedStopByServices } = require('./controllers/gtfsController');
 
 
 const { saveSimulationOption, updateSimulationOption } = require('./controllers/simulationOptionsController');
@@ -113,6 +113,12 @@ ipcMain.on("downloadGTFSNearStops",(event, lat, lng)=>{
 ipcMain.on("saveFusedStop",(event,projectId,stop1,stop2) => {
   saveFusedStop(mainWindow, projectId,stop1, stop2)
 })
+
+
+ipcMain.on("downloadStopFusedByServices",(event,stopId, servicesId) => {
+  downloadFusedStopByServices(mainWindow, stopId, servicesId)
+})
+
 
 Menu.setApplicationMenu(buildMenu(mainWindow))
 

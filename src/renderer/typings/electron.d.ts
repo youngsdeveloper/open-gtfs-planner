@@ -31,6 +31,10 @@ export default interface ElectronApi {
   downloadGTFSNearStops: (lat:Number, lng:Number) => void
 
   saveFusedStop: (projectId:Number, stop_1_id:Number, stop_2_id:Number) => void
+
+
+  downloadStopFusedByServices: (stoFusedpId: Number, servicesId:String[]) => void
+
 }
 
 declare global {

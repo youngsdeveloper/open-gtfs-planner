@@ -28,6 +28,7 @@ contextBridge.exposeInMainWorld('electronAPI', {
   downloadGTFSNearStops: (lat:Number, lng:Number) => ipcRenderer.send("downloadGTFSNearStops",lat, lng),
 
 
-  saveFusedStop: (projectId:Number, stop_1_id:Number, stop_2_id:Number) => ipcRenderer.send("saveFusedStop",projectId, stop_1_id, stop_2_id)
+  saveFusedStop: (projectId:Number, stop_1_id:Number, stop_2_id:Number) => ipcRenderer.send("saveFusedStop",projectId, stop_1_id, stop_2_id),
+  downloadStopFusedByServices: (stoFusedpId: Number, servicesId:String[]) => ipcRenderer.send("downloadStopFusedByServices",stoFusedpId, servicesId)
 
 })

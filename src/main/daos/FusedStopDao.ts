@@ -34,8 +34,16 @@ export class FusedStopDao {
 
     static fromObjectToArray(obj: any): FusedStopDao[] {
         const data:FusedStopDao[] = [];
-        obj.forEach(s => data.push(this.fromObject(s)));
+        if(obj){
+            obj.forEach(s => data.push(this.fromObject(s)));
+        }
         return data;
+    }
+
+    toGtfsStop(){
+        const stopDAO = new GtfsStopDao(this.id*(-1),-1,this.stop_name, this.stop_lat, this.stop_lon, -1);
+        stopDAO.fusedStopDao = this;
+        return stopDAO;
     }
 
 

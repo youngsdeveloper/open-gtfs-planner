@@ -214,10 +214,61 @@ async function downloadStopByServices(window, stopId, servicesId){
     window.webContents.send("stop_times_by_stop", GtfsStopTimeDao.fromObjectToArray(stopTimes));
 }
 
+async function downloadFusedStopByServices(window, fusedStopId, servicesId){
+
+
+    const fusedStop = await FusedStop.findByPk(fusedStopId);
+    if(!fusedStop){
+        return;
+    }
+
+    const trips = await GtfsTrip.findAll({
+        attributes: ["id"],
+        where: {
+            service_id: {
+                [Op.in]: servicesId
+            }
+        }
+    });
+
+    const tripsId = trips.map(t => t.id);
+
+    const stopTimes = await GtfsStopTime.findAll({
+        where: {
+            trip_id: {
+                [Op.in]: tripsId
+            },
+            stop_id: {
+                [Op.in]: [fusedStop.stop_1_id, fusedStop.stop_2_id]
+            }
+        },
+        order: [
+            ["arrival_time","ASC"]
+        ],
+        include: [
+            {
+                model: GtfsTrip,
+                include: [
+                    GtfsRoute
+                ]
+            },
+            {
+                model: GtfsStop
+            }
+        ]
+    });
+
+    stopTimes.filter(st => st.stop_id == fusedStop.stop_1_id).forEach(st => st.trip.route.route_short_name =  "1_" + st.trip.route.route_short_name)
+    stopTimes.filter(st => st.stop_id == fusedStop.stop_2_id).forEach(st => st.trip.route.route_short_name =  "2_" + st.trip.route.route_short_name)
+
+    window.webContents.send("stop_times_by_stop", GtfsStopTimeDao.fromObjectToArray(stopTimes));
+}
+
 module.exports = {
     downloadProject,
     downloadShapesByRoute,
     deleteGTFS,
     downloadTripsByServices,
-    downloadStopByServices
+    downloadStopByServices,
+    downloadFusedStopByServices
 };
