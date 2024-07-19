@@ -12,7 +12,7 @@ const { saveSimulationOption, updateSimulationOption } = require('./controllers/
 
 const { listGtfsFromNap, downloadGtfsFromNap } = require('./controllers/napController');
 
-const { getNearStops, saveFusedStop } = require('./controllers/stopController');
+const { getNearStops, saveFusedStop, downloadStopsByRoute } = require('./controllers/stopController');
 
 
 import 'dotenv/config'
@@ -118,6 +118,14 @@ ipcMain.on("saveFusedStop",(event,projectId,stop1,stop2) => {
 ipcMain.on("downloadStopFusedByServices",(event,stopId, servicesId) => {
   downloadFusedStopByServices(mainWindow, stopId, servicesId)
 })
+
+ipcMain.on("downloadStopsByRoute",(event,routeId, services) => {
+  console.log(routeId);
+
+  console.log(services);
+  downloadStopsByRoute(mainWindow, routeId, services)
+})
+
 
 
 Menu.setApplicationMenu(buildMenu(mainWindow))

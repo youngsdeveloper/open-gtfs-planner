@@ -103,5 +103,17 @@ export class GtfsStopDao {
         return parseInt(a.getRouteName()) - parseInt(b.getRouteName())
     }
 
+    static unique(stops:GtfsStopDao[]):GtfsStopDao[]{
+        var added = [] as number[];
+        var stopsAdded = [] as GtfsStopDao[];
+        stops.forEach( s => {
+            if(!added.includes(s.id)){
+                added.push(s.id);
+                stopsAdded.push(s);
+            }
+        })
+        return stopsAdded;
+    }
+
 
 }

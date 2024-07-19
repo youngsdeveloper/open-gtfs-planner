@@ -29,6 +29,8 @@ contextBridge.exposeInMainWorld('electronAPI', {
 
 
   saveFusedStop: (projectId:Number, stop_1_id:Number, stop_2_id:Number) => ipcRenderer.send("saveFusedStop",projectId, stop_1_id, stop_2_id),
-  downloadStopFusedByServices: (stoFusedpId: Number, servicesId:String[]) => ipcRenderer.send("downloadStopFusedByServices",stoFusedpId, servicesId)
+  downloadStopFusedByServices: (stoFusedpId: Number, servicesId:String[]) => ipcRenderer.send("downloadStopFusedByServices",stoFusedpId, servicesId),
+
+  downloadStopsByRoute: (route_id: Number, servicesId:String[]) => ipcRenderer.send("downloadStopsByRoute", route_id, servicesId)
 
 })

@@ -1,9 +1,12 @@
+import { Op } from "sequelize";
 import { FusedStopDao } from "../daos/FusedStopDao";
 import { GtfsStopDao } from "../daos/GtfsStopDao";
 import { InterpolationHelper } from "../helpers/InterpolationHelper";
 import sequelize from "../models";
 import { FusedStop } from "../models/fusedstop.model";
 import { GtfsStop } from "../models/gtfsstop.model";
+import { GtfsTrip } from "../models/gtfstrip.model";
+import { GtfsStopTime } from "../models/gtfsstoptime.model";
 
 
 
@@ -64,7 +67,46 @@ async function saveFusedStop(window, projectId, stop1_id, stop2_id){
 
 }
 
+
+async function downloadStopsByRoute(window, routeId, services){
+
+  const trips = await GtfsTrip.findAll({
+    attributes: ["id"],
+    where: {
+            service_id: {
+                [Op.in]: services
+            },
+            route_id: routeId
+        }
+    });
+
+    const tripsId = trips.map(t => t.id);
+
+    const stopTimes = await GtfsStopTime.findAll({
+        
+        where: {
+            trip_id: {
+                [Op.in]: tripsId
+            },
+        },
+        include: [
+            {
+                model: GtfsStop
+            }
+        ]
+    });
+
+    const stops = GtfsStopDao.unique(stopTimes.map(st => GtfsStopDao.fromObject(st.stop)));
+
+    window.webContents.send("loaded_stop_route", {
+      route: routeId,
+      stops: stops
+    })
+  
+}
+
 module.exports = {
     getNearStops,
-    saveFusedStop
+    saveFusedStop,
+    downloadStopsByRoute
   };

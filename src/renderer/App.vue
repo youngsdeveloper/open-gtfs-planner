@@ -31,7 +31,7 @@
 
                     <img src="/logo.svg" alt="logo OpenGTFSPlanner">
                     
-                    <Layers :gtfs_files="gtfs_files" v-show="!loading_widgets" />
+                    <Layers :gtfs_files="gtfs_files" v-show="!loading_widgets" :services="services" />
                     <div v-show="loading_widgets" class="loading-widget">
                         <span uk-spinner="ratio: 3.5"></span>
                     </div>
@@ -355,6 +355,16 @@ export default {
         }
     })
 
+    window.electronAPI.addListener("loaded_stop_route", (event, data) => {
+
+
+        const route = ctx.gtfs_files.flatMap(f => f.agencies).flatMap(a => a.routes).filter(r => r.id == data.route).at(0);
+        if(route){
+            route.stops = GtfsStopDao.fromObjectToArray(data.stops);
+        }
+        console.log(route);
+
+    })
     
 
     window.electronAPI.addListener("trips_by_service", (event, trips:GtfsTripDao[])=>{
@@ -382,6 +392,7 @@ export default {
         },4000); // 3s loading
 
     });
+
   },
 
   methods: {

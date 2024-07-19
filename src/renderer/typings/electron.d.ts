@@ -35,6 +35,8 @@ export default interface ElectronApi {
 
   downloadStopFusedByServices: (stoFusedpId: Number, servicesId:String[]) => void
 
+  downloadStopsByRoute: (route_id: Number, servicesId:String[]) => void
+
 }
 
 declare global {

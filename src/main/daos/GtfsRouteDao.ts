@@ -1,4 +1,5 @@
 import { GtfsShapeDao } from "./GtfsShapeDao";
+import { GtfsStopDao } from "./GtfsStopDao";
 
 export class GtfsRouteDao {
 
@@ -10,6 +11,7 @@ export class GtfsRouteDao {
     agency_id: Number
 
     shapes: GtfsShapeDao[] = [] as GtfsShapeDao[]
+    stops: GtfsStopDao[] = [] as GtfsStopDao[]
 
     stopsVisible: boolean = false;
     simulationVisible: boolean = false;

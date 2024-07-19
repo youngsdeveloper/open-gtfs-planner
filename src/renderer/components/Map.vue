@@ -49,6 +49,8 @@ import { FusedStopDao } from '../../main/daos/FusedStopDao';
 
                 </l-marker>
 
+                <!--
+
                 <template v-if="visibleStopsRoutes.includes(trip.route.id)">
                     <l-marker v-for="stop_trip in trip.stopTimes.flatMap(st => st.stop)"
                             :lat-lng="L.latLng(stop_trip.getLatLng())"
@@ -56,6 +58,26 @@ import { FusedStopDao } from '../../main/daos/FusedStopDao';
                             :key="stop_trip.id" />
                 </template>
 
+                -->
+
+            </template>
+
+            <!-- Paradas -->
+
+            <template v-for="gtfs_file in gtfs_files.filter( g => g.stopsVisible)">
+                <l-marker v-for="stop in gtfs_file.stops"
+                        :lat-lng="L.latLng(stop.getLatLng())"
+                        @click="panelSettings.stopSelected=stop"
+                        :key="stop.id" />
+            </template>
+
+            <template v-for="route in gtfs_files.flatMap(file => file.agencies).flatMap(a => a.routes).filter( r => r.stopsVisible)">
+                
+                
+                    <l-marker v-for="stop in route.stops" v-if="route.stops"
+                        :lat-lng="L.latLng(stop.getLatLng())"
+                        @click="panelSettings.stopSelected=stop"
+                        :key="stop.id" />
             </template>
             
 
@@ -79,7 +101,7 @@ import { FusedStopDao } from '../../main/daos/FusedStopDao';
 
 
 
-            <!-- Fuxed Stops -->
+            <!-- Fused Stops -->
             <template v-for="stop in fusedStops" :key="stop.id" >
 
             <l-marker
@@ -234,10 +256,6 @@ export default defineComponent({
                     this.panelSettings.stopSelected = null;
                 }
             }
-            
-
-            
-            
         },
 
     },

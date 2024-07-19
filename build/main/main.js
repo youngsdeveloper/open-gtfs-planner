@@ -10,7 +10,7 @@ const { selectDirectory } = require('./controllers/gtfsImporterController');
 const { downloadProject, downloadShapesByRoute, deleteGTFS, downloadTripsByServices, downloadStopByServices, downloadFusedStopByServices } = require('./controllers/gtfsController');
 const { saveSimulationOption, updateSimulationOption } = require('./controllers/simulationOptionsController');
 const { listGtfsFromNap, downloadGtfsFromNap } = require('./controllers/napController');
-const { getNearStops, saveFusedStop } = require('./controllers/stopController');
+const { getNearStops, saveFusedStop, downloadStopsByRoute } = require('./controllers/stopController');
 require("dotenv/config");
 const models_1 = __importDefault(require("./models"));
 let mainWindow;
@@ -78,5 +78,10 @@ electron_1.ipcMain.on("saveFusedStop", (event, projectId, stop1, stop2) => {
 });
 electron_1.ipcMain.on("downloadStopFusedByServices", (event, stopId, servicesId) => {
     downloadFusedStopByServices(mainWindow, stopId, servicesId);
+});
+electron_1.ipcMain.on("downloadStopsByRoute", (event, routeId, services) => {
+    console.log(routeId);
+    console.log(services);
+    downloadStopsByRoute(mainWindow, routeId, services);
 });
 electron_1.Menu.setApplicationMenu(buildMenu(mainWindow));

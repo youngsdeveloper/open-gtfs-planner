@@ -71,5 +71,16 @@ class GtfsStopDao {
     static sort(a, b) {
         return parseInt(a.getRouteName()) - parseInt(b.getRouteName());
     }
+    static unique(stops) {
+        var added = [];
+        var stopsAdded = [];
+        stops.forEach(s => {
+            if (!added.includes(s.id)) {
+                added.push(s.id);
+                stopsAdded.push(s);
+            }
+        });
+        return stopsAdded;
+    }
 }
 exports.GtfsStopDao = GtfsStopDao;

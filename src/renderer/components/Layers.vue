@@ -56,7 +56,7 @@
                                                     </label>
                                                     <ul style="margin-top: 0; margin-bottom: 0;">
                                                         <li>
-                                                            <label><input class="uk-checkbox" type="checkbox" v-model="route.stopsVisible"> Paradas </label>
+                                                            <label><input @change="downloadStopsByRoute(route)"  class="uk-checkbox" type="checkbox" v-model="route.stopsVisible"> Paradas </label>
                                                         </li>
                                                         <li>
                                                             <label><input class="uk-checkbox" type="checkbox" v-model="route.simulationVisible"> Simulación </label>
@@ -197,9 +197,10 @@
 </template>
 
 
-<script>
+<script lang="ts">
 import { GtfsDao } from '../../main/daos/GtfsDao';
 import { toRaw } from '@vue/reactivity';
+import { PropType } from 'vue';
 
 export default{
 
@@ -217,6 +218,12 @@ export default{
     props:{
         gtfs_files: {
             type: Array,
+            required: true
+        },
+
+        services: {
+            type: Array as PropType<GtfsServiceDao[]>,
+            required: true
         }
     },
 
@@ -248,6 +255,16 @@ export default{
             if(route.visible && route.shapes.length==0){
                 window.electronAPI.downloadShapesByRoute(route.id);
             }
+        },
+
+        downloadStopsByRoute: function(route){
+
+            if(route.stops.length==0){
+                const servicesId = this.services.map( s => s.service_id);
+                window.electronAPI.downloadStopsByRoute(route.id, servicesId);
+
+            }
+
         },
         eliminarGTFS: function(gtfs){
             UIkit.modal.confirm(`Estas a punto de eliminar el GTFS ${gtfs.filename}. Esta acción es irreversible. ¿Estás seguro?`).then(function() {
