@@ -23,10 +23,11 @@ class ReviewTransfersHelper{
         return sumIntervals/intervals.length;
 
     }
-    static reviewTransfers(stop:GtfsStopDao, from:String,to:String,min:Number, max:Number):ReviewTransfersSoluction[]{
+    static reviewTransfers(stop:GtfsStopDao, from:String,to:String,min:Number, max:Number, headlinesSelected: String[]):ReviewTransfersSoluction[]{
 
         const stopTimes = stop.stopTimes
             .filter(st => [from,to].includes(st.trip.route.getRouteName()))
+            .filter(st => headlinesSelected.includes(st.getHeadsign()))
             .sort(GtfsStopTimeDao.sort)
 
 

@@ -9,8 +9,11 @@
                 <thead>
                     <tr>
                         <th>Linea</th>
+                        <th>
+                            Headsign
+                        </th>
                         <th>Hora</th>
-                        <th>Intervalo</th>
+                        <th>Inter.</th>
 
                     </tr>
                 </thead>
@@ -19,6 +22,13 @@
                         <td style="font-size: 0.85em;">
                             <span class="route-box">
                                 {{ stopTime.trip.route.getRouteName() }}
+                            </span>
+
+                        </td>
+                        <td style="font-size: 0.75em; padding-top:17.5px;">
+
+                            <span>
+                                {{ stopTime.getHeadsign() }}
                             </span>
                         </td>
                         <td style="font-size: 1em; padding-top:15px;">

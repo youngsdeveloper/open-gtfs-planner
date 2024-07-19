@@ -70,6 +70,19 @@ export class GtfsStopTimeDao {
         return `${stopTimeArrivalHours[0]}:${stopTimeArrivalHours[1]}`;
     }
 
+    getHeadsign(){
+
+        if(this.stop_headsign){
+            return this.stop_headsign
+        }
+
+        if(this.trip.trip_headsign){
+            return this.trip.trip_headsign;
+        }
+
+        return "-";
+    }
+
     static getIntervalsArray(stopTimes:GtfsStopTimeDao[]){
 
 
@@ -111,6 +124,8 @@ export class GtfsStopTimeDao {
     static sort(a:GtfsStopTimeDao,b:GtfsStopTimeDao){
         return a.getArrivalTimeInDate(new Date()).getTime()-b.getArrivalTimeInDate(new Date()).getTime();
     }
+
+    
 
     
 }

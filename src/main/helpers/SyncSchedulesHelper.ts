@@ -23,10 +23,11 @@ class SyncScheduleHelper{
         //Math.abs(avg-this.median(diffs));
     }
     
-    static syncShedules(stop:GtfsStopDao, routesSelected:String[], routesFixed:String[]):SyncSoluction{
+    static syncShedules(stop:GtfsStopDao, routesSelected:String[], routesFixed:String[], headlinesSelected: String[]):SyncSoluction{
 
         const stoptimes = stop.stopTimes
             .filter(st => routesSelected.includes(st.trip.route.getRouteName()))
+            .filter(st => headlinesSelected.includes(st.getHeadsign()))
             .sort( st => st.getArrivalTimeInDate(new Date()).getTime())
             
        
@@ -52,11 +53,9 @@ class SyncScheduleHelper{
         
         for(const r of routesSelected.filter(r2 => !routesFixed.includes(r2) )){
             
-            console.log(r);
 
             for (let delta = -1*threeshold; delta <= threeshold; delta++) {
             
-                console.log(delta);
                 const stopTimesToUpdate = GtfsStopTimeDao.fromObjectToArray(stoptimes);
     
                 stopTimesToUpdate.forEach((st,index) => {

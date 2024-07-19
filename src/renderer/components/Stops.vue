@@ -38,7 +38,16 @@
                     </span>
                 </div>
 
+                <div v-if="routesSelected" class="uk-margin">
+
+                    <div  v-for="hd in headsignsLines" class="uk-grid-small uk-child-width-auto uk-grid">
+                        <label><input class="uk-checkbox" type="checkbox" :value="hd" v-model="headlinesSelected" checked> {{  hd  }}</label>
+                    </div>
+                </div>
+
                 <p>
+
+                    
                     <div>
                         <b>Número de expediciones: </b>{{ numExps }}
                     </div>
@@ -128,6 +137,16 @@
                             </template>
                         </div>
 
+
+                        <div uk-alert>
+                            Elige los destinos (headsigns) de las lineas que deseas sincronizar
+                        </div>
+
+                        <div  v-for="hd in headsignsLines" class="uk-grid-small uk-child-width-auto uk-grid">
+                            <label><input class="uk-checkbox" type="checkbox" :value="hd" v-model="headlinesSelected" checked> {{  hd  }}</label>
+                        </div>
+
+
                         <div class="uk-margin">
                             <button class="uk-button uk-button-danger" v-on:click="calculateOptimization()">Calcular horarios óptimos</button>
                         </div>
@@ -183,6 +202,14 @@
                             <span v-bind:class="{'route-box-selected': reviewTransfer.to==route.getRouteName()}" v-on:click="reviewTransfer.to=route.getRouteName()" class="route-box route-box-min" v-for="route in GtfsRouteDao.unique(panelSettings.stopSelected.stopTimes.map(st => st.trip.route)).sort(GtfsStopDao.sort)">
                                 {{ route.getRouteName() }}
                             </span>
+                        </div>
+
+                        <div uk-alert>
+                            Elige los destinos (headsigns) de las lineas que deseas analizar
+                        </div>
+
+                        <div  v-for="hd in headsignsLinesTransfer" class="uk-grid-small uk-child-width-auto uk-grid">
+                            <label><input class="uk-checkbox" type="checkbox" :value="hd" v-model="headlinesTransferSelected" checked> {{  hd  }}</label>
                         </div>
 
                         <div class="uk-margin">
@@ -374,7 +401,12 @@ export default defineComponent({
                 maxWaitTime: 15
             },
 
-            stops_near: null
+            stops_near: null,
+
+
+            headlinesSelected: [] as String[],
+            headlinesTransferSelected: [] as String[],
+
 
         }
     },
@@ -392,12 +424,25 @@ export default defineComponent({
             var stimes = this.panelSettings.stopSelected.stopTimes;
             
             if(this.routesSelected.length>0){
-                stimes =    stimes
-                                .filter(st => this.routesSelected.includes(st.trip.route.getRouteName()));
+                stimes = this.stopsTimesFiltered;
             }
             
 
             return GtfsStopTimeDao.getStopTimesByHour(stimes);
+        },
+
+        stopsTimesFiltered: function(){
+            if(!this.panelSettings.stopSelected){
+                return [];
+            }
+            var st =  this.panelSettings.stopSelected.stopTimes
+                        .filter(st => this.routesSelected.includes(st.trip.route.getRouteName()));
+
+            if(this.headlinesSelected.length>0){
+                st = st.filter(st => this.headlinesSelected.includes(st.getHeadsign()));
+            }
+
+            return st;
         },
         serviceCoverage: function(){
             if(!this.panelSettings.stopSelected){
@@ -415,11 +460,9 @@ export default defineComponent({
 
                 return  `${A} - ${B}`;
             }else{
-                const stimes =  this.panelSettings.stopSelected.stopTimes
-                                    .filter(st => this.routesSelected.includes(st.trip.route.getRouteName()));
 
-                const A = stimes[0].getArrivalTimeInHoursMins()
-                const B = stimes.at(-1)!!.getArrivalTimeInHoursMins()
+                const A = this.stopsTimesFiltered[0].getArrivalTimeInHoursMins()
+                const B = this.stopsTimesFiltered.at(-1)!!.getArrivalTimeInHoursMins()
                 
                 return  `${A} - ${B}`;
 
@@ -433,13 +476,9 @@ export default defineComponent({
             if(this.routesSelected.length==0){
                 return this.panelSettings.stopSelected.stopTimes.length ;
             }else{
-                return this.panelSettings.stopSelected.stopTimes
-                                .filter(st => this.routesSelected.includes(st.trip.route.getRouteName()))
-                                .length;
+                return this.stopsTimesFiltered.length;
             }
         },
-
-        
 
         stopTimesByStop: function(){
 
@@ -447,19 +486,50 @@ export default defineComponent({
                 return [];
             }
 
-            var stopTimesByStop = this.panelSettings.stopSelected.stopTimes
-                                .filter(st => this.routesSelected.includes(st.trip.route.getRouteName()));
+            var stopTimesByStop = this.stopsTimesFiltered;
 
             if(!this.showAllStopTimes){
                 stopTimesByStop = stopTimesByStop.filter(st => this.simulationSettings.datetimeSelected.getTime() <= st.getArrivalTimeInDate(this.simulationSettings.datetimeSelected).getTime());
-
             }
+
             
             return stopTimesByStop.sort(GtfsStopTimeDao.sort)
 
+        },
+
+        headsignsLines: function(){
+            if(!this.panelSettings.stopSelected){
+                return [];
+            }
+
+            if(!this.panelSettings.stopSelected.stopTimes){
+                return [];
+            }
+            return [...new Set(this.panelSettings.stopSelected.stopTimes
+                                .filter(st => this.routesSelected.includes(st.trip.route.getRouteName()))
+                                .map(st => st.getHeadsign()))];
+                                
+        },
+
+        headsignsLinesTransfer: function(){
+            if(!this.panelSettings.stopSelected){
+                return [];
+            }
+
+            if(!this.panelSettings.stopSelected.stopTimes){
+                return [];
+            }
+            return [...new Set(this.panelSettings.stopSelected.stopTimes
+                        .filter(st => [this.reviewTransfer.from, this.reviewTransfer.to].includes(st.trip.route.getRouteName()))
+                        .map(st => st.getHeadsign()))];
+                                
         }
     },
     methods: {
+        toggleHeadsignSelected(event:any){
+            console.log(event)
+
+        },
         toggleRouteSelected(route:String){
 
             if(this.routesSelected.includes(route)){
@@ -482,10 +552,9 @@ export default defineComponent({
                 return;
             }
 
-            const opt = SyncScheduleHelper.syncShedules(this.panelSettings.stopSelected, this.routesSelected, this.routesFixedSelected)
+            const opt = SyncScheduleHelper.syncShedules(this.panelSettings.stopSelected, this.routesSelected, this.routesFixedSelected, this.headlinesSelected)
             const route = GtfsRouteDao.unique(this.panelSettings.stopSelected.stopTimes.map(st => st.trip.route)).filter(r => r.getRouteName() == opt?.lineMod)[0];
             opt.route = route;
-            console.log(opt)
 
             this.optimizationSettings.solution = opt;
         },
@@ -535,6 +604,22 @@ export default defineComponent({
             this.reviewTransfer.solution = null;
 
         },
+
+        "routesSelected": {
+            handler(){
+                this.headlinesSelected = this.headsignsLines;
+            },
+            deep: true
+        },
+        "reviewTransfer": {
+            handler(){
+
+                this.headlinesTransferSelected = this.headsignsLinesTransfer;
+
+
+            },
+            deep: true
+        }
 
 
     },
