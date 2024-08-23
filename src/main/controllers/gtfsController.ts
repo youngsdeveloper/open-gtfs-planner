@@ -233,13 +233,15 @@ async function downloadFusedStopByServices(window, fusedStopId, servicesId){
 
     const tripsId = trips.map(t => t.id);
 
+    console.log(fusedStop.stop_2_id)
+
     const stopTimes = await GtfsStopTime.findAll({
         where: {
             trip_id: {
                 [Op.in]: tripsId
             },
             stop_id: {
-                [Op.in]: [fusedStop.stop_1_id, fusedStop.stop_2_id]
+                [Op.in]: [fusedStop.stop_2_id, fusedStop.stop_1_id]
             }
         },
         order: [
@@ -258,8 +260,30 @@ async function downloadFusedStopByServices(window, fusedStopId, servicesId){
         ]
     });
 
-    stopTimes.filter(st => st.stop_id == fusedStop.stop_1_id).forEach(st => st.trip.route.route_short_name =  "1_" + st.trip.route.route_short_name)
-    stopTimes.filter(st => st.stop_id == fusedStop.stop_2_id).forEach(st => st.trip.route.route_short_name =  "2_" + st.trip.route.route_short_name)
+    console.log(stopTimes.filter(st => st.stop_id != fusedStop.stop_1_id));
+
+
+    stopTimes.filter(st => st.stop_id == fusedStop.stop_1_id).forEach(st => {
+        if(st.trip.route.route_short_name){
+            st.trip.route.route_short_name =  "1_" + st.trip.route.route_short_name;
+        }else if(st.trip.route.route_long_name){
+            st.trip.route.route_short_name =  "1_" + st.trip.route.route_long_name;
+        }else if(st.trip.route.route_id){
+            st.trip.route.route_short_name =  "1_" + st.trip.route.route_id;
+        }
+    });
+
+    console.log(stopTimes.filter(st => st.stop_id == fusedStop.stop_2_id));
+
+    stopTimes.filter(st => st.stop_id == fusedStop.stop_2_id).forEach(st => {
+        if(st.trip.route.route_short_name){
+            st.trip.route.route_short_name =  "2_" + st.trip.route.route_short_name;
+        }else if(st.trip.route.route_long_name){
+            st.trip.route.route_short_name =  "2_" + st.trip.route.route_long_name;
+        }else if(st.trip.route.route_id){
+            st.trip.route.route_short_name =  "2_" + st.trip.route.route_id;
+        }
+    });
 
     window.webContents.send("stop_times_by_stop", GtfsStopTimeDao.fromObjectToArray(stopTimes));
 }

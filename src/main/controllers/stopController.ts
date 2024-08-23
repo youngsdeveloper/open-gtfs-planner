@@ -51,7 +51,11 @@ async function saveFusedStop(window, projectId, stop1_id, stop2_id){
   const stop1_DAO = GtfsStopDao.fromObject(stop1);
   const stop2_DAO = GtfsStopDao.fromObject(stop2);
 
-  const middle = InterpolationHelper.interpolateGeodetic(stop1_DAO.getLatLng(), stop2_DAO.getLatLng(),0.5);
+  var middle = InterpolationHelper.interpolateGeodetic(stop1_DAO.getLatLng(), stop2_DAO.getLatLng(),0.5);
+
+  if(!middle[0] || !middle[1]){
+    middle = [stop1.stop_lat as number, stop1.stop_lon as number];
+  }
 
   const fusedStop = await FusedStop.create({
       project_id: projectId,

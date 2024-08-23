@@ -15,6 +15,7 @@ import { FusedStopDao } from '../../main/daos/FusedStopDao';
 
 <template>
     <div style="width: 100%; height: 700px;">
+
         <l-map ref="map" 
                 :zoom="zoom" 
                 :center="[37.9915664, -1.1323996]"
@@ -65,10 +66,16 @@ import { FusedStopDao } from '../../main/daos/FusedStopDao';
             <!-- Paradas -->
 
             <template v-for="gtfs_file in gtfs_files.filter( g => g.stopsVisible)">
-                <l-marker v-for="stop in gtfs_file.stops"
-                        :lat-lng="L.latLng(stop.getLatLng())"
-                        @click="panelSettings.stopSelected=stop"
-                        :key="stop.id" />
+
+                <template v-for="stop in gtfs_file.stops">
+
+
+                    <l-marker 
+                            v-if="L.latLng(stop.getLatLng())"
+                            :lat-lng="L.latLng(stop.getLatLng())"
+                            @click="panelSettings.stopSelected=stop"
+                            :key="stop.id" />
+                </template>
             </template>
 
             <template v-for="route in gtfs_files.flatMap(file => file.agencies).flatMap(a => a.routes).filter( r => r.stopsVisible)">

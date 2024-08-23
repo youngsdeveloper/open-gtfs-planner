@@ -25,6 +25,7 @@ class ReviewTransfersHelper{
     }
     static reviewTransfers(stop:GtfsStopDao, from:String,to:String,min:Number, max:Number, headlinesSelected: String[]):ReviewTransfersSoluction[]{
 
+        console.log(headlinesSelected)
         const stopTimes = stop.stopTimes
             .filter(st => [from,to].includes(st.trip.route.getRouteName()))
             .filter(st => headlinesSelected.includes(st.getHeadsign()))

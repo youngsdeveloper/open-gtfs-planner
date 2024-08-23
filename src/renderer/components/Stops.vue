@@ -24,7 +24,7 @@
 
         <div class="card-trip-selected uk-card uk-card-secondary uk-card-body" v-if="panelSettings.stopSelected">
             <h3 class="uk-card-title">
-                {{ panelSettings.stopSelected.stop_name }}
+                {{ panelSettings.stopSelected.stop_name }} ({{panelSettings.stopSelected.gtfs_stop_id  }})
             </h3>
 
 
@@ -291,7 +291,7 @@
                                 <tbody>
                                     <tr v-for="stop in stops_near.filter(s => s.stop_id != panelSettings.stopSelected.id)">
                                         <td>
-                                            {{ stop.stop_name }}
+                                            {{ stop.stop_name }} ({{ stop.gtfs_stop_id }})
                                         </td>
                                         <td>
                                             {{ stop.filename }}
@@ -569,11 +569,14 @@ export default defineComponent({
             const minWaitTime = Math.min(this.reviewTransfer.minWaitTime,this.reviewTransfer.maxWaitTime);
             const maxWaitTime = Math.max(this.reviewTransfer.minWaitTime,this.reviewTransfer.maxWaitTime);
 
+            console.log("Headlines");
+            console.log(this.headlinesSelected);
             this.reviewTransfer.solution = ReviewTransfersHelper.reviewTransfers(this.panelSettings.stopSelected,
                                                             this.reviewTransfer.from,
                                                             this.reviewTransfer.to,
                                                             minWaitTime,
-                                                            maxWaitTime
+                                                            maxWaitTime,
+                                                            this.headlinesSelected
                                                         )
         },
         storeOptimizationAsSimulationOption: function(){

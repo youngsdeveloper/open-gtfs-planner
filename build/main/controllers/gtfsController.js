@@ -200,13 +200,14 @@ function downloadFusedStopByServices(window, fusedStopId, servicesId) {
             }
         });
         const tripsId = trips.map(t => t.id);
+        console.log(fusedStop.stop_2_id);
         const stopTimes = yield gtfsstoptime_model_1.GtfsStopTime.findAll({
             where: {
                 trip_id: {
                     [sequelize_1.Op.in]: tripsId
                 },
                 stop_id: {
-                    [sequelize_1.Op.in]: [fusedStop.stop_1_id, fusedStop.stop_2_id]
+                    [sequelize_1.Op.in]: [fusedStop.stop_2_id, fusedStop.stop_1_id]
                 }
             },
             order: [
@@ -224,8 +225,30 @@ function downloadFusedStopByServices(window, fusedStopId, servicesId) {
                 }
             ]
         });
-        stopTimes.filter(st => st.stop_id == fusedStop.stop_1_id).forEach(st => st.trip.route.route_short_name = "1_" + st.trip.route.route_short_name);
-        stopTimes.filter(st => st.stop_id == fusedStop.stop_2_id).forEach(st => st.trip.route.route_short_name = "2_" + st.trip.route.route_short_name);
+        console.log(stopTimes.filter(st => st.stop_id != fusedStop.stop_1_id));
+        stopTimes.filter(st => st.stop_id == fusedStop.stop_1_id).forEach(st => {
+            if (st.trip.route.route_short_name) {
+                st.trip.route.route_short_name = "1_" + st.trip.route.route_short_name;
+            }
+            else if (st.trip.route.route_long_name) {
+                st.trip.route.route_short_name = "1_" + st.trip.route.route_long_name;
+            }
+            else if (st.trip.route.route_id) {
+                st.trip.route.route_short_name = "1_" + st.trip.route.route_id;
+            }
+        });
+        console.log(stopTimes.filter(st => st.stop_id == fusedStop.stop_2_id));
+        stopTimes.filter(st => st.stop_id == fusedStop.stop_2_id).forEach(st => {
+            if (st.trip.route.route_short_name) {
+                st.trip.route.route_short_name = "2_" + st.trip.route.route_short_name;
+            }
+            else if (st.trip.route.route_long_name) {
+                st.trip.route.route_short_name = "2_" + st.trip.route.route_long_name;
+            }
+            else if (st.trip.route.route_id) {
+                st.trip.route.route_short_name = "2_" + st.trip.route.route_id;
+            }
+        });
         window.webContents.send("stop_times_by_stop", GtfsStopTimeDao_1.GtfsStopTimeDao.fromObjectToArray(stopTimes));
     });
 }
