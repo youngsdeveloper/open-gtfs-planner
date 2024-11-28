@@ -40,12 +40,26 @@ import { FusedStopDao } from '../../main/daos/FusedStopDao';
                             @click="panelSettings.tripSelected=trip">
                         
                             <l-icon
-                                :icon-anchor="routeIcon.iconAnchor"
-                                :icon-size="routeIcon.iconSize"
-                                :class-name="getClassNameMarker(trip)">
-                                    <span class="marker-route-title">
+                            
+                                :icon-anchor="iconAnchor"
+                                :icon-size="iconSize"
+                                :class-name="getClassNameMarker(trip)"
+                                >
+                                <div
+                                    :style="{'background-color':bg_color,
+                                            width: 40*scale +'px',
+                                            height: 40*scale +'px',
+                                            'border-radius': '50%',
+                                            display: 'flex',
+                                            'justify-content': 'center',
+                                            'align-items': 'center',
+                                            'font-size': `${1.7*scale}em`,
+                                            'color': fg_color,
+                                            'border': `3px solid ${border_color}`}">
+                                    <span class="marker-route-title" v-show="show_route_name">
                                         {{ trip.route.getRouteName() }}
                                     </span>
+                                </div>
                             </l-icon>
 
                 </l-marker>
@@ -130,6 +144,25 @@ import { FusedStopDao } from '../../main/daos/FusedStopDao';
         </l-map>
 
 
+        <div>
+            <input type="range" v-model="scale" min="0" max="2" step="0.1">
+
+            {{ scale }}
+        </div>
+
+        <div>
+            <label for="">Mostrar nombre de linea</label>
+            <input type="checkbox" v-model="show_route_name">
+        </div>
+
+
+        <div>
+            <input type="color" v-model="bg_color">
+            <input type="color" v-model="fg_color">
+            <input type="color" v-model="border_color">
+        </div>
+
+
 
 
     </div>
@@ -141,14 +174,12 @@ import { FusedStopDao } from '../../main/daos/FusedStopDao';
 
 
     .marker-route, .marker-route-selected{
-        background: #00AF8C;
-        border: 3px solid black;
-        color: white;
+        /*border: 3px solid black;*/
         font-weight: bold;
-        font-size: 1.7em;
+        /*font-size: 1.7em;*/
         line-height: 1.95;
         text-align: center;
-        border-radius: 30px;
+        border-radius: 300px;
     }
 
     .marker-route-selected{
@@ -205,6 +236,11 @@ export default defineComponent({
     data(){
         return {
             zoom: 15,
+            scale: 1.01,
+            show_route_name: true,
+            bg_color: '#00AF8C',
+            fg_color: 'white',
+            border_color: 'black',
             routeIcon: {
                 iconSize: L.point([40,40]),
                 iconAnchor: L.point([20,20]),
@@ -217,7 +253,7 @@ export default defineComponent({
 
             })
         }
-    },
+    },    
 
     methods: {
 
@@ -272,6 +308,14 @@ export default defineComponent({
             let visibleStopsRoutes = this.gtfs_files.flatMap(g => g.agencies).flatMap(a => a.routes).filter(r => r.stopsVisible).map(r => r.id);
             visibleStopsRoutes = visibleStopsRoutes.concat(this.gtfs_files.filter(gtfs => gtfs.stopsVisible).flatMap(g => g.agencies).flatMap(a => a.routes).map(r => r.id));
             return visibleStopsRoutes;
+        },
+
+        iconSize: function(){
+            return L.point([40*this.scale,40*this.scale]);
+        },
+
+        iconAnchor: function(){
+            return L.point([20*this.scale,20*this.scale]);
         }
     },
 
